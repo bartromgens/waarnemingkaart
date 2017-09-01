@@ -1,29 +1,26 @@
 from django.db import models
 
 
-class Group(models.Model):
+class BioClass(models.Model):
     name = models.CharField(max_length=1000, blank=True, default='')
     name_nl = models.CharField(max_length=1000, blank=True, default='')
     name_latin = models.CharField(max_length=1000, blank=True, default='')
 
+    class Meta:
+        abstract = True
+
+
+class Group(BioClass):
     def __str__(self):
         return self.name_nl
 
 
-class Species(models.Model):
-    name = models.CharField(max_length=1000, blank=True, default='')
-    name_nl = models.CharField(max_length=1000, blank=True, default='')
-    name_latin = models.CharField(max_length=1000, blank=True, default='')
-
+class Species(BioClass):
     def __str__(self):
         return self.name_nl + ' (' + self.name_latin + ')'
 
 
-class Family(models.Model):
-    name = models.CharField(max_length=1000, blank=True, default='')
-    name_nl = models.CharField(max_length=1000, blank=True, default='')
-    name_latin = models.CharField(max_length=1000, blank=True, default='')
-
+class Family(BioClass):
     def __str__(self):
         return self.name_nl + ' (' + self.name_latin + ')'
 
@@ -43,4 +40,4 @@ class Observation(models.Model):
     number = models.IntegerField(default=0)
     datetime = models.DateTimeField(null=True, blank=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
-    url = models.URLField(null=True, blank=True, unique=True)
+    waarneming_url = models.URLField(null=True, blank=True, unique=True)
