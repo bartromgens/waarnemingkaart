@@ -36,6 +36,8 @@ def get_observation_urls_for_date(species_id, date, max_n=None):
         observation_urls += get_observation_urls_from_list_page(list_url)
         if max_n and len(observation_urls) >= max_n:
             break
+    if max_n:
+        return observation_urls[:max_n]
     return observation_urls
 
 
@@ -79,14 +81,14 @@ class Observation(object):
     def __init__(self, url):
         self.url = url
         self.html = None
-        self.name = None
-        self.name_latin = None
-        self.species = None
-        self.family = None
-        self.family_latin = None
-        self.number = None
+        self.name = ''
+        self.name_latin = ''
+        self.family = ''
+        self.family_latin = ''
+        self.group = ''
+        self.number = 0
         self.datetime = None
-        self.coordinates = None
+        self.coordinates = {}
 
     def __str__(self):
         return str(pp.pformat(self.data))
@@ -106,6 +108,7 @@ class Observation(object):
         print('Observation::parse() - ' + self.url)
         self.name, self.name_latin = self.parse_name()
         self.family, self.family_latin = self.parse_family()
+        self.group = self.parse_group()
         self.datetime, self.number = self.parse_datetime_and_number()
         self.coordinates = self.parse_coordinates()
 
@@ -144,7 +147,7 @@ class Observation(object):
                 return family, family_latin
         return '', ''
 
-    def parse_species(self):
+    def parse_group(self):
         main_info_spans = self.html.xpath('//div[@class="content"]/p/span')
         for span in main_info_spans:
             if 'Soortgroep:' in span.text:
@@ -183,9 +186,9 @@ class Observation(object):
             'url': self.url,
             'name': self.name,
             'name_latin': self.name_latin,
-            'species': self.species,
             'family': self.family,
             'family_latin': self.family_latin,
+            'group': self.group,
             'number': self.number,
             'datetime': self.datetime,
             'coordinates': self.coordinates,
