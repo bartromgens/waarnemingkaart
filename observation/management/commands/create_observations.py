@@ -22,6 +22,10 @@ class Command(BaseCommand):
         date = dateparser.parse(date_str).date()
         observations = scraper.get_observations_for_date(species_id=scraper.VOGELS_ID, date=date, max_n=max_n)
         for observation in observations:
+            existing_observations = Observation.objects.filter(url=observation.url)
+            if existing_observations:
+                print('WARNING: observation already exists, skipping to next')
+                continue
             observation.create()
             print(observation)
             data = observation.data
