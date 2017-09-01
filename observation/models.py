@@ -38,6 +38,6 @@ class Observation(models.Model):
     family = models.ForeignKey(Family, null=True, blank=True)
     group = models.ForeignKey(Group, null=True, blank=True)
     number = models.IntegerField(default=0)
-    datetime = models.DateTimeField(null=True, blank=True)
+    datetime = models.DateTimeField(null=True, blank=True, db_index=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
-    waarneming_url = models.URLField(null=True, blank=True, unique=True)
+    waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
