@@ -15,6 +15,7 @@ INSTALLED_APPS = [
     'bootstrap3',
     'registration',
     'dbbackup',
+    'rest_framework',
     'django_cron',
     'django.contrib.admin',
     'django.contrib.auth',
