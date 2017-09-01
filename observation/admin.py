@@ -19,4 +19,34 @@ class ObservationAdmin(admin.ModelAdmin):
     )
 
 
+class GroupAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'name_nl',
+        'name_latin',
+    )
+
+
+class FamilyAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'name_nl',
+        'name_latin',
+    )
+
+
+class SpeciesAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'name_nl',
+        'name_latin',
+    )
+
+
 admin.site.register(Observation, ObservationAdmin)
+admin.site.register(Group, GroupAdmin)
+admin.site.register(Family, FamilyAdmin)
+admin.site.register(Species, SpeciesAdmin)
