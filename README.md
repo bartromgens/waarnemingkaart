@@ -1,32 +1,7 @@
-# django-project-template
-[![Build Status](https://travis-ci.org/bartromgens/django-project-template.svg?branch=master)](https://travis-ci.org/bartromgens/django-project-template) [![Coverage Status](https://coveralls.io/repos/github/bartromgens/django-project-template/badge.svg?branch=master)](https://coveralls.io/github/bartromgens/django-project-template?branch=master) [![Dependency Status](https://gemnasium.com/badges/github.com/bartromgens/django-project-template.svg)](https://gemnasium.com/github.com/bartromgens/django-project-template)
-
-django-project-template is an example Django + bootstrap project with a basic project configuration that I often use. 
+# waarnemingkaart
 
 Requires Python 3.4+ and Django 1.11+
 
-#### Configuration
-
-- Django 1.11 and Bootstrap 3 
-- Example Django app, with empty views.py and models.py
-- Base page template with,
-  - Top navbar with menu, sign up/log in, and user profile
-  - Page content
-  - Footer
-- Home, About, Contact, Contribute pages
-- Sign up/log in (by username or email)
-- Reset/change password
-- Update userprofile
-- Basic tests
-- Logging
-- Project version as global context variable
-- Daily backups
-- travis-ci config
-- coveralls config
-- django-debug-toolbar
-
-#### TODO
-- Create/load demo data
 
 ## Installation (Linux)
 
