@@ -12,7 +12,7 @@ router = routers.DefaultRouter()
 
 router.register(r'observations', ObservationViewSet)
 router.register(r'groups', GroupViewSet)
-router.register(r'family', FamilyViewSet)
+router.register(r'families', FamilyViewSet)
 router.register(r'species', SpeciesViewSet)
 router.register(r'coordinates', CoordinatesViewSet)
 

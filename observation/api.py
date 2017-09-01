@@ -7,10 +7,14 @@ from observation.models import Species
 from rest_framework import serializers, viewsets
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class BioClassSerializer(serializers.ModelSerializer):
     class Meta:
+        fields = ('name', 'name_nl', 'name_latin', 'url')
+
+
+class GroupSerializer(BioClassSerializer):
+    class Meta(BioClassSerializer.Meta):
         model = Group
-        fields = ('name', 'name_nl', 'name_latin')
 
 
 class GroupViewSet(viewsets.ModelViewSet):
@@ -18,10 +22,9 @@ class GroupViewSet(viewsets.ModelViewSet):
     serializer_class = GroupSerializer
 
 
-class FamilySerializer(serializers.ModelSerializer):
-    class Meta:
+class FamilySerializer(BioClassSerializer):
+    class Meta(BioClassSerializer.Meta):
         model = Family
-        fields = ('name', 'name_nl', 'name_latin')
 
 
 class FamilyViewSet(viewsets.ModelViewSet):
@@ -29,10 +32,9 @@ class FamilyViewSet(viewsets.ModelViewSet):
     serializer_class = FamilySerializer
 
 
-class SpeciesSerializer(serializers.ModelSerializer):
-    class Meta:
+class SpeciesSerializer(BioClassSerializer):
+    class Meta(BioClassSerializer.Meta):
         model = Species
-        fields = ('name', 'name_nl', 'name_latin')
 
 
 class SpeciesViewSet(viewsets.ModelViewSet):
@@ -52,7 +54,6 @@ class CoordinatesViewSet(viewsets.ModelViewSet):
 
 
 class ObservationSerializer(serializers.HyperlinkedModelSerializer):
-    id = serializers.HyperlinkedRelatedField(view_name='observation-detail', read_only=True)
     species = SpeciesSerializer(read_only=True)
     family = FamilySerializer(read_only=True)
     group = GroupSerializer(read_only=True)
@@ -60,7 +61,7 @@ class ObservationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Observation
-        fields = ('id', 'url', 'species', 'family', 'group', 'datetime', 'number', 'coordinates')
+        fields = ('id', 'url', 'species', 'family', 'group', 'datetime', 'number', 'coordinates', 'waarneming_url')
 
 
 class ObservationViewSet(viewsets.ModelViewSet):
