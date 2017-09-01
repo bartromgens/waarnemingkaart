@@ -5,4 +5,4 @@ from observation.models import Observation
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        Observation.objects.fall().delete()
+        Observation.objects.all().delete()
