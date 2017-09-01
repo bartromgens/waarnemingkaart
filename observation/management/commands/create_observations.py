@@ -49,7 +49,7 @@ class Command(BaseCommand):
                 )
 
             Observation.objects.filter(waarneming_url=data['url']).delete()
-            Observation.objects.create(
+            observation_new = Observation.objects.create(
                 species=species,
                 family=family,
                 group=group,
@@ -58,3 +58,5 @@ class Command(BaseCommand):
                 coordinates=coordinates,
                 waarneming_url=data['url'],
             )
+            # observation_new.id =
+            # observation_new.save()

@@ -41,3 +41,15 @@ class Observation(models.Model):
     datetime = models.DateTimeField(null=True, blank=True, db_index=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
     waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+
+    def save(self, *args, **kwargs):
+        self.id = self.id_from_waarneming_url
+        super().save(*args, **kwargs)
+
+    @property
+    def id_from_waarneming_url(self):
+        if self.waarneming_url:
+            new_id = self.waarneming_url.split('/')[-1]
+            return int(new_id)
+        else:
+            return self.id
