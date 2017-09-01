@@ -15,7 +15,7 @@ class ObservationAdmin(admin.ModelAdmin):
         'number',
         'datetime',
         'coordinates',
-        'url',
+        'waarneming_url',
     )
 
 
