@@ -14,12 +14,20 @@
 
   {% block headcontent %}{% endblock %}
 
+
+  <link rel="stylesheet" href="https://openlayers.org/en/v4.0.1/css/ol.css" type="text/css">
   <link rel="stylesheet" href="{% static 'lib/bootstrap-3.3.7/css/bootstrap-readable.min.css' %}" type="text/css">
   <link rel="stylesheet" href="{% static 'css/custom.css' %}" type="text/css">
 
+  <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
+  <script src="https://openlayers.org/en/v4.0.1/build/ol.js"></script>
+  <script src="https://mapbox.github.io/geojson-vt/geojson-vt-dev.js"></script>
   <script src="{% static 'lib/jquery-3.1.1/jquery-3.1.1.min.js' %}" type="text/javascript"></script>
   <script src="{% static 'lib/bootstrap-3.3.7/js/bootstrap.min.js' %}" type="text/javascript"></script>
 
+  <script src="{% static 'js/contours.js' %}"></script>
+  <script src="{% static 'js/observations.js' %}"></script>
+  <script src="{% static 'js/observationmap.js' %}"></script>
   {% block headcontent_end %}{% endblock %}
 
 </head>
