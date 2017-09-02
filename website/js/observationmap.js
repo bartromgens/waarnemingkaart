@@ -70,3 +70,8 @@ function createObservationMap() {
 
     return map;
 }
+
+
+module.exports = {
+    createObservationMap: createObservationMap,
+};

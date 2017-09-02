@@ -77,3 +77,8 @@ function addObservations(observations, map, minObservations) {
     console.log('addObservations()', 'END');
     return layer;
 }
+
+
+module.exports = {
+    addObservations: addObservations,
+};

@@ -108,3 +108,8 @@ function addContourLayer(geojsonUrl, map, contourLayers, onLoaded) {
         onLoaded();
     });
 }
+
+
+module.exports = {
+    addContourLayer: addContourLayer,
+};

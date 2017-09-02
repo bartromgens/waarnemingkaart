@@ -1,3 +1,6 @@
+var contours = require("./contours.js");
+var observationmap = require("./observationmap.js");
+var observations = require("./observations.js");
 
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
@@ -9,8 +12,8 @@ $.ajaxSetup({
     }
 });
 
-var familySlug = 'all';
-//var familySlug = 'aalscholvers';
+//var familySlug = 'all';
+var familySlug = 'aalscholvers';
 //var familySlug = 'boomklevers';
 //var familySlug = 'cettiidae';
 //var familySlug = 'haviken-en-arenden';
@@ -25,18 +28,18 @@ var familySlug = 'all';
 
 var dataDir = "/static/data/";
 
-var contourmap = createObservationMap();
+var contourmap = observationmap.createObservationMap();
 
 var observationsLayer = null;
 
 $.getJSON(dataDir + "observations_" + familySlug + ".json", function(json) {
     contourmap.observations = json.observations;
     if (familySlug !== 'all') {
-        observationsLayer = addObservations(json.observations, contourmap, 500000);
+        observationsLayer = observations.addObservations(json.observations, contourmap, 500000);
     }
 
     var geojsonUrl = dataDir + "contours_" + familySlug + ".geojson";
-    addContourLayer(geojsonUrl, contourmap, contourmap.contourLayers, updateVisibility);
+    contours.addContourLayer(geojsonUrl, contourmap, contourmap.contourLayers, updateVisibility);
     contourmap.on("moveend", updateVisibility);
 });
 
