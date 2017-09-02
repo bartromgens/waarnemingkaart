@@ -1,6 +1,4 @@
-var contours = require("./contours.js");
 var observationmap = require("./observationmap.js");
-var observations = require("./observations.js");
 
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
@@ -33,14 +31,13 @@ var contourmap = observationmap.createObservationMap();
 var observationsLayer = null;
 
 $.getJSON(dataDir + "observations_" + familySlug + ".json", function(json) {
-    contourmap.observations = json.observations;
     if (familySlug !== 'all') {
-        observationsLayer = observations.addObservations(json.observations, contourmap, 500000);
+        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
     }
 
     var geojsonUrl = dataDir + "contours_" + familySlug + ".geojson";
-    contours.addContourLayer(geojsonUrl, contourmap, contourmap.contourLayers, updateVisibility);
-    contourmap.on("moveend", updateVisibility);
+    contourmap.addContourTileLayer(geojsonUrl);
+    contourmap.map.on("moveend", updateVisibility);
 });
 
 
@@ -48,43 +45,44 @@ function updateVisibility() {
 }
 
 
-// Controls
-contourmap.addControl(new ol.control.FullScreen());
-
 // Tooltip
 $('#info').hide();
 
-var displayFeatureInfo = function(pixel) {
-    var info = $('#info');
-    info.css({
-        left: (pixel[0] + 10) + 'px',
-        top: (pixel[1] - 50) + 'px'
-    });
-
-    var feature = contourmap.forEachFeatureAtPixel(pixel, function(feature, layer) {
-        if (layer === observationsLayer) {
-            return feature;
-        }
-        return null;
-    });
-
-    if (feature) {
-        var tooltipText = feature.get('title');
-        if (tooltipText !== '') {
-            info.text(tooltipText);
-            info.show();
-        } else {
-            info.hide();
-        }
-    } else {
-        info.hide();
-    }
-};
-
-contourmap.on('pointermove', function(evt) {
+function onPointerMapMove(evt) {
     if (evt.dragging) {
         $('#info').hide();
         return;
     }
-    displayFeatureInfo(contourmap.getEventPixel(evt.originalEvent));
-});
+
+    displayFeatureInfo(contourmap.map.getEventPixel(evt.originalEvent));
+
+    function displayFeatureInfo(pixel) {
+        var info = $('#info');
+        info.css({
+            left: (pixel[0] + 10) + 'px',
+            top: (pixel[1] - 50) + 'px'
+        });
+
+        var feature = contourmap.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+            if (layer === observationsLayer) {
+                return feature;
+            }
+            return null;
+        });
+
+        if (feature) {
+            var tooltipText = feature.get('title');
+            if (tooltipText !== '') {
+                info.text(tooltipText);
+                info.show();
+            } else {
+                info.hide();
+            }
+        } else {
+            info.hide();
+        }
+    };
+}
+
+
+contourmap.map.on('pointermove', onPointerMapMove);
