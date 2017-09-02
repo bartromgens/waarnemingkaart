@@ -20,6 +20,12 @@ from maps import utilgeo
 STANDAARD_DEVIATION_M = 5000
 
 
+def load_contour_all(observations, config, data_dir):
+    contour = Contour(observations, config, data_dir=data_dir, standard_deviation=STANDAARD_DEVIATION_M, name='all')
+    contour.load()
+    return contour
+
+
 def normalize(array_in):
     max_val = max(array_in)
     min_val = min(array_in)
@@ -29,7 +35,7 @@ def normalize(array_in):
     return array_out
 
 
-def create_contour_plot(observations, config, name='all', do_recreate=False, n_contours=11):
+def create_contour_plot(observations, config, name='all', do_recreate=False, n_contours=11, standard_deviation=None):
     total_observation_count = 0
     for observation in observations:
         total_observation_count += observation.number
@@ -38,7 +44,9 @@ def create_contour_plot(observations, config, name='all', do_recreate=False, n_c
     data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
     print(data_dir)
 
-    contour = Contour(observations, config, data_dir=data_dir, standard_deviation=STANDAARD_DEVIATION_M, name=name)
+    if standard_deviation is None:
+        standard_deviation = STANDAARD_DEVIATION_M
+    contour = Contour(observations, config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
 
     if do_recreate or not contour.is_saved:
         contour.create_contour_data()
@@ -58,9 +66,7 @@ def create_contour_plot(observations, config, name='all', do_recreate=False, n_c
 
     stdev = contour.standard_deviation
     start = 2.0 * stdev
-    print('start: ' + str(start))
     stop = 0.0 * stdev
-    print('stop: ' + str(stop))
     steps = numpy.linspace(start=start, stop=stop, num=n_contours)
     for step in steps:
         levels.append(contour.calc_normal_pdf(step))
@@ -137,7 +143,7 @@ class Contour(object):
             # height = self.get_probability_cone_height(observation.number)
             x, y, z = gps.lla2ecef([observation.coordinates.lat, observation.coordinates.lon, altitude])
             positions.append([x, y, z])
-            observation_data.append({'number': observation.number})
+            observation_data.append({'number': observation.number}) #, 'lat': observation.coordinates.lat, 'lon': observation.coordinates.lon})
 
         tree = KDTree(positions)
 
@@ -155,9 +161,6 @@ class Contour(object):
     def calc_normal_pdf(self, x_minus_mean):
         return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
-    # def standard_deviation(self):
-    #     return self.standard_deviation
-
     def get_probability_field(self, kdtree, observations, gps, latrange, lonrange, altitude, n_nearest):
         Z = numpy.zeros((int(latrange.shape[0]), int(lonrange.shape[0])))
 
@@ -167,14 +170,11 @@ class Contour(object):
 
             for j, lon in enumerate(lonrange):
                 x, y, z = gps.lla2ecef([lat, lon, altitude])
-                local_probability = 0.0
                 distances, indexes = kdtree.query([x, y, z], n_nearest)
-                # total_count = 0
+                local_probability = 0.0
                 for distance, index in zip(distances, indexes):
                     local_probability += self.calc_normal_pdf(distance) #* observations[index]['number']
-                    # total_count += observations[index]['number']
-                # Z[i][j] = local_probability/total_count
-                Z[i][j] = local_probability/n_nearest
+                Z[i][j] = local_probability/n_nearest  # see https://en.wikipedia.org/wiki/Mixture_distribution
         return Z
 
     def create_contour_plot(self, levels, norm=None):
@@ -200,7 +200,7 @@ class Contour(object):
             self.lonrange, self.latrange, self.Z_norm,
             levels=levels,
             norm=norm,
-            cmap=plt.cm.Greens,  # YlGn, magma_r, viridis, inferno, Greens
+            cmap=plt.cm.inferno,  # YlGn, magma_r, viridis, inferno, Greens
             linewidths=3
         )
 

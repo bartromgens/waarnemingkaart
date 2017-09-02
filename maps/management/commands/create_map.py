@@ -31,5 +31,6 @@ class Command(BaseCommand):
             config=config,
             name='all',
             do_recreate=RECREATE,
-            n_contours=N_CONTOURS
+            n_contours=N_CONTOURS,
+            standard_deviation=4000
         )
