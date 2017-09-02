@@ -9,18 +9,37 @@ $.ajaxSetup({
     }
 });
 
+var familySlug = 'all';
+//var familySlug = 'aalscholvers';
+//var familySlug = 'boomklevers';
+//var familySlug = 'cettiidae';
+//var familySlug = 'haviken-en-arenden';
+//var familySlug = 'staartmezen';
+//var familySlug = 'duiven';
+//var familySlug = 'zwaluwen';
+//var familySlug = 'gierzwaluwen';
+//var familySlug = 'flamingos';
+//var familySlug = 'eenden-ganzen-en-zwanen';
+//var familySlug = 'winterkoningen';
+//var familySlug = 'spreeuwen';
+
 var dataDir = "/static/data/";
 
-contourmap = createObservationMap();
+var contourmap = createObservationMap();
 
-$.getJSON(dataDir + "observations.json", function(json) {
+var observationsLayer = null;
+
+$.getJSON(dataDir + "observations_" + familySlug + ".json", function(json) {
     contourmap.observations = json.observations;
-    largeEmissionSourcesLayer = addObservations(json.observations, contourmap, 500000);
+    if (familySlug !== 'all') {
+        observationsLayer = addObservations(json.observations, contourmap, 500000);
+    }
 
-    var geojsonUrl = dataDir + "contours.geojson";
+    var geojsonUrl = dataDir + "contours_" + familySlug + ".geojson";
     addContourLayer(geojsonUrl, contourmap, contourmap.contourLayers, updateVisibility);
     contourmap.on("moveend", updateVisibility);
 });
+
 
 function updateVisibility() {
 }
@@ -40,7 +59,10 @@ var displayFeatureInfo = function(pixel) {
     });
 
     var feature = contourmap.forEachFeatureAtPixel(pixel, function(feature, layer) {
-        return feature;
+        if (layer === observationsLayer) {
+            return feature;
+        }
+        return null;
     });
 
     if (feature) {
