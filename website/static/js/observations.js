@@ -40,7 +40,7 @@ function addObservations(observations, map, minObservations) {
         source: source
     });
 
-    layer.setZIndex(99);
+    layer.setZIndex(0);
 
     map.addLayer(layer);
 

@@ -3,7 +3,7 @@ function createObservationMap() {
         target: 'map',
     });
 
-    var lon = '6.1';
+    var lon = '5.5';
     var lat = '142.0';
     var view = new ol.View( {center: ol.proj.fromLonLat([lon, lat]), zoom: 8, projection: 'EPSG:3857'} );
     map.setView(view);
@@ -25,15 +25,19 @@ function createObservationMap() {
     map.observationStyleFunction = function(feature, resolution) {
         var zoom = map.getView().getZoom();
         var number = feature.get('number');
-        var zoomFactor = Math.pow(zoom, 2)/100.0;
+        var zoomFactor = Math.pow(zoom, 2)/75.0;
         var numberFactor = Math.pow(number, 1.0/2.0)/3.14;
-        var strokeColor = 'black';
-        var circleColor = 'yellow';
+        var strokeColor = 'blue';
+        var circleColor = 'white';
 
         var radius = numberFactor*zoomFactor;
         radius = Math.min(radius, 100.0*zoomFactor);
         radius = Math.max(2.0*zoomFactor, radius);
-        width = 1.5
+        width = 1.0*zoomFactor/1.5;
+
+        if (number > 200) {
+            radius = 0;
+        }
 
         var circleStyle = new ol.style.Circle(({
             fill: new ol.style.Fill({color: circleColor}),

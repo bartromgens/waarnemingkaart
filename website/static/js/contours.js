@@ -77,7 +77,7 @@ function addContourLayer(geojsonUrl, map, contourLayers, onLoaded) {
 //            var scaleFactor = 0.5;
             var zoomFactor = 1.0;
             if (zoom > 7) {
-                zoomFactor = Math.pow(zoom, 1.5)/20.0;
+                zoomFactor = Math.pow(zoom, 2.0)/60.0;
             }
 //            var zoomLevelShow10 = 9;
 //            var zoomLevelShow5 = 10;
