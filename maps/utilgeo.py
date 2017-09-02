@@ -45,9 +45,9 @@ class GPS:
     
     def lla2ecef(self, lla):
         """Convert lat, lon, alt to Earth-centered, Earth-fixed coordinates.
-Input: lla - (lat, lon, alt) in (decimal degrees, decimal degees, m)
-Output: ecef - (x, y, z) in (m, m, m)
-"""
+        Input: lla - (lat, lon, alt) in (decimal degrees, decimal degees, m)
+        Output: ecef - (x, y, z) in (m, m, m)
+        """
         #Decompose the input
         lat = deg2rad(lla[0])
         lon = deg2rad(lla[1])

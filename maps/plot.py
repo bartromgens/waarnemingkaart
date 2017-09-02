@@ -10,18 +10,73 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
+from django.conf import settings
+
 import geojson
 import geojsoncontour
 
 from maps import utilgeo
 
+STANDAARD_DEVIATION_M = 5000
+
+
+def normalize(array_in):
+    max_val = max(array_in)
+    min_val = min(array_in)
+    array_out = []
+    for value in array_in:
+        array_out.append((value - min_val) / (max_val - min_val))
+    return array_out
+
+
+def create_contour_plot(observations, config, name='all', do_recreate=False, n_contours=11):
+    total_observation_count = 0
+    for observation in observations:
+        total_observation_count += observation.number
+    print(total_observation_count)
+
+    data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+    print(data_dir)
+
+    contour = Contour(observations, config, data_dir=data_dir, standard_deviation=STANDAARD_DEVIATION_M, name=name)
+
+    if do_recreate or not contour.is_saved:
+        contour.create_contour_data()
+        contour.save()
+    else:
+        contour.load()
+
+    contour.normalize()
+
+    level_upper = contour.Z_norm.max()
+    level_lower = contour.Z_norm.min()
+    # level_range = level_upper-level_lower
+
+    print(level_lower)
+    print(level_upper)
+    levels = []
+
+    stdev = contour.standard_deviation
+    start = 2.0 * stdev
+    print('start: ' + str(start))
+    stop = 0.0 * stdev
+    print('stop: ' + str(stop))
+    steps = numpy.linspace(start=start, stop=stop, num=n_contours)
+    for step in steps:
+        levels.append(contour.calc_normal_pdf(step))
+    levels = normalize(levels)
+    norm = None
+    print(levels)
+    filepath_geojson = os.path.join(settings.STATIC_ROOT, 'data/contours_' + name + '.geojson')
+    contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=norm)
+
 
 class ContourPlotConfig(object):
 
-    def __init__(self):
-        self.stepsize_deg = 0.02
-        self.n_nearest = 20
-        self.lon_start = 3.0
+    def __init__(self, stepsize_deg=0.01):
+        self.stepsize_deg = stepsize_deg
+        self.n_nearest = 30
+        self.lon_start = 3.2
         self.lat_start = 50.5
         self.delta_deg = 6.5
         self.lon_end = self.lon_start + self.delta_deg
@@ -31,8 +86,9 @@ class ContourPlotConfig(object):
 
 class Contour(object):
 
-    def __init__(self, observations, config, data_dir=None, standard_deviation=5000):
+    def __init__(self, observations, config, data_dir=None, standard_deviation=5000, name='all'):
         print('number of observations: ' + str(len(observations)))
+        self.name = name
         self.observations = observations
         self.config = config
         self.data_dir = data_dir
@@ -40,24 +96,34 @@ class Contour(object):
         self.lonrange = numpy.arange(self.config.lon_start, self.config.lon_end, self.config.stepsize_deg)
         self.latrange = numpy.arange(self.config.lat_start, self.config.lat_end, self.config.stepsize_deg)
         self.Z = numpy.zeros((int(self.lonrange.shape[0]), int(self.latrange.shape[0])))
+        self.variance_x2 = (2.0 * self.standard_deviation * self.standard_deviation)
+        self.pdf_factor = 1.0/(math.sqrt(math.pi*self.variance_x2))
+        self.Z_norm = numpy.zeros((int(self.lonrange.shape[0]), int(self.latrange.shape[0])))
+        # self.pdf_factor = 1.0
+
+    @property
+    def contour_data_filepath(self):
+        return os.path.join(self.data_dir, 'contour_data_' + self.name + '_' + str(self.standard_deviation) + '.npz')
+
+    @property
+    def is_saved(self):
+        return os.path.exists(self.contour_data_filepath)
 
     def load(self):
-        with open('contour_data_' + str(self.standard_deviation) + '.npz', 'rb') as filein:
+        with open(self.contour_data_filepath, 'rb') as filein:
             self.Z = numpy.load(filein)
 
     def save(self):
-        with open('contour_data_' + str(self.standard_deviation) + '.npz', 'wb') as fileout:
+        with open(self.contour_data_filepath, 'wb') as fileout:
             numpy.save(fileout, self.Z)
 
-    # def get_probability_cone_height(self, volume):
-    #     height = (3*volume) / (math.pi*self.standard_deviation*self.standard_deviation)
-    #     return height
-    #
-    # def get_probability_bell_height(self, volume):
-    #     height = volume / (2*math.pi*self.standard_deviation*self.standard_deviation)
-    #     return height
+    def normalize(self):
+        max_val = self.Z.max()
+        min_val = self.Z.min()
+        self.Z_norm = (self.Z - min_val) / (max_val - min_val)
 
     def create_contour_data(self, filepath=None):
+        print('create_contour_data - BEGIN')
         numpy.set_printoptions(3, threshold=100, suppress=True)  # .3f
         altitude = 0.0
 
@@ -84,9 +150,10 @@ class Contour(object):
             altitude=altitude,
             n_nearest=min([self.config.n_nearest, len(self.observations)])
         )
+        print('create_contour_data - END')
 
-    def calc_normal_distribution_exponent(self, x_minus_mean):
-        return math.exp(-(x_minus_mean * x_minus_mean) / (2 * self.standard_deviation * self.standard_deviation))
+    def calc_normal_pdf(self, x_minus_mean):
+        return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
     # def standard_deviation(self):
     #     return self.standard_deviation
@@ -95,22 +162,19 @@ class Contour(object):
         Z = numpy.zeros((int(latrange.shape[0]), int(lonrange.shape[0])))
 
         for i, lat in enumerate(latrange):
-            if i % (len(latrange) / 10) == 0:
+            if i % round((len(latrange) / 20)) == 0:
                 print((str(int(i / len(latrange) * 100)) + '%'))
+
             for j, lon in enumerate(lonrange):
                 x, y, z = gps.lla2ecef([lat, lon, altitude])
                 local_probability = 0.0
                 distances, indexes = kdtree.query([x, y, z], n_nearest)
+                # total_count = 0
                 for distance, index in zip(distances, indexes):
-                    if distance < 1:
-                        continue
-                    # if distance < Contour.standard_deviation:
-                    #     local_emission += (Contour.standard_deviation-distance)*sources[index]['height']/Contour.standard_deviation
-                    # local_probability += observations[index]['number'] * self.calc_normal_distribution_exponent(distance)
-                    local_probability += 1 * self.calc_normal_distribution_exponent(distance)
-                # print('local emission: ' + str(local_emission_per_square_m))
-                # print(local_probability)
-                Z[i][j] = local_probability
+                    local_probability += self.calc_normal_pdf(distance) #* observations[index]['number']
+                    # total_count += observations[index]['number']
+                # Z[i][j] = local_probability/total_count
+                Z[i][j] = local_probability/n_nearest
         return Z
 
     def create_contour_plot(self, levels, norm=None):
@@ -119,7 +183,7 @@ class Contour(object):
         ax = figure.add_subplot(111)
         # contours = plt.contourf(lonrange, latrange, Z, levels=levels, cmap=plt.cm.plasma)
         contours = ax.contour(
-            self.lonrange, self.latrange, self.Z,
+            self.lonrange, self.latrange, self.Z_norm,
             levels=levels,
             norm=norm,
             cmap=plt.cm.jet,
@@ -133,10 +197,10 @@ class Contour(object):
         ax = figure.add_subplot(111)
         # contours = plt.contourf(lonrange, latrange, Z, levels=levels, cmap=plt.cm.plasma)
         contours = ax.contour(
-            self.lonrange, self.latrange, self.Z,
+            self.lonrange, self.latrange, self.Z_norm,
             levels=levels,
             norm=norm,
-            cmap=plt.cm.magma_r,
+            cmap=plt.cm.Greens,  # YlGn, magma_r, viridis, inferno, Greens
             linewidths=3
         )
 

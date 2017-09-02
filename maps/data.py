@@ -5,7 +5,7 @@ def observations_to_json(observations, filepath):
     data = {'observations': []}
     for observation in observations:
         data['observations'].append({
-            'title': observation.species.name_nl,
+            'title': observation.species.name_nl + ' (' + str(observation.number) + ')',
             'number': observation.number,
             'lon': observation.coordinates.lon,
             'lat': observation.coordinates.lat,
