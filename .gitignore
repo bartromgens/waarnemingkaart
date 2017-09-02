@@ -100,4 +100,5 @@ ENV/
 .ropeproject
 
 /dev.sqlite-journal
+/node_modules
 /website/static/data/

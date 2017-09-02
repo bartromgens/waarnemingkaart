@@ -58,8 +58,29 @@ Create the following cronjob (Linux) to kickstart the `django-cron` jobs,
 $ crontab -e
 */5 * * * * source /home/<username>/.bashrc && source /home/<path-to-project>/env/bin/activate && python /home/<path-to-project>/website/manage.py runcrons > /home/<path-to-project>/log/cronjob.log
 ```
+## Development
 
-## Testing
+### Webpack bundles
+
+Install webpack and some plugins and loaders,
+```bash
+$ sudo npm install webpack -g
+$ npm install --save-dev webpack path webpack-manifest-plugin webpack-cleanup-plugin extract-text-webpack-plugin css-loader style-loader babel-core babel-loader babel-preset-es2015
+```
+
+Webpack config is found in `webpack.config.js`.
+
+Watch for changes and compile bundle if found,
+```bash
+$ webpack --progress --colors --watch
+```
+
+Generate minified production files,
+```bash
+$ webpack -p
+```
+
+### Testing
 
 Run all tests,
 ```
@@ -69,23 +90,4 @@ $ python manage.py test
 Run specific tests (example),
 ```
 $ python manage.py test website.tests.TestCaseAdminLogin
-```
-
-## Logging
-There are 3 log files (`debug.log`, `error.log`, `django.log`) available, with different log levels and for different applications.
-The log files are found in the `log` directory of the project.
-The log statements contain the time, log level, file, class, function name and line. 
-
-The log something, create a logger at the top of you python file,
-```python
-import logging
-logger = logging.getLogger(__name__)
-```
-then create a log statement as follows,
-```python
-logger.debug('an info log message')
-logger.info('an info log message')
-logger.warning('a warning log message')
-logger.error('a error log message')
-logger.exception(exception_object)
 ```
