@@ -16,6 +16,7 @@ WAARNEMINGEN_URL = 'https://waarneming.nl'
 
 VOGELS_ID = 1
 ZOOGDIEREN_ID = 2
+DAGVLINDERS_ID = 4
 
 pp = pprint.PrettyPrinter(indent=4)
 
