@@ -1,3 +1,4 @@
+import datetime
 import dateparser
 
 from django.core.management.base import BaseCommand
@@ -20,7 +21,13 @@ class Command(BaseCommand):
         date_str = options['date'][0]
         max_n = options['max']
         date = dateparser.parse(date_str).date()
-        observations = scraper.get_observations_for_date(species_id=scraper.VOGELS_ID, date=date, max_n=max_n)
+        end_date = datetime.date(year=2017, month=1, day=1)
+        while date > end_date:
+            self.create_for_date(species_id=scraper.DAGVLINDERS_ID, date=date, max_n=max_n)
+            date = date - datetime.timedelta(days=1)
+
+    def create_for_date(self, species_id, date, max_n=None):
+        observations = scraper.get_observations_for_date(species_id=species_id, date=date, max_n=max_n)
         for observation in observations:
             existing_observations = Observation.objects.filter(waarneming_url=observation.url)
             if existing_observations:
@@ -58,5 +65,3 @@ class Command(BaseCommand):
                 coordinates=coordinates,
                 waarneming_url=data['url'],
             )
-            # observation_new.id =
-            # observation_new.save()
