@@ -13,6 +13,7 @@ class BioClass(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
+        ordering = ['name_nl']
         abstract = True
 
 
@@ -47,6 +48,9 @@ class Observation(models.Model):
     datetime = models.DateTimeField(null=True, blank=True, db_index=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
     waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+
+    class Meta:
+        ordering = ['species']
 
     def save(self, *args, **kwargs):
         self.id = self.id_from_waarneming_url
