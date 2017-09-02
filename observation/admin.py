@@ -25,6 +25,7 @@ class GroupAdmin(admin.ModelAdmin):
         'name',
         'name_nl',
         'name_latin',
+        'slug',
     )
 
 
@@ -34,6 +35,7 @@ class FamilyAdmin(admin.ModelAdmin):
         'name',
         'name_nl',
         'name_latin',
+        'slug',
     )
 
 
@@ -43,6 +45,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         'name',
         'name_nl',
         'name_latin',
+        'slug',
     )
 
 
