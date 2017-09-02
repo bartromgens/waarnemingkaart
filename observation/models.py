@@ -1,10 +1,16 @@
 from django.db import models
+from django.utils.text import slugify
 
 
 class BioClass(models.Model):
     name = models.CharField(max_length=1000, blank=True, default='')
     name_nl = models.CharField(max_length=1000, blank=True, default='')
     name_latin = models.CharField(max_length=1000, blank=True, default='')
+    slug = models.SlugField(max_length=1000, blank=True, default='')
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name_nl)
+        super().save(*args, **kwargs)
 
     class Meta:
         abstract = True
