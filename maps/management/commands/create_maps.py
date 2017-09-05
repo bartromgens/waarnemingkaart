@@ -1,9 +1,6 @@
 import os
 import sys
-import numpy
-import scipy.stats
 
-from matplotlib.colors import LogNorm, SymLogNorm, Normalize
 
 from django.core.management.base import BaseCommand
 from django.conf import settings
@@ -13,13 +10,10 @@ from observation.models import Group
 from observation.models import Family
 from observation.models import Species
 
-from maps.plot import Contour
 from maps.plot import ContourPlotConfig
 from maps.plot import create_contour_plot
-from maps.plot import load_contour_all
 
 from django.conf import settings
-
 
 
 class Command(BaseCommand):
@@ -44,7 +38,7 @@ class Command(BaseCommand):
         print('create group maps - BEGIN')
         recursionlimit_default = sys.getrecursionlimit()
         print('recursion limit default: ' + str(recursionlimit_default))
-        sys.setrecursionlimit(2000)
+        sys.setrecursionlimit(10000)
         groups = Group.objects.all()
         for group in groups:
             observations_group = observations.filter(group=group)
