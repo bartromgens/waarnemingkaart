@@ -36,16 +36,18 @@ class Command(BaseCommand):
             observation.create()
             print(observation)
             data = observation.data
-            species, created = Species.objects.get_or_create(
-                name_nl=data['name'],
-                name_latin=data['name_latin'],
+            group, created = Group.objects.get_or_create(
+                name_nl=data['group'],
             )
             family, created = Family.objects.get_or_create(
+                group=group,
                 name_nl=data['family'],
                 name_latin=data['family_latin'],
             )
-            group, created = Group.objects.get_or_create(
-                name_nl=data['group'],
+            species, created = Species.objects.get_or_create(
+                family=family,
+                name_nl=data['name'],
+                name_latin=data['name_latin'],
             )
             if not data['coordinates']:
                 coordinates = None

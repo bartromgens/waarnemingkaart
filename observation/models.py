@@ -22,14 +22,18 @@ class Group(BioClass):
         return self.name_nl
 
 
-class Species(BioClass):
-    def __str__(self):
-        return self.name_nl + ' (' + self.name_latin + ')'
-
-
 class Family(BioClass):
+    group = models.ForeignKey(Group, null=True, blank=True)
+
     def __str__(self):
-        return self.name_nl + ' (' + self.name_latin + ')'
+        return self.name_nl
+
+
+class Species(BioClass):
+    family = models.ForeignKey(Family, null=True, blank=True)
+
+    def __str__(self):
+        return self.name_nl
 
 
 class Coordinates(models.Model):
