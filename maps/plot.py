@@ -35,14 +35,17 @@ def normalize(array_in):
     return array_out
 
 
-def create_contour_plot(observations, config, name='all', do_recreate=False, n_contours=11, standard_deviation=None):
+def create_contour_plot(observations, config, data_dir=None, name='all', do_recreate=False, n_contours=11, standard_deviation=None):
     total_observation_count = 0
     for observation in observations:
         total_observation_count += observation.number
     print(total_observation_count)
 
-    data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
-    print(data_dir)
+    if data_dir is None:
+        data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
+    print('data dir: ' + data_dir)
 
     if standard_deviation is None:
         standard_deviation = STANDAARD_DEVIATION_M
@@ -73,15 +76,15 @@ def create_contour_plot(observations, config, name='all', do_recreate=False, n_c
     levels = normalize(levels)
     norm = None
     print(levels)
-    filepath_geojson = os.path.join(settings.STATIC_ROOT, 'data/contours_' + name + '.geojson')
+    filepath_geojson = os.path.join(settings.STATIC_ROOT, data_dir,'contours_' + name + '.geojson')
     contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=norm)
 
 
 class ContourPlotConfig(object):
 
-    def __init__(self, stepsize_deg=0.01):
+    def __init__(self, stepsize_deg=0.01, n_nearest=30):
         self.stepsize_deg = stepsize_deg
-        self.n_nearest = 30
+        self.n_nearest = n_nearest
         self.lon_start = 3.2
         self.lat_start = 50.5
         self.delta_deg = 6.5
@@ -116,6 +119,7 @@ class Contour(object):
         return os.path.exists(self.contour_data_filepath)
 
     def load(self):
+        print('load: ' + self.contour_data_filepath)
         with open(self.contour_data_filepath, 'rb') as filein:
             self.Z = numpy.load(filein)
 
