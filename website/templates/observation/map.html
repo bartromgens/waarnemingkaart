@@ -1,0 +1,47 @@
+{% extends "website/base.html" %}
+
+{% load static %}
+{% load bootstrap3 %}
+
+{% block title %}{{ page_title }} {{ block.super }}{% endblock %}
+
+{% block sidebar %}
+
+  <form action="" method="get">
+
+    <div class="col-sm-12">
+      <h6 class="text-primary">Groep</h6>
+      {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
+      {{ filter.form.media }}
+    </div>
+
+    <div class="col-sm-12">
+      <h6 class="text-primary">Familie</h6>
+      {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
+      {{ filter.form.media }}
+    </div>
+
+    <div class="col-sm-12">
+      <h6 class="text-primary">Soort</h6>
+      {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
+      {{ filter.form.media }}
+    </div>
+
+    <div class="col-sm-12">
+      {% bootstrap_button content='Toon Kaart' button_type='submit' %}
+    </div>
+
+  </form>
+
+{% endblock %}
+
+
+{% block content %}
+
+<div id="map" class="map">
+    <div id="info"></div>
+</div>
+
+<script src="{% static 'dist/main.js' %}"></script>
+
+{% endblock %}
