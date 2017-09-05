@@ -7,6 +7,8 @@ from django.views.generic import TemplateView
 from website.views import ContactView
 from website.views import UserProfileView
 
+import observation.urls
+
 import website.api
 
 
@@ -20,9 +22,12 @@ urlpatterns = [
 
     url(r'^accounts/', include('registration.backends.simple.urls')),  # the django-registration module
 
+    url(r'', include(observation.urls.urlpatterns)),
+
     url(r'^admin/', admin.site.urls),
 
     url(r'^api/', include(website.api)),
+
 ]
 
 
