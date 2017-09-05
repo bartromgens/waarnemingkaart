@@ -32,6 +32,7 @@ class GroupAdmin(admin.ModelAdmin):
 class FamilyAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'group',
         'name',
         'name_nl',
         'name_latin',
@@ -42,6 +43,7 @@ class FamilyAdmin(admin.ModelAdmin):
 class SpeciesAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'family',
         'name',
         'name_nl',
         'name_latin',
