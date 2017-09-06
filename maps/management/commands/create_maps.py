@@ -17,19 +17,19 @@ from django.conf import settings
 
 
 class Command(BaseCommand):
-    RECREATE = True
-    N_CONTOURS = 15
-    N_NEAREST = 30
+    RECREATE = False
+    N_CONTOURS = 11
+    N_NEAREST = 15
+    STANDARD_DEVIATION = 5000
 
     # def add_arguments(self, parser):
         # parser.add_argument('--recreate', type=bool, help='', default=True)
 
     def handle(self, *args, **options):
-
         config_groups = ContourPlotConfig(stepsize_deg=0.02, n_nearest=Command.N_NEAREST)
         observations_all = Observation.objects.all().select_related('coordinates')
-        self.create_maps_groups(observations_all, config_groups)
-        config = ContourPlotConfig(stepsize_deg=0.02, n_nearest=Command.N_NEAREST)
+        # self.create_maps_groups(observations_all, config_groups)
+        config = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         self.create_maps_families(observations_all, config)
         self.create_maps_species(observations_all, config)
 
@@ -81,5 +81,6 @@ class Command(BaseCommand):
             name=name,
             do_recreate=Command.RECREATE,
             n_contours=Command.N_CONTOURS,
+            standard_deviation=Command.STANDARD_DEVIATION
         )
         print('create map - END')
