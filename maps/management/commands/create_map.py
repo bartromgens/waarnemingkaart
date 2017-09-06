@@ -21,14 +21,15 @@ class Command(BaseCommand):
     N_CONTOURS = 11
     N_NEAREST = 15
     STANDARD_DEVIATION = 5000
+    STEPSIZE_DEG = 0.02
 
     # def add_arguments(self, parser):
         # parser.add_argument('--recreate', type=bool, help='', default=True)
 
     def handle(self, *args, **options):
         species_slug = "grutto"
-        observations_all = Observation.objects.all().select_related('coordinates')
-        config = ContourPlotConfig(stepsize_deg=0.02, n_nearest=Command.N_NEAREST)
+        observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
+        config = ContourPlotConfig(stepsize_deg=Command.STEPSIZE_DEG, n_nearest=Command.N_NEAREST)
         species = Species.objects.get(slug=species_slug)
         self.create_map_species(observations_all, config, species)
 
@@ -42,11 +43,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_map(observations, config, data_dir, name):
-        print('create map - BEGIN')
-        print(name)
-        if observations.count() < 10:
+        print('create map - BEGIN - ' + str(name))
+        if observations.count() < 1:
             return
-        config.n_nearest = min(Command.N_NEAREST, observations.count() - 1)
+        config.n_nearest = min(Command.N_NEAREST, observations.count())
         create_contour_plot(
             observations=observations,
             config=config,
@@ -56,4 +56,4 @@ class Command(BaseCommand):
             n_contours=Command.N_CONTOURS,
             standard_deviation=Command.STANDARD_DEVIATION
         )
-        print('create map - END')
+        print('create map - END - ' + str(name))

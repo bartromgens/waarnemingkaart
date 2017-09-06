@@ -27,7 +27,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         config_groups = ContourPlotConfig(stepsize_deg=0.02, n_nearest=Command.N_NEAREST)
-        observations_all = Observation.objects.all().select_related('coordinates')
+        observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
         # self.create_maps_groups(observations_all, config_groups)
         config = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         self.create_maps_families(observations_all, config)
@@ -69,11 +69,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_map(observations, config, data_dir, name):
-        print('create map - BEGIN')
-        print(name)
-        if observations.count() < 10:
+        print('create map - BEGIN - ' + str(name))
+        if observations.count() < 1:
             return
-        config.n_nearest = min(Command.N_NEAREST, observations.count() - 1)
+        config.n_nearest = min(Command.N_NEAREST, observations.count())
         create_contour_plot(
             observations=observations,
             config=config,
@@ -83,4 +82,4 @@ class Command(BaseCommand):
             n_contours=Command.N_CONTOURS,
             standard_deviation=Command.STANDARD_DEVIATION
         )
-        print('create map - END')
+        print('create map - END - ' + str(name))
