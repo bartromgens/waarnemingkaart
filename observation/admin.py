@@ -5,6 +5,8 @@ from observation.models import Group
 from observation.models import Family
 from observation.models import Species
 
+from observation.models import BioClassObservationStats
+
 
 class ObservationAdmin(admin.ModelAdmin):
     list_display = (
@@ -51,7 +53,18 @@ class SpeciesAdmin(admin.ModelAdmin):
     )
 
 
+class BioClassObservationStatsAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'group',
+        'family',
+        'species',
+        'n_observations',
+    )
+
+
 admin.site.register(Observation, ObservationAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Family, FamilyAdmin)
 admin.site.register(Species, SpeciesAdmin)
+admin.site.register(BioClassObservationStats, BioClassObservationStatsAdmin)
