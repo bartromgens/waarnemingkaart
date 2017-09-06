@@ -7,32 +7,61 @@
 
 {% block sidebar %}
 
-  <form action="" method="get">
+<div class="container-fluid">
 
+  <div class="row">
+    <form action="" method="get">
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Groep</h6>
+        {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Familie</h6>
+        {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Soort</h6>
+        {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <div class="col-sm-12">
+        {% bootstrap_button content='Toon Kaart' button_type='submit' %}
+      </div>
+
+    </form>
+  </div>
+
+  <hr/>
+
+  <div class="row">
     <div class="col-sm-12">
-      <h6 class="text-primary">Groep</h6>
-      {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
-      {{ filter.form.media }}
+
+      {% if group and not family %}
+      <h5>Families</h5>
+
+      {% for family in families %}
+        <a href="?group={{ family.group.slug }}&family={{ family.slug }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      {% endif %}
+
+      {% if family %}
+      <h5>Soorten</h5>
+
+      {% for item in speciess %}
+        <a href="?group={{ item.family.group.slug }}&family={{ item.family.slug }}&species={{ item.slug }}">{{ item.name_nl }}</a>{% if not forloop.last %},{% endif %}
+      {% endfor %}
+      {% endif %}
+
     </div>
+  </div>
 
-    <div class="col-sm-12">
-      <h6 class="text-primary">Familie</h6>
-      {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
-      {{ filter.form.media }}
-    </div>
-
-    <div class="col-sm-12">
-      <h6 class="text-primary">Soort</h6>
-      {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
-      {{ filter.form.media }}
-    </div>
-
-    <div class="col-sm-12">
-      {% bootstrap_button content='Toon Kaart' button_type='submit' %}
-    </div>
-
-  </form>
-
+</div>
 {% endblock %}
 
 

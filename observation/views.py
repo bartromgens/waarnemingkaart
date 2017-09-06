@@ -43,13 +43,18 @@ class ObservationMapView(TemplateView):
         page_title = ""
         if species_slug:
             species = Species.objects.get(slug=species_slug)
+            context['species'] = species
             page_title += species.name_nl + ' - '
         if family_slug:
             family = Family.objects.get(slug=family_slug)
+            context['family'] = family
             page_title += family.name_nl + ' - '
+            context['speciess'] = Species.objects.filter(family=family)
         if group_slug:
             group = Group.objects.get(slug=group_slug)
+            context['group'] = group
             page_title += group.name_nl
+            context['families'] = Family.objects.filter(group=group)
         context['page_title'] = page_title
         context['filter'] = observation_filter
         context['n_results'] = observation_filter.qs.count()
