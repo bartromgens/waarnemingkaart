@@ -29,7 +29,7 @@ var ObservationMap = {
         var osmSource = new ol.source.OSM("OpenStreetMap");
         osmSource.setUrl(TILE_URL);
         var osmLayer = new ol.layer.Tile({source: osmSource});
-        osmLayer.setOpacity(0.8);
+        osmLayer.setOpacity(0.7);
         map.addLayer(osmLayer);
         map.addControl(new ol.control.FullScreen());
         console.log('createOpenLayersMap', 'END');
