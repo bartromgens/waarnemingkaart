@@ -4,6 +4,7 @@ import math
 import logging
 
 import numpy
+import scipy.stats
 from scipy.spatial import KDTree
 
 import matplotlib.pyplot as plt
@@ -53,29 +54,39 @@ def create_contour_plot(observations, config, data_dir=None, name='all', do_recr
 
     if do_recreate or not contour.is_saved:
         contour.create_contour_data()
-        contour.save()
     else:
-        contour.load()
+        saved_data_valid = contour.load()
+        if not saved_data_valid:
+            contour.create_contour_data()
 
     contour.normalize()
 
-    level_upper = contour.Z_norm.max()
-    level_lower = contour.Z_norm.min()
+    level_upper = contour.Z.max()
+    level_lower = contour.Z.min()
     # level_range = level_upper-level_lower
 
     print(level_lower)
     print(level_upper)
     levels = []
 
+    stdev_Z_norm = numpy.std(contour.Z_norm)
+    mean_Z_norm = numpy.mean(contour.Z_norm)
+
+    print('stdev_Z_norm: ' + str(stdev_Z_norm))
+    print('mean_Z_norm: ' + str(mean_Z_norm))
+
     stdev = contour.standard_deviation
-    start = 2.0 * stdev
-    stop = 0.0 * stdev
+    start = 1.8 * stdev
+    stop = 0.3 * stdev
     steps = numpy.linspace(start=start, stop=stop, num=n_contours)
     for step in steps:
         levels.append(contour.calc_normal_pdf(step))
-    levels = normalize(levels)
+    for i in range(0, len(levels)-1):
+        diff = levels[i+1]-levels[i]
+        print(diff)
+    # levels = normalize(levels)
+    print('levels: ' + str(levels))
     norm = None
-    print(levels)
     filepath_geojson = os.path.join(settings.STATIC_ROOT, data_dir,'contours_' + name + '.geojson')
     contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=norm)
 
@@ -85,7 +96,7 @@ class ContourPlotConfig(object):
     def __init__(self, stepsize_deg=0.01, n_nearest=30):
         self.stepsize_deg = stepsize_deg
         self.n_nearest = n_nearest
-        self.lon_start = 3.2
+        self.lon_start = 3.0
         self.lat_start = 50.5
         self.delta_deg = 6.5
         self.lon_end = self.lon_start + self.delta_deg
@@ -122,6 +133,7 @@ class Contour(object):
         print('load: ' + self.contour_data_filepath)
         with open(self.contour_data_filepath, 'rb') as filein:
             self.Z = numpy.load(filein)
+        return self.Z.size == self.Z_norm.size
 
     def save(self):
         with open(self.contour_data_filepath, 'wb') as fileout:
@@ -160,6 +172,7 @@ class Contour(object):
             altitude=altitude,
             n_nearest=min([self.config.n_nearest, len(self.observations)])
         )
+        self.save()
         print('create_contour_data - END')
 
     def calc_normal_pdf(self, x_minus_mean):
@@ -176,9 +189,11 @@ class Contour(object):
                 x, y, z = gps.lla2ecef([lat, lon, altitude])
                 distances, indexes = kdtree.query([x, y, z], n_nearest)
                 local_probability = 0.0
+                weights_sum = 0
                 for distance, index in zip(distances, indexes):
-                    local_probability += self.calc_normal_pdf(distance) #* observations[index]['number']
-                Z[i][j] = local_probability/n_nearest  # see https://en.wikipedia.org/wiki/Mixture_distribution
+                    local_probability += self.calc_normal_pdf(distance)*1.0/distance  #* observations[index]['number']
+                    weights_sum += 1/distance
+                Z[i][j] += local_probability/weights_sum  # see https://en.wikipedia.org/wiki/Mixture_distribution
         return Z
 
     def create_contour_plot(self, levels, norm=None):
@@ -201,10 +216,10 @@ class Contour(object):
         ax = figure.add_subplot(111)
         # contours = plt.contourf(lonrange, latrange, Z, levels=levels, cmap=plt.cm.plasma)
         contours = ax.contour(
-            self.lonrange, self.latrange, self.Z_norm,
+            self.lonrange, self.latrange, self.Z,
             levels=levels,
             norm=norm,
-            cmap=plt.cm.inferno,  # YlGn, magma_r, viridis, inferno, Greens
+            cmap=plt.cm.viridis,  # YlGn, magma_r, viridis, inferno, Greens
             linewidths=3
         )
 
