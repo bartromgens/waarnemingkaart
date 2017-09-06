@@ -36,20 +36,15 @@ def normalize(array_in):
     return array_out
 
 
-def create_contour_plot(observations, config, data_dir=None, name='all', do_recreate=False, n_contours=11, standard_deviation=None):
-    total_observation_count = 0
-    for observation in observations:
-        total_observation_count += observation.number
-    print(total_observation_count)
+def load_contour_data_all(config, standard_deviation, name='vogels'):
+    data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+    contour = Contour([], config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
+    contour.load()
+    contour.normalize()
+    return contour
 
-    if data_dir is None:
-        data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-    print('data dir: ' + data_dir)
 
-    if standard_deviation is None:
-        standard_deviation = STANDAARD_DEVIATION_M
+def create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation):
     contour = Contour(observations, config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
 
     if do_recreate or not contour.is_saved:
@@ -58,37 +53,49 @@ def create_contour_plot(observations, config, data_dir=None, name='all', do_recr
         saved_data_valid = contour.load()
         if not saved_data_valid:
             contour.create_contour_data()
-
     contour.normalize()
+    return contour
 
-    level_upper = contour.Z.max()
-    level_lower = contour.Z.min()
-    # level_range = level_upper-level_lower
 
-    print(level_lower)
-    print(level_upper)
-    levels = []
-
-    stdev_Z_norm = numpy.std(contour.Z_norm)
-    mean_Z_norm = numpy.mean(contour.Z_norm)
-
-    print('stdev_Z_norm: ' + str(stdev_Z_norm))
-    print('mean_Z_norm: ' + str(mean_Z_norm))
-
-    stdev = contour.standard_deviation
-    start = 1.8 * stdev
-    stop = 0.3 * stdev
+def create_contour_levels(contour, n_contours):
+    start = 1.8 * contour.standard_deviation
+    stop = 0.3 * contour.standard_deviation
     steps = numpy.linspace(start=start, stop=stop, num=n_contours)
+
+    levels = []
     for step in steps:
         levels.append(contour.calc_normal_pdf(step))
-    for i in range(0, len(levels)-1):
-        diff = levels[i+1]-levels[i]
-        print(diff)
+    # for i in range(0, len(levels)-1):
+    #     diff = levels[i+1]-levels[i]
+    #     print(diff)
     # levels = normalize(levels)
-    print('levels: ' + str(levels))
-    norm = None
+    return levels
+
+
+def div0( a, b ):
+    """ ignore / 0, div0( [-1, 0, 1], 0 ) -> [0, 0, 0] """
+    with numpy.errstate(divide='ignore', invalid='ignore'):
+        c = numpy.true_divide( a, b )
+        c[ ~ numpy.isfinite( c )] = 0  # -inf inf NaN
+    return c
+
+
+def create_contour_plot(observations, config, data_dir=None, name='all', do_recreate=False, n_contours=11, standard_deviation=STANDAARD_DEVIATION_M):
+    if data_dir is None:
+        data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+    if not os.path.exists(data_dir):
+        os.makedirs(data_dir)
     filepath_geojson = os.path.join(settings.STATIC_ROOT, data_dir,'contours_' + name + '.geojson')
-    contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=norm)
+
+    contour = create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation)
+
+    levels = create_contour_levels(contour, n_contours)
+
+    print('Z.max(): ' + str(contour.Z.max()))
+    print('Z.min(): ' + str(contour.Z.min()))
+    print('levels: ' + str(levels))
+
+    contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=None)
 
 
 class ContourPlotConfig(object):
@@ -188,12 +195,15 @@ class Contour(object):
             for j, lon in enumerate(lonrange):
                 x, y, z = gps.lla2ecef([lat, lon, altitude])
                 distances, indexes = kdtree.query([x, y, z], n_nearest)
+                if isinstance(distances, float):
+                    distances = [distances]
+                    indexes = [indexes]
                 local_probability = 0.0
                 weights_sum = 0
                 for distance, index in zip(distances, indexes):
-                    local_probability += self.calc_normal_pdf(distance)*1.0/distance  #* observations[index]['number']
+                    local_probability += self.calc_normal_pdf(distance) / distance  #* observations[index]['number']
                     weights_sum += 1/distance
-                Z[i][j] += local_probability/weights_sum  # see https://en.wikipedia.org/wiki/Mixture_distribution
+                Z[i][j] = local_probability/weights_sum  # see https://en.wikipedia.org/wiki/Mixture_distribution
         return Z
 
     def create_contour_plot(self, levels, norm=None):
