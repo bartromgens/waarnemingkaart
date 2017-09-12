@@ -4,7 +4,7 @@ html, body {
 
 
 body {
-    padding-top: 66px;
+    padding-top: 50px;
 }
 
 
@@ -42,4 +42,14 @@ body {
 
 hr.hr-small {
   margin: 0.1em 0;
+}
+
+
+.navbar-nav>li>a {
+    font-weight: 500;
+}
+
+
+.navbar-brand {
+    font-weight: 500;
 }

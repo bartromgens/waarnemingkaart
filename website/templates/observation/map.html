@@ -27,19 +27,19 @@
     <form id="map-form" action="" method="get">
 
       <div class="col-sm-12">
-        <h6 class="text-primary">Groep</h6>
+        <h5 class="text-primary">Groep</h5>
         {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
 
       <div class="col-sm-12">
-        <h6 class="text-primary">Familie</h6>
+        <h5 class="text-primary">Familie</h5>
         {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
 
       <div class="col-sm-12">
-        <h6 class="text-primary">Soort</h6>
+        <h5 class="text-primary">Soort</h5>
         {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
@@ -63,16 +63,15 @@
     <div class="col-sm-12">
 
       {% if groups and not family %}
-        <h5>Groep</h5>
+        <h4>Groepen</h4>
 
         {% for group in groups %}
-          <a href="{{ group.url }}">{{ group.name_nl }}</a>
-          <br/>
+          <h5><a href="{{ group.url }}">{{ group.name_nl }}</a></h5>
         {% endfor %}
       {% endif %}
 
       {% if group and not family %}
-        <h5>Families</h5>
+        <h4>Families</h4>
 
         {% for family in families %}
           <small>
@@ -82,7 +81,7 @@
       {% endif %}
 
       {% if family %}
-        <h5>Soorten <a href="{{ family.url }}">{{ family }}</a></h5>
+        <h4>Soorten <a href="{{ family.url }}">{{ family }}</a></h4>
 
         {% for item in speciess %}
           <small>
