@@ -19,6 +19,7 @@ class ObservationAdmin(admin.ModelAdmin):
         'coordinates',
         'waarneming_url',
     )
+    list_filter = ('group', 'family')
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -40,6 +41,7 @@ class FamilyAdmin(admin.ModelAdmin):
         'name_latin',
         'slug',
     )
+    list_filter = ('group',)
 
 
 class SpeciesAdmin(admin.ModelAdmin):
@@ -51,6 +53,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         'name_latin',
         'slug',
     )
+    list_filter = ('family__group', 'family')
 
 
 class BioClassObservationStatsAdmin(admin.ModelAdmin):
