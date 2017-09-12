@@ -1,0 +1,98 @@
+{% extends "website/base.html" %}
+
+{% load static %}
+{% load bootstrap3 %}
+
+{% block title %}{{ page_title }} {{ block.super }}{% endblock %}
+
+{% block sidebar %}
+
+<div class="container-fluid">
+
+  <div class="row">
+    <form id="map-form" action="" method="get">
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Groep</h6>
+        {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Familie</h6>
+        {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <div class="col-sm-12">
+        <h6 class="text-primary">Soort</h6>
+        {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
+        {{ filter.form.media }}
+      </div>
+
+      <!--<div class="col-sm-12">-->
+        <!--{% bootstrap_button content='Toon Kaart' button_type='submit' %}-->
+      <!--</div>-->
+
+    </form>
+
+    <script>
+    $(".form-control").change(function() {
+        $(this).closest('form').submit();
+    });
+    </script>
+  </div>
+
+  <span class="vertical-spacer-20"></span>
+
+  <div class="row">
+    <div class="col-sm-12">
+
+      {% if group and not family %}
+      <h5>Families</h5>
+
+      {% for family in families %}
+        <small>
+          <a href="?group={{ family.group.slug }}&family={{ family.slug }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+        </small>
+        {% endfor %}
+      {% endif %}
+
+      {% if family %}
+      <h5>Soorten</h5>
+
+      {% for item in speciess %}
+        <small>
+          <a href="?group={{ item.family.group.slug }}&family={{ item.family.slug }}&species={{ item.slug }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+        </small>
+      {% endfor %}
+      {% endif %}
+
+    </div>
+  </div>
+
+  <span class="vertical-spacer-20"></span>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <h4>{{ species.name_nl }}</h4>
+      {% if species.wikimedia_image_url %}<img src="{{ species.wikimedia_image_url }}"/>{% endif %}
+      <br/>
+      {% if species.wikipedia_url_nl %}Wikipedia: <a href="{{ species.wikipedia_url_nl }}">{{ species.name_nl }}</a>{% endif %}
+
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+
+{% block content %}
+
+<div id="map" class="map">
+    <div id="info"></div>
+</div>
+
+<script src="{% static 'dist/main.js' %}"></script>
+
+{% endblock %}

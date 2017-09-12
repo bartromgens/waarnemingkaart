@@ -10,33 +10,67 @@ $.ajaxSetup({
     }
 });
 
-//var familySlug = 'all';
-var familySlug = 'aalscholvers';
-//var familySlug = 'boomklevers';
-//var familySlug = 'cettiidae';
-//var familySlug = 'haviken-en-arenden';
-//var familySlug = 'staartmezen';
-//var familySlug = 'duiven';
-//var familySlug = 'zwaluwen';
-//var familySlug = 'gierzwaluwen';
-//var familySlug = 'flamingos';
-//var familySlug = 'eenden-ganzen-en-zwanen';
-//var familySlug = 'winterkoningen';
-//var familySlug = 'spreeuwen';
 
-var dataDir = "/static/data/";
+function getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, "\\$&");
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+        results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
 
-var contourmap = observationmap.createObservationMap();
+
+function getFileLocations() {
+    var group = getParameterByName('group');
+    var family = getParameterByName('family');
+    var species = getParameterByName('species');
+    console.log('group', group);
+    console.log('family', family);
+    console.log('species', species);
+
+    var dataDir = "/static/data/";
+    var observationsFilepath = dataDir;
+    var contoursFilepath = dataDir;
+    
+    if (group && family) {
+        observationsFilepath += group + "/";
+        contoursFilepath += group + "/";
+    } else {
+        observationsFilepath += group + ".json";
+        contoursFilepath += "contours_" + group + ".geojson";
+    }
+    if ((family && species) && (family !== "" && species !== "")) {
+        observationsFilepath += family + "/";
+        contoursFilepath += family + "/";
+        observationsFilepath += species + ".json";
+        contoursFilepath += "contours_" + species + ".geojson";
+    } else if (family && family !== "") {
+        observationsFilepath += family + ".json";
+        contoursFilepath += "contours_" + family + ".geojson";
+    }
+    return {observations: observationsFilepath, contours: contoursFilepath};
+}
+
+
+var filepaths = getFileLocations();
+console.log(filepaths.observations);
+console.log(filepaths.contours);
 
 var observationsLayer = null;
 
-$.getJSON(dataDir + "observations_" + familySlug + ".json", function(json) {
-    if (familySlug !== 'all') {
+
+var contourmap = observationmap.createObservationMap();
+
+$.getJSON(filepaths.observations, function(json) {
+    if (json.observations.length < 2000) {
         observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
+    } else {
+        console.log('WARNING: too many observations to show');
     }
 
-    var geojsonUrl = dataDir + "contours_" + familySlug + ".geojson";
-    contourmap.addContourTileLayer(geojsonUrl);
+    contourmap.addContourTileLayer(filepaths.contours);
     contourmap.map.on("moveend", updateVisibility);
 });
 

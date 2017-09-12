@@ -18,6 +18,8 @@ VOGELS_ID = 1
 ZOOGDIEREN_ID = 2
 DAGVLINDERS_ID = 4
 
+GROUP_IDS = [VOGELS_ID, ZOOGDIEREN_ID, DAGVLINDERS_ID]
+
 pp = pprint.PrettyPrinter(indent=4)
 
 

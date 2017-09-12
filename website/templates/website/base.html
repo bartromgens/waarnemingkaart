@@ -17,6 +17,7 @@
 
   <link rel="stylesheet" href="https://openlayers.org/en/v4.3.2/css/ol.css" type="text/css">
   <link rel="stylesheet" href="{% static 'lib/bootstrap-3.3.7/css/bootstrap-readable.min.css' %}" type="text/css">
+  <link rel="stylesheet" href="{% static 'dist/simple-sidebar.css' %}" type="text/css">
   <link rel="stylesheet" href="{% static 'dist/custom.css' %}" type="text/css">
 
   <script src="https://cdn.polyfill.io/v2/polyfill.min.js?features=requestAnimationFrame,Element.prototype.classList,URL"></script>
@@ -33,8 +34,26 @@
 
   {% include "website/navbar.html" %}
 
-  {% block content %} {% endblock %}
+  <div id="wrapper" class="toggled">
 
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        {% block sidebar %} {% endblock %}
+        <!-- Menu Toggle Script -->
+        <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+        </script>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <div id="page-content-wrapper">
+    {% block content %} {% endblock %}
+    </div>
+
+  </div>
 
 </body>
 

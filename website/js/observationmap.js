@@ -29,7 +29,7 @@ var ObservationMap = {
         var osmSource = new ol.source.OSM("OpenStreetMap");
         osmSource.setUrl(TILE_URL);
         var osmLayer = new ol.layer.Tile({source: osmSource});
-        osmLayer.setOpacity(0.8);
+        osmLayer.setOpacity(0.7);
         map.addLayer(osmLayer);
         map.addControl(new ol.control.FullScreen());
         console.log('createOpenLayersMap', 'END');
@@ -150,15 +150,20 @@ var ObservationMap = {
                 var strokeWidth = feature.get('stroke-width');
                 var zoom = mapCache.getView().getZoom();
                 var lineWidth = strokeWidth/3.0;
-    //            console.log(strokeWidth);
-    //            var value = feature.get('level-value');
-    //            var levelNr = feature.get('level-index');
+                var value = feature.get('level-value');
+                var levelNr = 1 + feature.get('level-index');
                 // var color = ol.color.asArray(feature.get('stroke'));
                 // color[3] = 0.8;
     //            var scaleFactor = 0.5;
-                var zoomFactor = 1.0;
-                if (zoom > 7) {
-                    zoomFactor = Math.pow(zoom, 2.0)/60.0;
+//                var zoomFactor = 1.0;
+                var zoomFactor = Math.pow(zoom, 2.0)/400.0;
+
+                zoomFactor *= levelNr/2;
+                if (levelNr % 3 === 1) {
+                    zoomFactor *= 3.0;
+                }
+                if (levelNr === 11) {
+                    zoomFactor *= 1.5;
                 }
     //            var zoomLevelShow10 = 9;
     //            var zoomLevelShow5 = 10;

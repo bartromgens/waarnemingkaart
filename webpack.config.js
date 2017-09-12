@@ -9,7 +9,7 @@ module.exports = {
     context: __dirname,
     entry: {
         main: ["./website/js/main.js"],
-        css: ["./website/css/custom.css"],
+        css: ["./website/css/custom.css", "./website/css/simple-sidebar.css"],
     },
     output: {
         path: path.join(__dirname, "website/static/dist/"),
@@ -43,6 +43,7 @@ module.exports = {
     plugins: [
         new ManifestPlugin(),
         new ExtractTextPlugin("custom.css"),
+        new ExtractTextPlugin("simple-sidebar.css"),
         new WebpackCleanupPlugin(),
     ],
 };

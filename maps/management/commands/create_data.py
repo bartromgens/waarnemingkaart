@@ -4,7 +4,9 @@ import numpy
 from django.core.management.base import BaseCommand
 
 from observation.models import Observation
+from observation.models import Group
 from observation.models import Family
+from observation.models import Species
 
 from maps.plot import Contour
 from maps.plot import ContourPlotConfig
@@ -21,10 +23,36 @@ class Command(BaseCommand):
         observations_all = Observation.objects.filter(coordinates__isnull=False)
         # meeuw_family = Family.objects.get(name_nl='Meeuwen, Sterns en Schaarbekken')
         # observations = observations.filter(family=meeuw_family)
+
+        groups = Group.objects.all()
+        for group in groups:
+            print(group)
+            observations = observations_all.filter(group=group)
+            data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+            filepath = os.path.join(data_dir, group.slug + '.json')
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir)
+            print(filepath)
+            observations_to_json(observations, filepath)
+
         families = Family.objects.all()
         for family in families:
             print(family)
-            observations = observations_all.filter(family=family.id)
-            filepath = os.path.join(settings.STATIC_ROOT, 'data/observations_' + family.slug + '.json')
+            observations = observations_all.filter(family=family)
+            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', family.group.slug)
+            filepath = os.path.join(data_dir, family.slug + '.json')
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir)
+            print(filepath)
+            observations_to_json(observations, filepath)
+
+        species = Species.objects.all()
+        for obj in species:
+            print(obj)
+            observations = observations_all.filter(species=obj)
+            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', obj.family.group.slug, obj.family.slug)
+            filepath = os.path.join(data_dir, obj.slug + '.json')
+            if not os.path.exists(data_dir):
+                os.makedirs(data_dir)
             print(filepath)
             observations_to_json(observations, filepath)
