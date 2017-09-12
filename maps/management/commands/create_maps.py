@@ -26,9 +26,9 @@ class Command(BaseCommand):
         # parser.add_argument('--recreate', type=bool, help='', default=True)
 
     def handle(self, *args, **options):
-        config_groups = ContourPlotConfig(stepsize_deg=0.02, n_nearest=Command.N_NEAREST)
+        config_groups = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
-        # self.create_maps_groups(observations_all, config_groups)
+        self.create_maps_groups(observations_all, config_groups)
         config = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         self.create_maps_families(observations_all, config)
         self.create_maps_species(observations_all, config)
