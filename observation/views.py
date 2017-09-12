@@ -21,10 +21,19 @@ class ObservationMapView(TemplateView):
         group_slug = request.GET.get('group')
         family_slug = request.GET.get('family')
         species_slug = request.GET.get('species')
+        needs_redirect = False
+        if family_slug and species_slug:
+            species = Species.objects.get(slug=species_slug)
+            family = Family.objects.get(slug=family_slug)
+            if species.family.id is not family.id:
+                needs_redirect = True
+                species_slug = ''
         if species_slug and (not family_slug or not group_slug):
             species = Species.objects.get(slug=species_slug)
             family_slug = species.family.slug
             group_slug = species.family.group.slug
+            needs_redirect = True
+        if needs_redirect:
             new_args = {
                 'group': group_slug,
                 'family': family_slug,
@@ -61,7 +70,6 @@ class ObservationMapView(TemplateView):
             page_title = 'Home'
         context['page_title'] = page_title
         context['filter'] = observation_filter
-        context['n_results'] = observation_filter.qs.count()
         return context
 
 
