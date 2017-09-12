@@ -45,7 +45,7 @@ class Species(BioClass):
     family = models.ForeignKey(Family, null=True, blank=True)
 
     def __str__(self):
-        return self.name_nl + ' (' + str(self.n_observations) + ')'
+        return self.name_nl
 
     @cached_property
     def n_observations(self):
