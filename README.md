@@ -59,6 +59,23 @@ $ crontab -e
 */5 * * * * source /home/<username>/.bashrc && source /home/<path-to-project>/env/bin/activate && python /home/<path-to-project>/website/manage.py runcrons > /home/<path-to-project>/log/cronjob.log
 ```
 
+## Data
+
+### Load data
+Load waarneming.nl scraped observation data,
+```
+$ python manage.py loaddata <MAPS_DATA_DIR>/observations.json.gz
+```
+Where `MAPS_DATA_DIR` is the directory set in `local_settings.py`.
+
+### Scrape data
+
+### Export data
+Run the following command to create a compressed json data dump, `observations.json.gz` in the `settings.MAPS_DATA_DIR` directory, of all observations,
+```bash
+$ python manage.py create_json_dump
+```
+
 ## Development
 
 ### Webpack bundles
