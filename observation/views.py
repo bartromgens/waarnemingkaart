@@ -39,7 +39,7 @@ class ObservationMapView(TemplateView):
                 'family': family_slug,
                 'species': species_slug,
             }
-            url = '/?' + urllib.parse.urlencode(new_args)
+            url = '/kaart/?' + urllib.parse.urlencode(new_args)
             return redirect(url)
         return super().dispatch(request, *args, **kwargs)
 
