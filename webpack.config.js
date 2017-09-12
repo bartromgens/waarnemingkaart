@@ -42,8 +42,7 @@ module.exports = {
     },
     plugins: [
         new ManifestPlugin(),
-        new ExtractTextPlugin("custom.css"),
-        new ExtractTextPlugin("simple-sidebar.css"),
+        new ExtractTextPlugin("waarnemingkaart.css"),
         new WebpackCleanupPlugin(),
     ],
 };
