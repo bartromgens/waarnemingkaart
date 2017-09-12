@@ -5,9 +5,20 @@ from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
 from django.views.generic import TemplateView, UpdateView
 
+from observation.models import Group
+
 from website import settings
 
 logger = logging.getLogger(__name__)
+
+
+class HomeView(TemplateView):
+    template_name = 'website/index.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['groups'] = Group.objects.all()
+        return context
 
 
 class ContactView(TemplateView):

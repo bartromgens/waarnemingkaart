@@ -31,7 +31,7 @@ class Group(BioClass):
 
     @cached_property
     def url(self):
-        return "?group={}".format(self.slug)
+        return "/kaart/?group={}".format(self.slug)
 
 
 class Family(BioClass):
@@ -46,7 +46,7 @@ class Family(BioClass):
 
     @cached_property
     def url(self):
-        return "?group={}&family={}".format(self.group.slug, self.slug)
+        return "/kaart/?group={}&family={}".format(self.group.slug, self.slug)
 
 
 class Species(BioClass):
@@ -61,7 +61,7 @@ class Species(BioClass):
 
     @cached_property
     def url(self):
-        return "?group={}&family={}&species={}".format(self.family.group.slug, self.family.slug, self.slug)
+        return "/kaart/?group={}&family={}&species={}".format(self.family.group.slug, self.family.slug, self.slug)
 
 
 class Coordinates(models.Model):

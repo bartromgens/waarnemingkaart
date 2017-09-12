@@ -1,0 +1,26 @@
+{% extends "website/base.html" %}
+
+{% block content %}
+
+  <div id="wrapper" class="toggled">
+
+    <!-- Sidebar -->
+    <div id="sidebar-wrapper">
+        {% block sidebar %} {% endblock %}
+        <!-- Menu Toggle Script -->
+        <script>
+        $("#menu-toggle").click(function(e) {
+            e.preventDefault();
+            $("#wrapper").toggleClass("toggled");
+        });
+        </script>
+    </div>
+    <!-- /#sidebar-wrapper -->
+
+    <div id="page-content-wrapper">
+    {% block main-content %} {% endblock %}
+    </div>
+
+  </div>
+
+{% endblock %}

@@ -5,5 +5,39 @@
 {% block title %}Home {{ block.super }}{% endblock %}
 
 {% block content %}
+<div class="container">
+
+    <div class="vertical-spacer-20"></div>
+    <div class="vertical-spacer-20"></div>
+
+    <div class="row">
+      {% for group in groups %}
+
+      <div class="col-sm-6 col-lg-4" align="center">
+        <a href="{{ group.url }}">
+          <div class="well">
+            <h3>{{ group.name_nl }}</h3>
+          </div>
+        </a>
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+    <hr/>
+
+    <div class="row">
+        <div class="col-sm-12" align="center">
+            <p>
+                <a href="//waarnemingkaart.nl">waarnemingkaart.nl</a> visualiseert waarnemingen van <a href="//waarneming.nl">waarneming.nl</a> op interactieve kaarten.
+            </p>
+            <p>
+                Klik op een soortengroep om de waarnemingskaarten binnen deze soort te bekijken.
+            </p>
+        </div>
+    </div>
+
+</div>
 
 {% endblock %}
