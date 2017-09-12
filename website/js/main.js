@@ -28,6 +28,10 @@ function getFileLocations() {
     var group = getParameterByName('group');
     var family = getParameterByName('family');
     var species = getParameterByName('species');
+    if (group == '' && family == '' && species == '') {
+        return null;
+    }
+
     console.log('group', group);
     console.log('family', family);
     console.log('species', species);
@@ -56,15 +60,15 @@ function getFileLocations() {
 
 
 var filepaths = getFileLocations();
-console.log(filepaths.observations);
-console.log(filepaths.contours);
-
-var observationsLayer = null;
-
 
 var contourmap = observationmap.createObservationMap();
 
-contourmap.addContourTileLayer(filepaths.contours);
+if (filepaths) {
+    contourmap.addContourTileLayer(filepaths.contours);
+}
+
+
+var observationsLayer = null;
 
 //$.getJSON(filepaths.observations, function(json) {
 //    if (json.observations.length < 2000) {
@@ -73,10 +77,6 @@ contourmap.addContourTileLayer(filepaths.contours);
 //        console.log('WARNING: too many observations to show');
 //    }
 //});
-
-
-function updateVisibility() {
-}
 
 
 // Tooltip
