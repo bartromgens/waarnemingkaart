@@ -55,6 +55,10 @@ class ObservationMapView(TemplateView):
             context['group'] = group
             page_title += group.name_nl
             context['families'] = Family.objects.filter(group=group)
+        else:
+            context['groups'] = Group.objects.all()
+        if not page_title:
+            page_title = 'Home'
         context['page_title'] = page_title
         context['filter'] = observation_filter
         context['n_results'] = observation_filter.qs.count()

@@ -38,3 +38,8 @@ body {
 .ol-zoom {
     top: 3em;
 }
+
+
+hr.hr-small {
+  margin: 0.1em 0;
+}

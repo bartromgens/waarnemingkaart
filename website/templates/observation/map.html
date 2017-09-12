@@ -43,35 +43,44 @@
     </script>
   </div>
 
-  <span class="vertical-spacer-20"></span>
+  <hr class="hr-small"/>
 
   <div class="row">
     <div class="col-sm-12">
 
-      {% if group and not family %}
-      <h5>Families</h5>
+      {% if groups and not family %}
+        <h5>Groep</h5>
 
-      {% for family in families %}
-        <small>
-          <a href="?group={{ family.group.slug }}&family={{ family.slug }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
-        </small>
+        {% for group in groups %}
+          <a href="?group={{ group.slug }}">{{ group.name_nl }}</a>
+          <br/>
+        {% endfor %}
+      {% endif %}
+
+      {% if group and not family %}
+        <h5>Families</h5>
+
+        {% for family in families %}
+          <small>
+            <a href="?group={{ family.group.slug }}&family={{ family.slug }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+          </small>
         {% endfor %}
       {% endif %}
 
       {% if family %}
-      <h5>Soorten</h5>
+        <h5>Soorten</h5>
 
-      {% for item in speciess %}
-        <small>
-          <a href="?group={{ item.family.group.slug }}&family={{ item.family.slug }}&species={{ item.slug }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
-        </small>
-      {% endfor %}
+        {% for item in speciess %}
+          <small>
+            <a href="?group={{ item.family.group.slug }}&family={{ item.family.slug }}&species={{ item.slug }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+          </small>
+        {% endfor %}
       {% endif %}
 
     </div>
   </div>
 
-  <span class="vertical-spacer-20"></span>
+  <hr/>
 
   <div class="row">
     <div class="col-sm-12">
