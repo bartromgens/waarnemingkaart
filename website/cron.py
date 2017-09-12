@@ -9,6 +9,8 @@ from django.conf import settings
 
 from django_cron import CronJobBase, Schedule
 
+from website.backup import create_json_dump
+
 
 logger = logging.getLogger(__name__)
 
@@ -30,20 +32,7 @@ class BackupDaily(CronJobBase):
     @staticmethod
     def create_json_dump():
         filepath = os.path.join(settings.DBBACKUP_STORAGE_OPTIONS['location'], 'backup-' + str(datetime.date.today()) + '.json')
-        filepath_compressed = filepath + '.gz'
-        with open(filepath, 'w') as fileout:
-            management.call_command(
-                'dumpdata',
-                '--all',
-                '--natural-foreign',
-                'website',
-                'observation',
-                stdout=fileout
-            )
-        with open(filepath, 'rb') as f_in:
-            with gzip.open(filepath_compressed, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-        os.remove(filepath)
+        create_json_dump(filepath)
         BackupDaily.remove_old_json_dumps(days_old=30)
 
     @staticmethod
