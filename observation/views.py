@@ -93,7 +93,11 @@ class ObservationsView(TemplateView):
         return context
 
 
-class SpeciesAutocomplete(autocomplete.Select2QuerySetView):
+class Select2QuerySetCustomView(autocomplete.Select2QuerySetView):
+    paginate_by = 50
+
+
+class SpeciesAutocomplete(Select2QuerySetCustomView):
     def get_queryset(self):
         objs = Species.objects.exclude(name_nl='').order_by('name_nl')
 
@@ -117,7 +121,7 @@ class SpeciesAutocomplete(autocomplete.Select2QuerySetView):
         return result.slug
 
 
-class FamilyAutocomplete(autocomplete.Select2QuerySetView):
+class FamilyAutocomplete(Select2QuerySetCustomView):
     def get_queryset(self):
         objs = Family.objects.exclude(name_nl='').order_by('name_nl')
 
@@ -137,7 +141,7 @@ class FamilyAutocomplete(autocomplete.Select2QuerySetView):
         return result.slug
 
 
-class GroupAutocomplete(autocomplete.Select2QuerySetView):
+class GroupAutocomplete(Select2QuerySetCustomView):
     def get_queryset(self):
         objs = Group.objects.exclude(name_nl='').order_by('name_nl')
         ids = []
