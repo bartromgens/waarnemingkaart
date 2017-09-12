@@ -39,5 +39,5 @@ class Command(BaseCommand):
                 spe.wikipedia_url_nl = wikipedia_url_nl
             image_filename = item.get_image_filename()
             if image_filename:
-                spe.wikimedia_image_url = item.get_wikimedia_image_url(image_filename)
+                spe.wikimedia_image_url = item.get_wikimedia_image_url(image_filename, image_width_px=400)
             spe.save()
