@@ -13,7 +13,7 @@ from observation.models import Species
 from maps.plot import ContourPlotConfig
 from maps.plot import create_contour_plot
 
-from django.conf import settings
+from maps.settings import MAPS_DATA_DIR
 
 
 class Command(BaseCommand):
@@ -42,8 +42,7 @@ class Command(BaseCommand):
         groups = Group.objects.all()
         for group in groups:
             observations_group = observations.filter(group=group)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
-            Command.create_map(observations_group, config, data_dir, group.slug)
+            Command.create_map(observations_group, config, MAPS_DATA_DIR, group.slug)
         sys.setrecursionlimit(recursionlimit_default)
         print('create group maps - END')
 
@@ -53,7 +52,7 @@ class Command(BaseCommand):
         families = Family.objects.all()
         for family in families:
             observations_fam = observations.filter(family=family)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', family.group.slug)
+            data_dir = os.path.join(MAPS_DATA_DIR, family.group.slug)
             Command.create_map(observations_fam, config, data_dir, family.slug)
         print('create family maps - END')
 
@@ -63,7 +62,7 @@ class Command(BaseCommand):
         species = Species.objects.all()
         for obj in species:
             observations_species = observations.filter(species=obj)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', obj.family.group.slug, obj.family.slug)
+            data_dir = os.path.join(MAPS_DATA_DIR, obj.family.group.slug, obj.family.slug)
             Command.create_map(observations_species, config, data_dir, obj.slug)
         print('create species maps - END')
 

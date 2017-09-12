@@ -12,7 +12,7 @@ from maps.plot import Contour
 from maps.plot import ContourPlotConfig
 from maps.data import observations_to_json
 
-from django.conf import settings
+from maps.settings import MAPS_DATA_DIR
 
 
 class Command(BaseCommand):
@@ -28,8 +28,8 @@ class Command(BaseCommand):
         for group in groups:
             print(group)
             observations = observations_all.filter(group=group)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
-            filepath = os.path.join(data_dir, group.slug + '.json')
+            data_dir = os.path.join(MAPS_DATA_DIR)
+            filepath = os.path.join(MAPS_DATA_DIR, group.slug + '.json')
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)
             print(filepath)
@@ -39,7 +39,7 @@ class Command(BaseCommand):
         for family in families:
             print(family)
             observations = observations_all.filter(family=family)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', family.group.slug)
+            data_dir = os.path.join(MAPS_DATA_DIR, family.group.slug)
             filepath = os.path.join(data_dir, family.slug + '.json')
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         for obj in species:
             print(obj)
             observations = observations_all.filter(species=obj)
-            data_dir = os.path.join(settings.STATIC_ROOT, 'data/', obj.family.group.slug, obj.family.slug)
+            data_dir = os.path.join(MAPS_DATA_DIR, obj.family.group.slug, obj.family.slug)
             filepath = os.path.join(data_dir, obj.slug + '.json')
             if not os.path.exists(data_dir):
                 os.makedirs(data_dir)

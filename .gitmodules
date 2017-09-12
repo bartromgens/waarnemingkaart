@@ -1,0 +1,3 @@
+[submodule "website/static/waarnemingkaart-data"]
+	path = website/static/waarnemingkaart-data
+	url = git@github.com:bartromgens/waarnemingkaart-data.git

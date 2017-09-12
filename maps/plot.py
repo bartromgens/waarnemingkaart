@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from django.conf import settings
+from maps.settings import MAPS_DATA_DIR
 
 import geojson
 import geojsoncontour
@@ -19,6 +19,9 @@ import geojsoncontour
 from maps import utilgeo
 
 STANDAARD_DEVIATION_M = 5000
+
+# Make sure the MAPS_DATA_DIR is set in settings.py
+assert MAPS_DATA_DIR != ''
 
 
 def load_contour_all(observations, config, data_dir):
@@ -37,8 +40,7 @@ def normalize(array_in):
 
 
 def load_contour_data_all(config, standard_deviation, name='vogels'):
-    data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
-    contour = Contour([], config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
+    contour = Contour([], config, data_dir=MAPS_DATA_DIR, standard_deviation=standard_deviation, name=name)
     contour.load()
     contour.normalize()
     return contour
@@ -82,10 +84,10 @@ def div0( a, b ):
 
 def create_contour_plot(observations, config, data_dir=None, name='all', do_recreate=False, n_contours=11, standard_deviation=STANDAARD_DEVIATION_M):
     if data_dir is None:
-        data_dir = os.path.join(settings.STATIC_ROOT, 'data/')
+        data_dir = MAPS_DATA_DIR
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
-    filepath_geojson = os.path.join(settings.STATIC_ROOT, data_dir,'contours_' + name + '.geojson')
+    filepath_geojson = os.path.join(MAPS_DATA_DIR, 'contours_' + name + '.geojson')
 
     contour = create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation)
 

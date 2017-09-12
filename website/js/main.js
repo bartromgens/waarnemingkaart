@@ -1,5 +1,7 @@
 var observationmap = require("./observationmap.js");
 
+var DATA_DIR = "/static/waarnemingkaart-data/";
+
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
     beforeSend: function(xhr){
@@ -30,9 +32,8 @@ function getFileLocations() {
     console.log('family', family);
     console.log('species', species);
 
-    var dataDir = "/static/data/";
-    var observationsFilepath = dataDir;
-    var contoursFilepath = dataDir;
+    var observationsFilepath = DATA_DIR;
+    var contoursFilepath = DATA_DIR;
     
     if (group && family) {
         observationsFilepath += group + "/";
@@ -63,16 +64,15 @@ var observationsLayer = null;
 
 var contourmap = observationmap.createObservationMap();
 
-$.getJSON(filepaths.observations, function(json) {
-    if (json.observations.length < 2000) {
-        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
-    } else {
-        console.log('WARNING: too many observations to show');
-    }
+contourmap.addContourTileLayer(filepaths.contours);
 
-    contourmap.addContourTileLayer(filepaths.contours);
-    contourmap.map.on("moveend", updateVisibility);
-});
+//$.getJSON(filepaths.observations, function(json) {
+//    if (json.observations.length < 2000) {
+//        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
+//    } else {
+//        console.log('WARNING: too many observations to show');
+//    }
+//});
 
 
 function updateVisibility() {

@@ -7,8 +7,8 @@ Requires Python 3.4+ and Django 1.11+
 
 Get the code and enter the project directory,
 ```
-$ git clone https://github.com/bartromgens/django-project-template.git
-$ cd django-project-template
+$ git clone --recursive https://github.com/bartromgens/waarnemingkaart.git
+$ cd waarnemingkaart
 ```
 Install dependencies that you will need
 ```
@@ -58,6 +58,7 @@ Create the following cronjob (Linux) to kickstart the `django-cron` jobs,
 $ crontab -e
 */5 * * * * source /home/<username>/.bashrc && source /home/<path-to-project>/env/bin/activate && python /home/<path-to-project>/website/manage.py runcrons > /home/<path-to-project>/log/cronjob.log
 ```
+
 ## Development
 
 ### Webpack bundles

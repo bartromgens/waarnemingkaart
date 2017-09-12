@@ -64,3 +64,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 100,
 }
+
+
+# WAARNEMING-MAPS
+MAPS_DATA_DIR = os.path.join(STATIC_ROOT, 'waarnemingkaart-data/')

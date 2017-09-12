@@ -13,7 +13,7 @@ from observation.models import Species
 from maps.plot import ContourPlotConfig
 from maps.plot import create_contour_plot
 
-from django.conf import settings
+from maps.settings import MAPS_DATA_DIR
 
 
 class Command(BaseCommand):
@@ -37,7 +37,7 @@ class Command(BaseCommand):
     def create_map_species(observations, config, species):
         print('create species map - BEGIN')
         observations_species = observations.filter(species=species)
-        data_dir = os.path.join(settings.STATIC_ROOT, 'data/', species.family.group.slug, species.family.slug)
+        data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
         Command.create_map(observations_species, config, data_dir, species.slug)
         print('create species map - END')
 
