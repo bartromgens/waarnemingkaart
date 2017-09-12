@@ -29,6 +29,10 @@ class Group(BioClass):
     def n_observations(self):
         return Observation.objects.filter(group=self, coordinates__isnull=False).count()
 
+    @cached_property
+    def url(self):
+        return "?group={}".format(self.slug)
+
 
 class Family(BioClass):
     group = models.ForeignKey(Group, null=True, blank=True)
@@ -40,6 +44,10 @@ class Family(BioClass):
     def n_observations(self):
         return Observation.objects.filter(family=self, coordinates__isnull=False).count()
 
+    @cached_property
+    def url(self):
+        return "?group={}&family={}".format(self.group.slug, self.slug)
+
 
 class Species(BioClass):
     family = models.ForeignKey(Family, null=True, blank=True)
@@ -50,6 +58,10 @@ class Species(BioClass):
     @cached_property
     def n_observations(self):
         return Observation.objects.filter(species=self, coordinates__isnull=False).count()
+
+    @cached_property
+    def url(self):
+        return "?group={}&family={}&species={}".format(self.family.group.slug, self.family.slug, self.slug)
 
 
 class Coordinates(models.Model):

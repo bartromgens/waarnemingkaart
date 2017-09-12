@@ -7,7 +7,23 @@
 
 {% block sidebar %}
 
+<div>
+  <ol class="breadcrumb">
+    {% if group %}
+    <li><a href="{{ group.url }}">{{ group }}</a></li>
+    {% endif %}
+    {% if family %}
+    <li><a href="{{ family.url }}">{{ family }}</a></li>
+    {% endif %}
+    {% if species %}
+    <li class="active">{{ species }}</li>
+    {% endif %}
+  </ol>
+</div>
+
 <div class="container-fluid">
+
+  <hr class="hr-small"/>
 
   <div class="row">
     <form id="map-form" action="" method="get">
@@ -52,7 +68,7 @@
         <h5>Groep</h5>
 
         {% for group in groups %}
-          <a href="?group={{ group.slug }}">{{ group.name_nl }}</a>
+          <a href="{{ group.url }}">{{ group.name_nl }}</a>
           <br/>
         {% endfor %}
       {% endif %}
@@ -62,17 +78,17 @@
 
         {% for family in families %}
           <small>
-            <a href="?group={{ family.group.slug }}&family={{ family.slug }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+            <a href="{{ family.url }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
           </small>
         {% endfor %}
       {% endif %}
 
       {% if family %}
-        <h5>Soorten</h5>
+        <h5>Soorten <a href="{{ family.url }}">{{ family }}</a></h5>
 
         {% for item in speciess %}
           <small>
-            <a href="?group={{ item.family.group.slug }}&family={{ item.family.slug }}&species={{ item.slug }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+            <a href="{{ item.url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
           </small>
         {% endfor %}
       {% endif %}
@@ -80,17 +96,17 @@
     </div>
   </div>
 
-  <hr/>
+  {% if species %}
+  <hr class="hr-small"/>
 
   <div class="row">
     <div class="col-sm-12">
       <h4>{{ species.name_nl }}</h4>
-      {% if species.wikimedia_image_url %}<img src="{{ species.wikimedia_image_url }}"/>{% endif %}
-      <br/>
+      {% if species.wikimedia_image_url %}<img class="img-responsive" src="{{ species.wikimedia_image_url }}"/>{% endif %}
       {% if species.wikipedia_url_nl %}Wikipedia: <a href="{{ species.wikipedia_url_nl }}">{{ species.name_nl }}</a>{% endif %}
-
     </div>
   </div>
+  {% endif %}
 
 </div>
 {% endblock %}
