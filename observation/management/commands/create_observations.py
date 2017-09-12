@@ -21,7 +21,7 @@ class Command(BaseCommand):
         date_str = options['date'][0]
         max_n = options['max']
         date = dateparser.parse(date_str).date()
-        end_date = datetime.date(year=2016, month=1, day=1)
+        end_date = datetime.date(year=2015, month=1, day=1)
         while date >= end_date:
             for group_id in scraper.GROUP_IDS:
                 self.create_for_date(species_id=group_id, date=date, max_n=max_n)
