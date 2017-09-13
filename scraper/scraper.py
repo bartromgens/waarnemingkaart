@@ -16,9 +16,13 @@ WAARNEMINGEN_URL = 'https://waarneming.nl'
 
 VOGELS_ID = 1
 ZOOGDIEREN_ID = 2
+REPTIELEN_AMFIBIEEN_ID = 3
 DAGVLINDERS_ID = 4
+VISSEN_ID = 9
+PADDENSTOELEN_ID = 11
 
-GROUP_IDS = [VOGELS_ID, ZOOGDIEREN_ID, DAGVLINDERS_ID]
+GROUP_IDS = [VOGELS_ID, ZOOGDIEREN_ID, REPTIELEN_AMFIBIEEN_ID, DAGVLINDERS_ID, VISSEN_ID, PADDENSTOELEN_ID]
+# GROUP_IDS = [REPTIELEN_AMFIBIEEN_ID, VISSEN_ID, PADDENSTOELEN_ID]
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -147,7 +151,7 @@ class Observation(object):
                 match = re.search(r"(.+)\s\((.+)\)", family_full)
                 if match is None:
                     print('WARNING: latin name not found in: ' + family_full)
-                    return family_full, ''
+                    return family_full, family_full
                 family = match.groups()[0]
                 family_latin = match.groups()[1]
                 return family, family_latin
