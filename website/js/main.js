@@ -68,6 +68,7 @@ if (filepaths) {
 }
 
 
+
 var observationsLayer = null;
 
 //$.getJSON(filepaths.observations, function(json) {
@@ -77,6 +78,25 @@ var observationsLayer = null;
 //        console.log('WARNING: too many observations to show');
 //    }
 //});
+
+
+// Save map as png
+document.getElementById('export-png').addEventListener('click', function() {
+    var opacityBefore = contourmap.osmLayer.getOpacity();
+    contourmap.osmLayer.setOpacity(1.0);
+    contourmap.map.once('postcompose', function(event) {
+        var canvas = event.context.canvas;
+        if (navigator.msSaveBlob) {
+            navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
+        } else {
+            canvas.toBlob(function(blob) {
+                saveAs(blob, 'map.png');
+            });
+        }
+    });
+    contourmap.map.renderSync();
+    contourmap.osmLayer.setOpacity(opacityBefore);
+});
 
 
 // Tooltip

@@ -75,7 +75,7 @@
 
         {% for family in families %}
           <small>
-            <a href="{{ family.map_url }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+            <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
           </small>
         {% endfor %}
       {% endif %}
@@ -104,6 +104,14 @@
     </div>
   </div>
   {% endif %}
+
+  <hr class="hr"/>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <a id="export-png" class="btn btn-primary">Download Map</a>
+    </div>
+  </div>
 
 </div>
 {% endblock %}

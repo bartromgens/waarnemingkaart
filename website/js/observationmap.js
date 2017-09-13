@@ -15,6 +15,7 @@ var ZOOM_INITIAL = 8;
 
 var ObservationMap = {
     ObservationMap: function() {
+        this.osmLayer = null;
         this.map = this.createOpenLayersMap();
         this.map.contourLayers = [];
         return this;
@@ -28,9 +29,9 @@ var ObservationMap = {
         map.setView(view);
         var osmSource = new ol.source.OSM("OpenStreetMap");
         osmSource.setUrl(TILE_URL);
-        var osmLayer = new ol.layer.Tile({source: osmSource});
-        osmLayer.setOpacity(0.7);
-        map.addLayer(osmLayer);
+        this.osmLayer = new ol.layer.Tile({source: osmSource});
+        this.osmLayer.setOpacity(0.7);
+        map.addLayer(this.osmLayer);
         map.addControl(new ol.control.FullScreen());
         console.log('createOpenLayersMap', 'END');
         return map;
