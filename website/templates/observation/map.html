@@ -27,19 +27,19 @@
     <form id="map-form" action="" method="get">
 
       <div class="col-sm-12">
-        <h5 class="text-primary">Groep</h5>
+        <h5 class="text-info">Groep</h5>
         {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
 
       <div class="col-sm-12">
-        <h5 class="text-primary">Familie</h5>
+        <h5 class="text-info">Familie</h5>
         {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
 
       <div class="col-sm-12">
-        <h5 class="text-primary">Soort</h5>
+        <h5 class="text-info">Soort</h5>
         {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
         {{ filter.form.media }}
       </div>
@@ -81,7 +81,7 @@
       {% endif %}
 
       {% if family %}
-        <h4>Soorten <a href="{{ family.map_url }}">{{ family }}</a></h4>
+        <h4><a href="{{ family.map_url }}">{{ family }}</a></h4>
 
         {% for item in speciess %}
           <small>
@@ -94,22 +94,20 @@
   </div>
 
   {% if species %}
-  <hr class="hr-small"/>
+  <hr/>
 
   <div class="row">
-    <div class="col-sm-12">
-      <h4>{{ species.name_nl }}</h4>
+    <div class="col-sm-12 well well-sm" align="center">
+      <h4><a href="{{ species.map_url }}">{{ species.name_nl }}</a></h4>
       {% if species.wikimedia_image_url %}<img class="img-responsive" src="{{ species.wikimedia_image_url }}"/>{% endif %}
-      {% if species.wikipedia_url_nl %}Wikipedia: <a href="{{ species.wikipedia_url_nl }}">{{ species.name_nl }}</a>{% endif %}
+      {% if species.wikipedia_url_nl %}<a href="{{ species.wikipedia_url_nl }}">Wikipedia</a>{% endif %}
     </div>
   </div>
   {% endif %}
 
-  <hr class="hr"/>
-
   <div class="row">
-    <div class="col-sm-12">
-      <a id="export-png" class="btn btn-primary">Download Map</a>
+    <div class="col-sm-12" align="center">
+      <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
     </div>
   </div>
 
