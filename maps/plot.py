@@ -11,17 +11,16 @@ import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
-from maps.settings import MAPS_DATA_DIR
-
-import geojson
 import geojsoncontour
 
 from maps import utilgeo
-
-STANDAARD_DEVIATION_M = 5000
+from maps.settings import MAPS_DATA_DIR
 
 # Make sure the MAPS_DATA_DIR is set in settings.py
 assert MAPS_DATA_DIR != ''
+
+
+STANDAARD_DEVIATION_M = 5000
 
 
 def load_contour_all(observations, config, data_dir):
@@ -87,7 +86,7 @@ def create_contour_plot(observations, config, data_dir=None, name='all', do_recr
         data_dir = MAPS_DATA_DIR
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
-    filepath_geojson = os.path.join(MAPS_DATA_DIR, 'contours_' + name + '.geojson')
+    filepath_geojson = os.path.join(data_dir, 'contours_' + name + '.geojson')
 
     contour = create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation)
 
