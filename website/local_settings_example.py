@@ -68,3 +68,8 @@ REST_FRAMEWORK = {
 
 # WAARNEMING-MAPS
 MAPS_DATA_DIR = os.path.join(STATIC_ROOT, 'waarnemingkaart-data/')
+
+
+# PIWIK
+PIWIK_URL = ''  # optional, without trailing slash
+PIWIK_SITE_ID = 0
