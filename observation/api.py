@@ -9,7 +9,7 @@ from rest_framework import serializers, viewsets
 
 class BioClassSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ('name', 'name_nl', 'name_latin', 'url')
+        fields = ('name', 'name_nl', 'name_latin', 'url', 'wikidata_id', 'wikipedia_url_nl', 'wikimedia_image_url')
 
 
 class GroupSerializer(BioClassSerializer):
