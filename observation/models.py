@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.text import slugify
 from django.utils.functional import cached_property
 
+from wikidata import wikidata
+
 
 class BioClass(models.Model):
     name = models.CharField(max_length=1000, blank=True, default='')
@@ -62,6 +64,22 @@ class Species(BioClass):
     @cached_property
     def map_url(self):
         return "/kaart/?group={}&family={}&species={}".format(self.family.group.slug, self.family.slug, self.slug)
+
+    def add_wikidata(self):
+        search_str = self.name_nl.lower()
+        wikidata_id = wikidata.search_wikidata_id(search_str, language='nl')
+        if not wikidata_id:
+            print('no wikidata entry found')
+            return
+        item = wikidata.WikidataItem(wikidata_id)
+        self.wikidata_id = wikidata_id
+        wikipedia_url_nl = item.get_wikipedia_url()
+        if wikipedia_url_nl:
+            self.wikipedia_url_nl = wikipedia_url_nl
+        image_filename = item.get_image_filename()
+        if image_filename:
+            self.wikimedia_image_url = item.get_wikimedia_image_url(image_filename, image_width_px=400)
+        self.save()
 
 
 class Coordinates(models.Model):

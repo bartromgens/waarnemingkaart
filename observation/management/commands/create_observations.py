@@ -50,6 +50,8 @@ class Command(BaseCommand):
                 name_nl=data['name'],
                 name_latin=data['name_latin'],
             )
+            if created:
+                species.add_wikidata()
             if not data['coordinates']:
                 coordinates = None
             else:
