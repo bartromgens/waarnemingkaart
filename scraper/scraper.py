@@ -131,8 +131,11 @@ class Observation(object):
         header_links = self.html.xpath('//h1/a')
         for link in header_links:
             if 'soort/view/' in link.get('href'):
-                name = link.text.replace('-', '').strip()
                 name_latin = link.getchildren()[0].text.strip()
+                if link.text:
+                    name = link.text.replace('-', '').strip()
+                else:
+                    name = name_latin
                 return name, name_latin
         return '', ''
 
