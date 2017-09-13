@@ -30,7 +30,7 @@ class Group(BioClass):
         return Observation.objects.filter(group=self, coordinates__isnull=False).count()
 
     @cached_property
-    def url(self):
+    def map_url(self):
         return "/kaart/?group={}".format(self.slug)
 
 
@@ -45,7 +45,7 @@ class Family(BioClass):
         return Observation.objects.filter(family=self, coordinates__isnull=False).count()
 
     @cached_property
-    def url(self):
+    def map_url(self):
         return "/kaart/?group={}&family={}".format(self.group.slug, self.slug)
 
 
@@ -60,7 +60,7 @@ class Species(BioClass):
         return Observation.objects.filter(species=self, coordinates__isnull=False).count()
 
     @cached_property
-    def url(self):
+    def map_url(self):
         return "/kaart/?group={}&family={}&species={}".format(self.family.group.slug, self.family.slug, self.slug)
 
 

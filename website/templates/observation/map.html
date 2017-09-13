@@ -10,10 +10,10 @@
 <div>
   <ol class="breadcrumb">
     {% if group %}
-    <li><a href="{{ group.url }}">{{ group }}</a></li>
+    <li><a href="{{ group.map_url }}">{{ group }}</a></li>
     {% endif %}
     {% if family %}
-    <li><a href="{{ family.url }}">{{ family }}</a></li>
+    <li><a href="{{ family.map_url }}">{{ family }}</a></li>
     {% endif %}
     {% if species %}
     <li class="active">{{ species }}</li>
@@ -66,7 +66,7 @@
         <h4>Groepen</h4>
 
         {% for group in groups %}
-          <h5><a href="{{ group.url }}">{{ group.name_nl }}</a></h5>
+          <h5><a href="{{ group.map_url }}">{{ group.name_nl }}</a></h5>
         {% endfor %}
       {% endif %}
 
@@ -75,17 +75,17 @@
 
         {% for family in families %}
           <small>
-            <a href="{{ family.url }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
+            <a href="{{ family.map_url }}">{{ family.name_nl }}</a>{% if not forloop.last %},{% endif %}
           </small>
         {% endfor %}
       {% endif %}
 
       {% if family %}
-        <h4>Soorten <a href="{{ family.url }}">{{ family }}</a></h4>
+        <h4>Soorten <a href="{{ family.map_url }}">{{ family }}</a></h4>
 
         {% for item in speciess %}
           <small>
-            <a href="{{ item.url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+            <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
           </small>
         {% endfor %}
       {% endif %}
