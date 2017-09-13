@@ -32,7 +32,7 @@ class Command(BaseCommand):
             print(id)
             item = wikidata.WikidataItem(id)
             print(item.get_label())
-            spe.wikimedia_id = id
+            spe.wikidata_id = id
             wikipedia_url_nl = item.get_wikipedia_url()
             if wikipedia_url_nl:
                 print(wikipedia_url_nl)
