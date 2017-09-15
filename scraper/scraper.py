@@ -22,22 +22,23 @@ VISSEN_ID = 9
 PADDENSTOELEN_ID = 11
 
 GROUP_IDS = [VOGELS_ID, ZOOGDIEREN_ID, REPTIELEN_AMFIBIEEN_ID, DAGVLINDERS_ID, VISSEN_ID, PADDENSTOELEN_ID]
-# GROUP_IDS = [REPTIELEN_AMFIBIEEN_ID, VISSEN_ID, PADDENSTOELEN_ID]
+# GROUP_IDS = [VOGELS_ID]
 
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def get_observations_for_date(species_id, date, max_n=None):
-    observation_urls = get_observation_urls_for_date(species_id, date, max_n=max_n)
-    print(observation_urls)
+def get_observations_for_date(group_id, date, max_n=None):
+    logger.info('BEGIN - ' + str(date))
+    observation_urls = get_observation_urls_for_date(group_id, date, max_n=max_n)
     observations = []
     for url in observation_urls:
         observations.append(Observation(url))
+    logger.info('BEGIN - ' + str(date))
     return observations
 
 
-def get_observation_urls_for_date(species_id, date, max_n=None):
-    observation_list_urls = get_observation_list_urls(species_id, date)
+def get_observation_urls_for_date(group_id, date, max_n=None):
+    observation_list_urls = get_observation_list_urls(group_id, date)
     observation_urls = []
     for list_url in observation_list_urls:
         observation_urls += get_observation_urls_from_list_page(list_url)
@@ -48,38 +49,36 @@ def get_observation_urls_for_date(species_id, date, max_n=None):
     return observation_urls
 
 
-def get_observation_list_urls(species_id, date):
+def get_observation_list_urls(group_id, date):
     page_url = WAARNEMINGEN_URL + '/waarnemingen_v7.php'
     args = {
-        'groep': str(species_id),
+        'groep': str(group_id),
         'datum': date.isoformat()
     }
     response = requests.get(page_url, args)
-    print(response.url)
     tree = lxml.html.fromstring(response.content)
     table_columns = tree.xpath('//table[@class="paginator list nolistify"]/tr/td/a')
     observation_list_urls = set()
     for row in table_columns:
         observed_species_url = WAARNEMINGEN_URL + row.get('href')
         if '/soort/view/' in observed_species_url:
-            print(observed_species_url)
+            # print(observed_species_url)
             observation_list_urls.add(observed_species_url)
-    print(str(len(observation_list_urls)) + ' species found on ' + date.isoformat())
+    print(str(len(observation_list_urls)) + ' species found on ' + date.isoformat() + ' for url: ' + str(response.url))
     return list(observation_list_urls)
 
 
 def get_observation_urls_from_list_page(url):
     response = requests.get(url)
-    print(response.url)
     tree = lxml.html.fromstring(response.content)
     table_columns = tree.xpath('//table[@class="paginator list nolistify"]/tr/td/a')
     observation_urls = set()
     for row in table_columns:
         observation_url = WAARNEMINGEN_URL + row.get('href')
         if '/waarneming/view/' in observation_url:
-            print(observation_url)
+            # print(observation_url)
             observation_urls.add(observation_url)
-    print(str(len(observation_urls)) + ' observations found')
+    print('\t' + str(len(observation_urls)) + ' observations found for url: ' + str(response.url))
     return list(observation_urls)
 
 
