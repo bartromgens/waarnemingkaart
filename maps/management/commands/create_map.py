@@ -26,7 +26,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--species', type=str, help='', default="grutto")
-        parser.add_argument('--fast', action='store_true', help='')
+        parser.add_argument('--fast', action='store_true', help='Use a lower spatial resolution to increase speed. Use for testing.')
         # parser.add_argument('--recreate', type=bool, help='', default=False)
 
     def handle(self, *args, **options):
