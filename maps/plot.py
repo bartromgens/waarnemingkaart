@@ -207,20 +207,6 @@ class Contour(object):
                 Z[i][j] = local_probability/weights_sum  # see https://en.wikipedia.org/wiki/Mixture_distribution
         return Z
 
-    def create_contour_plot(self, levels, norm=None):
-        figure = Figure(frameon=False)
-        FigureCanvas(figure)
-        ax = figure.add_subplot(111)
-        # contours = plt.contourf(lonrange, latrange, Z, levels=levels, cmap=plt.cm.plasma)
-        contours = ax.contour(
-            self.lonrange, self.latrange, self.Z_norm,
-            levels=levels,
-            norm=norm,
-            cmap=plt.cm.jet,
-            linewidths=3
-        )
-        figure.savefig('test.png', dpi=90)
-
     def create_geojson(self, filepath, stroke_width=1, levels=(), norm=None):
         figure = Figure(frameon=False)
         FigureCanvas(figure)
