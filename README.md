@@ -90,7 +90,7 @@ $ python manage.py create_maps [--group="vogels"]
 
 ## Development
 
-### Webpack bundles
+### Webpack bundles (JavaScript and CSS)
 
 Install webpack and some plugins and loaders,
 ```bash
