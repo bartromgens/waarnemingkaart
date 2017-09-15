@@ -23,27 +23,6 @@ assert MAPS_DATA_DIR != ''
 STANDAARD_DEVIATION_M = 5000
 
 
-def load_contour_all(observations, config, data_dir):
-    contour = Contour(observations, config, data_dir=data_dir, standard_deviation=STANDAARD_DEVIATION_M, name='all')
-    contour.load()
-    return contour
-
-
-def normalize(array_in):
-    max_val = max(array_in)
-    min_val = min(array_in)
-    array_out = []
-    for value in array_in:
-        array_out.append((value - min_val) / (max_val - min_val))
-    return array_out
-
-
-def load_contour_data_all(config, standard_deviation, name='vogels'):
-    contour = Contour([], config, data_dir=MAPS_DATA_DIR, standard_deviation=standard_deviation, name=name)
-    contour.load()
-    contour.normalize()
-    return contour
-
 
 def create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation):
     contour = Contour(observations, config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
