@@ -76,6 +76,18 @@ Run the following command to create a compressed json data dump, `observations.j
 $ python manage.py create_json_dump
 ```
 
+## Commands
+
+Create a species map,
+```bash
+$ python manage.py create_map --species="grutto" [--fast]
+```
+
+Create maps for all groups, families and species, or a specific group,
+```bash
+$ python manage.py create_maps [--group="vogels"]
+```
+
 ## Development
 
 ### Webpack bundles
