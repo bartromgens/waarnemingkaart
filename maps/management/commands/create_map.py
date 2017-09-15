@@ -3,6 +3,7 @@ import sys
 
 
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
 from django.conf import settings
 
 from observation.models import Observation
@@ -17,20 +18,26 @@ from maps.settings import MAPS_DATA_DIR
 
 
 class Command(BaseCommand):
-    RECREATE = False
+    RECREATE = True
     N_CONTOURS = 11
     N_NEAREST = 15
     STANDARD_DEVIATION = 5000
-    STEPSIZE_DEG = 0.02
+    STEPSIZE_DEG = 0.01
 
-    # def add_arguments(self, parser):
-        # parser.add_argument('--recreate', type=bool, help='', default=True)
+    def add_arguments(self, parser):
+        parser.add_argument('--species', type=str, help='', default="grutto")
+        parser.add_argument('--fast', action='store_true', help='')
+        # parser.add_argument('--recreate', type=bool, help='', default=False)
 
     def handle(self, *args, **options):
-        species_slug = "grutto"
+        species_name = options['species']
+        stepsize_deg = Command.STEPSIZE_DEG
+        print(options['fast'])
+        if options['fast']:
+            stepsize_deg *= 4
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
-        config = ContourPlotConfig(stepsize_deg=Command.STEPSIZE_DEG, n_nearest=Command.N_NEAREST)
-        species = Species.objects.get(slug=species_slug)
+        config = ContourPlotConfig(stepsize_deg=stepsize_deg, n_nearest=Command.N_NEAREST)
+        species = Species.objects.get(slug=slugify(species_name))
         self.create_map_species(observations_all, config, species)
 
     @staticmethod
