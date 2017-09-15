@@ -24,11 +24,11 @@ class Command(BaseCommand):
         end_date = datetime.date(year=2015, month=1, day=1)
         while date >= end_date:
             for group_id in scraper.GROUP_IDS:
-                self.create_for_date(species_id=group_id, date=date, max_n=max_n)
+                self.create_for_date(group_id=group_id, date=date, max_n=max_n)
             date = date - datetime.timedelta(days=1)
 
-    def create_for_date(self, species_id, date, max_n=None):
-        observations = scraper.get_observations_for_date(species_id=species_id, date=date, max_n=max_n)
+    def create_for_date(self, group_id, date, max_n=None):
+        observations = scraper.get_observations_for_date(group_id=group_id, date=date, max_n=max_n)
         for observation in observations:
             existing_observations = Observation.objects.filter(waarneming_url=observation.url)
             if existing_observations:
