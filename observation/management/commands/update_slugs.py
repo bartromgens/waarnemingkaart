@@ -1,8 +1,5 @@
-import dateparser
-
 from django.core.management.base import BaseCommand
 
-from observation.models import Observation
 from observation.models import Group
 from observation.models import Species
 from observation.models import Family
