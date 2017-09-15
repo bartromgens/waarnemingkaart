@@ -3,7 +3,7 @@ import sys
 
 
 from django.core.management.base import BaseCommand
-from django.conf import settings
+from django.utils.text import slugify
 
 from observation.models import Observation
 from observation.models import Group
@@ -22,24 +22,27 @@ class Command(BaseCommand):
     N_NEAREST = 15
     STANDARD_DEVIATION = 5000
 
-    # def add_arguments(self, parser):
-        # parser.add_argument('--recreate', type=bool, help='', default=True)
+    def add_arguments(self, parser):
+        parser.add_argument('--group', type=str, help='', default="vogels")
 
     def handle(self, *args, **options):
+        group = Group.objects.get(slug=slugify(options['group']))
         config_groups = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
-        self.create_maps_groups(observations_all, config_groups)
+        self.create_maps_groups(observations_all, config_groups, group)
         config = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
-        self.create_maps_families(observations_all, config)
-        self.create_maps_species(observations_all, config)
+        self.create_maps_families(observations_all, config, group)
+        self.create_maps_species(observations_all, config, group)
 
     @staticmethod
-    def create_maps_groups(observations, config):
+    def create_maps_groups(observations, config, group=None):
         print('create group maps - BEGIN')
         recursionlimit_default = sys.getrecursionlimit()
         print('recursion limit default: ' + str(recursionlimit_default))
-        sys.setrecursionlimit(10000)
         groups = Group.objects.all()
+        if group:
+            groups = groups.filter(id=group.id)
+        sys.setrecursionlimit(10000)
         for group in groups:
             observations_group = observations.filter(group=group)
             Command.create_map(observations_group, config, MAPS_DATA_DIR, group.slug)
@@ -47,9 +50,11 @@ class Command(BaseCommand):
         print('create group maps - END')
 
     @staticmethod
-    def create_maps_families(observations, config):
+    def create_maps_families(observations, config, group=None):
         print('create family maps - BEGIN')
         families = Family.objects.all()
+        if group:
+            families = families.filter(group=group)
         for family in families:
             observations_fam = observations.filter(family=family)
             data_dir = os.path.join(MAPS_DATA_DIR, family.group.slug)
@@ -57,9 +62,11 @@ class Command(BaseCommand):
         print('create family maps - END')
 
     @staticmethod
-    def create_maps_species(observations, config):
+    def create_maps_species(observations, config, group=None):
         print('create species maps - BEGIN')
         species = Species.objects.all()
+        if group:
+            species = species.filter(family__group=group)
         for obj in species:
             observations_species = observations.filter(species=obj)
             data_dir = os.path.join(MAPS_DATA_DIR, obj.family.group.slug, obj.family.slug)
