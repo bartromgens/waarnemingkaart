@@ -32,7 +32,6 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         species_name = options['species']
         stepsize_deg = Command.STEPSIZE_DEG
-        print(options['fast'])
         if options['fast']:
             stepsize_deg *= 4
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')

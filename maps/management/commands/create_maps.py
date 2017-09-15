@@ -23,10 +23,12 @@ class Command(BaseCommand):
     STANDARD_DEVIATION = 5000
 
     def add_arguments(self, parser):
-        parser.add_argument('--group', type=str, help='', default="vogels")
+        parser.add_argument('--group', type=str, help='', default=None)
 
     def handle(self, *args, **options):
-        group = Group.objects.get(slug=slugify(options['group']))
+        group = None
+        if options['group'] is not None:
+            group = Group.objects.get(slug=slugify(options['group']))
         config_groups = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
         self.create_maps_groups(observations_all, config_groups, group)
