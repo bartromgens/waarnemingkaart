@@ -42,14 +42,14 @@ def create_or_load_contour_data(observations, config, data_dir, name, do_recreat
 
 def create_contour_levels_linear(Z, n_contours):
     z_max = Z.max()
-    z_min = 0.01*z_max
+    z_min = 0.0005*z_max
     # z_mean = Z.mean()
     print('z min: ' + str(z_min))
     # print('z mean: ' + str(z_mean))
     print('z max: ' + str(z_max))
     levels = numpy.logspace(
         start=math.log10(z_min),
-        stop=math.log10(0.9*z_max),
+        stop=math.log10(0.6*z_max),
         num=n_contours
     )
     norm = colors.LogNorm()
