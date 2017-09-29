@@ -29,6 +29,7 @@ class GroupAdmin(admin.ModelAdmin):
         'name_nl',
         'name_latin',
         'slug',
+        'n_observations',
     )
 
 
@@ -40,6 +41,7 @@ class FamilyAdmin(admin.ModelAdmin):
         'name_nl',
         'name_latin',
         'slug',
+        'n_observations',
     )
     list_filter = ('group',)
 
@@ -52,6 +54,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         'name_nl',
         'name_latin',
         'slug',
+        'n_observations',
     )
     list_filter = ('family__group', 'family')
 
