@@ -12,6 +12,7 @@ from observation.models import Species
 
 from maps.plot import ContourPlotConfig
 from maps.plot import create_contour_plot
+from maps.data import observations_to_json
 
 from maps.settings import MAPS_DATA_DIR
 
@@ -90,4 +91,7 @@ class Command(BaseCommand):
             n_contours=Command.N_CONTOURS,
             standard_deviation=Command.STANDARD_DEVIATION
         )
+        # TODO: remove duplicate code in create_map command
+        filepath = os.path.join(data_dir, name + '.json')
+        observations_to_json(observations, filepath)
         print('create map - END - ' + str(name))
