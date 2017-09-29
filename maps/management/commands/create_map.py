@@ -20,10 +20,6 @@ from maps.settings import MAPS_DATA_DIR
 
 class Command(BaseCommand):
     RECREATE = True
-    N_CONTOURS = 11
-    N_NEAREST = 15
-    STANDARD_DEVIATION = 5000
-    STEPSIZE_DEG = 0.005
 
     def add_arguments(self, parser):
         parser.add_argument('--species', type=str, help='', default="grutto")
@@ -32,11 +28,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         species_name = options['species']
-        stepsize_deg = Command.STEPSIZE_DEG
-        if options['fast']:
-            stepsize_deg *= 4
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
-        config = ContourPlotConfig(stepsize_deg=stepsize_deg, n_nearest=Command.N_NEAREST)
+        config = ContourPlotConfig()
         species = Species.objects.get(slug=slugify(species_name))
         self.create_map_species(observations_all, config, species)
 
@@ -53,15 +46,12 @@ class Command(BaseCommand):
         print('create map - BEGIN - ' + str(name))
         if observations.count() < 1:
             return
-        config.n_nearest = min(Command.N_NEAREST, observations.count())
         create_contour_plot(
             observations=observations,
             config=config,
             data_dir=data_dir,
             name=name,
-            do_recreate=Command.RECREATE,
-            n_contours=Command.N_CONTOURS,
-            standard_deviation=Command.STANDARD_DEVIATION
+            do_recreate=Command.RECREATE
         )
         filepath = os.path.join(data_dir, name + '.json')
         observations_to_json(observations, filepath)

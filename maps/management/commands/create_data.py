@@ -8,8 +8,6 @@ from observation.models import Group
 from observation.models import Family
 from observation.models import Species
 
-from maps.plot import Contour
-from maps.plot import ContourPlotConfig
 from maps.data import observations_to_json
 
 from maps.settings import MAPS_DATA_DIR

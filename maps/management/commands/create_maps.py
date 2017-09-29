@@ -19,9 +19,6 @@ from maps.settings import MAPS_DATA_DIR
 
 class Command(BaseCommand):
     RECREATE = False
-    N_CONTOURS = 11
-    N_NEAREST = 15
-    STANDARD_DEVIATION = 5000
 
     def add_arguments(self, parser):
         parser.add_argument('--group', type=str, help='', default=None)
@@ -30,10 +27,10 @@ class Command(BaseCommand):
         group = None
         if options['group'] is not None:
             group = Group.objects.get(slug=slugify(options['group']))
-        config_groups = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
+        config_groups = ContourPlotConfig()
         observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
         self.create_maps_groups(observations_all, config_groups, group)
-        config = ContourPlotConfig(stepsize_deg=0.01, n_nearest=Command.N_NEAREST)
+        config = ContourPlotConfig()
         self.create_maps_families(observations_all, config, group)
         self.create_maps_species(observations_all, config, group)
 
@@ -81,15 +78,12 @@ class Command(BaseCommand):
         print('create map - BEGIN - ' + str(name))
         if observations.count() < 1:
             return
-        config.n_nearest = min(Command.N_NEAREST, observations.count())
         create_contour_plot(
             observations=observations,
             config=config,
             data_dir=data_dir,
             name=name,
-            do_recreate=Command.RECREATE,
-            n_contours=Command.N_CONTOURS,
-            standard_deviation=Command.STANDARD_DEVIATION
+            do_recreate=Command.RECREATE
         )
         # TODO: remove duplicate code in create_map command
         filepath = os.path.join(data_dir, name + '.json')
