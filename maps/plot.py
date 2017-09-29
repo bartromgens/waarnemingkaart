@@ -51,7 +51,7 @@ class ContourPlotConfig(object):
         self.min_angle_between_segments = 7
         Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
         self.levels = [Level(stepsize_deg=0.002, sigma=500, n_contours=11),
-                       Level(stepsize_deg=0.005, sigma=1500, n_contours=11)]
+                       Level(stepsize_deg=0.005, sigma=1500, n_contours=9)]
 
 
 class Contour(object):
@@ -147,8 +147,9 @@ class Contour(object):
                 stroke_width=stroke_width
             )
 
-    def create_contour_levels(self, n_contours):
-        z_max = self.Z.max()
+    @staticmethod
+    def create_contour_levels(Z, n_contours):
+        z_max = Z.max()
         z_min = 0.0005*z_max
         logger.info('z min: ' + str(z_min))
         logger.info('z max: ' + str(z_max))
