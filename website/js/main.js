@@ -153,7 +153,8 @@ function createObservationsLayer() {
 contourmap.map.on('pointermove', onPointerMapMove);
 
 contourmap.map.on('moveend', function(event) {
-    var observationsVisible = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM;
+    var zoom = contourmap.map.getView().getZoom();
+    var observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
     if (observationsVisible && !observationsLayer) {
         createObservationsLayer();
     }
@@ -163,12 +164,14 @@ contourmap.map.on('moveend', function(event) {
 //    console.log('contourLayerLowDetail', contourLayerLowDetail);
 //    console.log('contourLayerHighDetail', contourLayerHighDetail);
 
-    var highDetailMode = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM
-    if (highDetailMode && !contourLayerHighDetail) {
+    var startLoadHighDetail = zoom > (OBSERVATIONS_LAYER_ZOOM-1)
+    if (startLoadHighDetail && !contourLayerHighDetail) {
         contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
+            contourLayer.setVisible(false)
             contourLayerHighDetail = contourLayer;
         });
     }
+    var highDetailMode = zoom > OBSERVATIONS_LAYER_ZOOM
     if (contourLayerHighDetail) {
         contourLayerHighDetail.setVisible(highDetailMode);
     }
