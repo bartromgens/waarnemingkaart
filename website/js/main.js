@@ -71,13 +71,13 @@ if (filepaths) {
 
 var observationsLayer = null;
 
-//$.getJSON(filepaths.observations, function(json) {
-//    if (json.observations.length < 2000) {
-//        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
-//    } else {
-//        console.log('WARNING: too many observations to show');
-//    }
-//});
+$.getJSON(filepaths.observations, function(json) {
+    if (json.observations.length < 20000) {
+        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
+    } else {
+        console.log('WARNING: too many observations to show');
+    }
+});
 
 
 // Save map as png
