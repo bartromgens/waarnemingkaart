@@ -1,12 +1,9 @@
-import sys
-import os
-import math
 import logging
+import math
+import os
+from collections import namedtuple
 
 import numpy
-
-import scipy.stats
-from scipy.spatial import KDTree
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
@@ -15,15 +12,14 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 import geojsoncontour
 
-from maps import utilgeo
 from maps.utilgeo import deg2rad, rad2deg
-from math import cos
 from maps.settings import MAPS_DATA_DIR
 
-from collections import namedtuple
+logger = logging.getLogger(__name__)
 
 # Make sure the MAPS_DATA_DIR is set in settings.py
 assert MAPS_DATA_DIR != ''
+
 
 def create_or_load_contour_data(observations, config, data_dir, name, do_recreate):
     contour = Contour(observations, config, data_dir=data_dir, name=name)
@@ -88,7 +84,7 @@ class ContourPlotConfig(object):
 class Contour(object):
 
     def __init__(self, observations, config, data_dir=None, name='all'):
-        print('number of observations: ' + str(len(observations)))
+        logger.info('number of observations: ' + str(len(observations)))
         self.name = name
         self.observations = observations
         self.config = config
@@ -104,7 +100,7 @@ class Contour(object):
         return os.path.exists(self.contour_data_filepath)
 
     def load(self):
-        print('load: ' + self.contour_data_filepath)
+        logger.info('load: ' + self.contour_data_filepath)
         raise Exception('Not implemented')
         # with open(self.contour_data_filepath, 'rb') as filein:
         #     self.Z = numpy.load(filein)
@@ -121,15 +117,15 @@ class Contour(object):
         # self.Z_norm = (self.Z - min_val) / (max_val - min_val)
 
     def create_contour_data(self, filepath=None):
-        print('create_contour_data - BEGIN')
+        logger.info('BEGIN')
         numpy.set_printoptions(3, threshold=100, suppress=True)  # .3f
 
         self.Z = self.get_probability_field()
         self.save()
-        print('create_contour_data - END')
+        logger.info('END')
 
     def get_probability_field(self):
-        print('get_probability_field - BEGIN')
+        logger.info('BEGIN')
 
         earth_radius = 6360000  # [m], ignore ellipsoid shape
 
@@ -137,7 +133,7 @@ class Contour(object):
         for level in self.config.levels:
             lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
             sigma_lat_deg = rad2deg(level.sigma / earth_radius)  # [deg]
-            sigma_lon_deg = rad2deg(level.sigma / (earth_radius * cos(lat_avg)))
+            sigma_lon_deg = rad2deg(level.sigma / (earth_radius * math.cos(lat_avg)))
             # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
 
             i_sig = sigma_lat_deg / level.stepsize_deg
@@ -165,7 +161,7 @@ class Contour(object):
                             pass
             Z.append(z_level)
         # Z *= pdf_factor_lat*pdf_factor_lon
-        print('get_probability_field - END')
+        logger.info('END')
         return Z
 
     def create_geojson(self, data_dir, name, stroke_width=1):
@@ -173,7 +169,7 @@ class Contour(object):
         for index, z_level in enumerate(self.Z):
             level = self.config.levels[index]
             levels, norm = create_contour_levels_linear(z_level, level.n_contours)
-            print('levels: ' + str(levels))
+            logger.info('levels: ' + str(levels))
 
             filepath = os.path.join(data_dir, 'contours_' + name + '_' + str(index) + '_' + '.geojson')
             figure = Figure(frameon=False)

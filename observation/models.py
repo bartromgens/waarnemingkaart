@@ -47,6 +47,10 @@ class Family(BioClass):
         return Observation.objects.filter(family=self, coordinates__isnull=False).count()
 
     @cached_property
+    def n_species(self):
+        return Species.objects.filter(family=self).count()
+
+    @cached_property
     def map_url(self):
         return "/kaart/?group={}&family={}".format(self.group.slug, self.slug)
 
