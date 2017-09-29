@@ -26,32 +26,7 @@ def create_map(observations, config, data_dir, name):
     logger.info('BEGIN - ' + str(name))
     if observations.count() < 1:
         return
-    create_contour_plot(
-        observations=observations,
-        config=config,
-        data_dir=data_dir,
-        name=name,
-    )
-    filepath = os.path.join(data_dir, name + '.json')
-    observations_to_json(observations, filepath)
-    logger.info('END - ' + str(name))
 
-
-def create_contour_levels_linear(Z, n_contours):
-    z_max = Z.max()
-    z_min = 0.0005*z_max
-    logger.info('z min: ' + str(z_min))
-    logger.info('z max: ' + str(z_max))
-    levels = numpy.logspace(
-        start=math.log10(z_min),
-        stop=math.log10(0.6*z_max),
-        num=n_contours
-    )
-    norm = colors.LogNorm()
-    return levels, norm
-
-
-def create_contour_plot(observations, config, data_dir=None, name='all'):
     if data_dir is None:
         data_dir = MAPS_DATA_DIR
     if not os.path.exists(data_dir):
@@ -60,6 +35,10 @@ def create_contour_plot(observations, config, data_dir=None, name='all'):
     contour = Contour(observations, config, data_dir=data_dir, name=name)
     contour.create_contour_data()
     contour.create_geojson(data_dir, name, stroke_width=4)
+
+    observations_filepath = os.path.join(data_dir, name + '.json')
+    observations_to_json(observations, observations_filepath)
+    logger.info('END - ' + str(name))
 
 
 class ContourPlotConfig(object):
@@ -72,7 +51,7 @@ class ContourPlotConfig(object):
         self.min_angle_between_segments = 7
         Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
         self.levels = [Level(stepsize_deg=0.002, sigma=500, n_contours=11),
-                       Level(stepsize_deg=0.005, sigma=1500, n_contours=9)]
+                       Level(stepsize_deg=0.005, sigma=1500, n_contours=11)]
 
 
 class Contour(object):
@@ -139,7 +118,7 @@ class Contour(object):
         assert(len(self.Z) == len(self.config.levels))
         for index, z_level in enumerate(self.Z):
             level = self.config.levels[index]
-            levels, norm = create_contour_levels_linear(z_level, level.n_contours)
+            levels, norm = self.create_contour_levels(z_level, level.n_contours)
             logger.info('levels: ' + str(levels))
 
             filepath = os.path.join(data_dir, 'contours_' + name + '_' + str(index) + '_' + '.geojson')
@@ -167,3 +146,16 @@ class Contour(object):
                 unit='[<unit here>]',
                 stroke_width=stroke_width
             )
+
+    def create_contour_levels(self, n_contours):
+        z_max = self.Z.max()
+        z_min = 0.0005*z_max
+        logger.info('z min: ' + str(z_min))
+        logger.info('z max: ' + str(z_max))
+        levels = numpy.logspace(
+            start=math.log10(z_min),
+            stop=math.log10(0.6*z_max),
+            num=n_contours
+        )
+        norm = colors.LogNorm()
+        return levels, norm

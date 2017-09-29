@@ -31,8 +31,8 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_map_species(observations, config, species):
-        logger.info('BEGIN: ' + species)
+        logger.info('BEGIN: ' + str(species))
         observations_species = observations.filter(species=species)
         data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
         create_map(observations_species, config, data_dir, species.slug)
-        logger.info('END:' + species)
+        logger.info('END: ' + str(species))
