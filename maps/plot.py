@@ -9,6 +9,7 @@ from scipy.spatial import KDTree
 
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+from matplotlib import colors
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 
 import geojsoncontour
@@ -37,19 +38,20 @@ def create_or_load_contour_data(observations, config, data_dir, name, do_recreat
     return contour
 
 
-def create_contour_levels(contour, n_contours):
-    start = 1.8 * contour.standard_deviation
-    stop = 0.3 * contour.standard_deviation
-    steps = numpy.linspace(start=start, stop=stop, num=n_contours)
-
-    levels = []
-    for step in steps:
-        levels.append(contour.calc_normal_pdf(step))
-    # for i in range(0, len(levels)-1):
-    #     diff = levels[i+1]-levels[i]
-    #     print(diff)
-    # levels = normalize(levels)
-    return levels
+def create_contour_levels_linear(Z, n_contours):
+    z_max = Z.max()
+    z_min = Z.min()
+    z_mean = Z.mean()
+    print('z min: ' + str(z_min))
+    print('z mean: ' + str(z_mean))
+    print('z max: ' + str(z_max))
+    levels = numpy.linspace(
+        start=z_mean,
+        stop=numpy.percentile(Z, 99),
+        num=n_contours
+    )
+    norm = None
+    return levels, norm
 
 
 def div0( a, b ):
@@ -69,13 +71,10 @@ def create_contour_plot(observations, config, data_dir=None, name='all', do_recr
 
     contour = create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation)
 
-    levels = create_contour_levels(contour, n_contours)
-
-    print('Z.max(): ' + str(contour.Z.max()))
-    print('Z.min(): ' + str(contour.Z.min()))
+    levels, norm = create_contour_levels_linear(contour.Z, n_contours)
     print('levels: ' + str(levels))
 
-    contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=None)
+    contour.create_geojson(filepath_geojson, stroke_width=4, levels=levels, norm=norm)
 
 
 class ContourPlotConfig(object):
