@@ -95,7 +95,7 @@ $ python manage.py create_maps [--group="vogels"]
 Install webpack and some plugins and loaders,
 ```bash
 $ sudo npm install webpack -g
-$ npm install --save-dev webpack path webpack-manifest-plugin webpack-cleanup-plugin extract-text-webpack-plugin css-loader style-loader babel-core babel-loader babel-preset-es2015
+$ npm install webpack path webpack-manifest-plugin webpack-cleanup-plugin extract-text-webpack-plugin css-loader style-loader babel-core babel-loader babel-preset-es2015
 ```
 
 Webpack config is found in `webpack.config.js`.
