@@ -81,8 +81,8 @@ class ContourPlotConfig(object):
         self.lat_end = 53.75
         self.min_angle_between_segments = 7
         Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
-        self.levels = [Level(stepsize_deg=0.005, sigma=500, n_contours=15),
-                       Level(stepsize_deg=0.015, sigma=1500, n_contours=9)]
+        self.levels = [Level(stepsize_deg=0.002, sigma=500, n_contours=11),
+                       Level(stepsize_deg=0.01, sigma=1500, n_contours=9)]
 
 
 class Contour(object):
@@ -135,8 +135,6 @@ class Contour(object):
 
         Z = []
         for level in self.config.levels:
-
-
             lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
             sigma_lat_deg = rad2deg(level.sigma / earth_radius)  # [deg]
             sigma_lon_deg = rad2deg(level.sigma / (earth_radius * cos(lat_avg)))
@@ -154,14 +152,15 @@ class Contour(object):
             lonsize = int((self.config.lon_end - self.config.lon_start)/level.stepsize_deg)
             z_level = numpy.zeros((latsize, lonsize))
             for obs in self.observations:
-                i = int((obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg)
-                j = int((obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg)
-                for di in range(-i_sig_3, i_sig_3):
-                    for dj in range(-j_sig_3, j_sig_3):
-                        # print(i, di, j, dj)
+                i_obs = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
+                j_obs = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
+                for i in range(round(i_obs)-i_sig_3, round(i_obs)+i_sig_3):
+                    for j in range(round(j_obs)-j_sig_3, round(j_obs)+j_sig_3):
                         try:
-                            z_level[i + di][j + dj] += math.exp(-(di * di) / (i_sig * i_sig)) *\
-                                                       math.exp(-(dj * dj) / (j_sig * j_sig))
+                            di = i-i_obs
+                            dj = j-j_obs
+                            z_level[i][j] += math.exp(-(di*di) / (i_sig * i_sig)) *\
+                                             math.exp(-(dj*dj) / (j_sig * j_sig))
                         except IndexError:
                             pass
             Z.append(z_level)
