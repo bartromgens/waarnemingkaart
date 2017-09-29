@@ -160,7 +160,8 @@ class Contour(object):
         return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
     def get_probability_field(self, latrange, lonrange):
-        sigma = 3000  # [m] mobility of species
+        print('get_probability_field - BEGIN')
+        sigma = 2000  # [m] mobility of species
         earth_radius = 6360000  # [m], ignore ellipsoid shape
 
         lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
@@ -183,9 +184,14 @@ class Contour(object):
             for di in range(-i_sig_3, i_sig_3):
                 for dj in range(-j_sig_3, j_sig_3):
                     # print(i, di, j, dj)
-                    Z[i + di][j + dj] += pdf_factor_lat * math.exp(-(di * di) / (i_sig * i_sig)) *\
-                                         pdf_factor_lon * math.exp(-(dj * dj) / (j_sig * j_sig))
+                    try:
+                         Z[i + di][j + dj] += math.exp(-(di * di) / (i_sig * i_sig)) *\
+                                              math.exp(-(dj * dj) / (j_sig * j_sig))
+                    except IndexError:
+                        pass
                     # print(Z[i + di][j + dj])
+        print('get_probability_field - END')
+        # Z *= pdf_factor_lat*pdf_factor_lon
         return Z
 
     def create_geojson(self, filepath, stroke_width=1, levels=(), norm=None):
