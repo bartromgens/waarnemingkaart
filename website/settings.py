@@ -178,6 +178,11 @@ LOGGING = {
             'propagate': True,
             'level': 'ERROR',
         },
+        'maps': {
+            'handlers': ['file_debug', 'file_error', 'console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
         'observation': {
             'handlers': ['file_debug', 'file_error', 'console'],
             'propagate': True,

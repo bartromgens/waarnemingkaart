@@ -14,6 +14,7 @@ import geojsoncontour
 
 from maps.utilgeo import deg2rad, rad2deg
 from maps.settings import MAPS_DATA_DIR
+from maps.data import observations_to_json
 
 logger = logging.getLogger(__name__)
 
@@ -21,25 +22,26 @@ logger = logging.getLogger(__name__)
 assert MAPS_DATA_DIR != ''
 
 
-def create_or_load_contour_data(observations, config, data_dir, name, do_recreate):
-    contour = Contour(observations, config, data_dir=data_dir, name=name)
-    if do_recreate or not contour.is_saved:
-        contour.create_contour_data()
-    else:
-        saved_data_valid = contour.load()
-        if not saved_data_valid:
-            contour.create_contour_data()
-    # contour.normalize()
-    return contour
+def create_map(observations, config, data_dir, name):
+    logger.info('BEGIN - ' + str(name))
+    if observations.count() < 1:
+        return
+    create_contour_plot(
+        observations=observations,
+        config=config,
+        data_dir=data_dir,
+        name=name,
+    )
+    filepath = os.path.join(data_dir, name + '.json')
+    observations_to_json(observations, filepath)
+    logger.info('END - ' + str(name))
 
 
 def create_contour_levels_linear(Z, n_contours):
     z_max = Z.max()
     z_min = 0.0005*z_max
-    # z_mean = Z.mean()
-    print('z min: ' + str(z_min))
-    # print('z mean: ' + str(z_mean))
-    print('z max: ' + str(z_max))
+    logger.info('z min: ' + str(z_min))
+    logger.info('z max: ' + str(z_max))
     levels = numpy.logspace(
         start=math.log10(z_min),
         stop=math.log10(0.6*z_max),
@@ -49,22 +51,14 @@ def create_contour_levels_linear(Z, n_contours):
     return levels, norm
 
 
-def div0( a, b ):
-    """ ignore / 0, div0( [-1, 0, 1], 0 ) -> [0, 0, 0] """
-    with numpy.errstate(divide='ignore', invalid='ignore'):
-        c = numpy.true_divide( a, b )
-        c[ ~ numpy.isfinite( c )] = 0  # -inf inf NaN
-    return c
-
-
-def create_contour_plot(observations, config, data_dir=None, name='all', do_recreate=False):
+def create_contour_plot(observations, config, data_dir=None, name='all'):
     if data_dir is None:
         data_dir = MAPS_DATA_DIR
     if not os.path.exists(data_dir):
         os.makedirs(data_dir)
 
-    contour = create_or_load_contour_data(observations, config, data_dir, name, do_recreate)
-
+    contour = Contour(observations, config, data_dir=data_dir, name=name)
+    contour.create_contour_data()
     contour.create_geojson(data_dir, name, stroke_width=4)
 
 
@@ -78,7 +72,7 @@ class ContourPlotConfig(object):
         self.min_angle_between_segments = 7
         Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
         self.levels = [Level(stepsize_deg=0.002, sigma=500, n_contours=11),
-                       Level(stepsize_deg=0.01, sigma=1500, n_contours=9)]
+                       Level(stepsize_deg=0.005, sigma=1500, n_contours=9)]
 
 
 class Contour(object):
@@ -95,33 +89,10 @@ class Contour(object):
     def contour_data_filepath(self):
         return os.path.join(self.data_dir, 'contour_data_' + self.name + '_' + '.npz')
 
-    @property
-    def is_saved(self):
-        return os.path.exists(self.contour_data_filepath)
-
-    def load(self):
-        logger.info('load: ' + self.contour_data_filepath)
-        raise Exception('Not implemented')
-        # with open(self.contour_data_filepath, 'rb') as filein:
-        #     self.Z = numpy.load(filein)
-        # return self.Z.size == self.Z_norm.size
-
-    def save(self):
-        with open(self.contour_data_filepath, 'wb') as fileout:
-            numpy.save(fileout, self.Z)
-
-    def normalize(self):
-        raise Exception('Not implemented')
-        # max_val = self.Z.max()
-        # min_val = self.Z.min()
-        # self.Z_norm = (self.Z - min_val) / (max_val - min_val)
-
-    def create_contour_data(self, filepath=None):
+    def create_contour_data(self):
         logger.info('BEGIN')
         numpy.set_printoptions(3, threshold=100, suppress=True)  # .3f
-
         self.Z = self.get_probability_field()
-        self.save()
         logger.info('END')
 
     def get_probability_field(self):

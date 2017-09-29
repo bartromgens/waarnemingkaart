@@ -1,25 +1,21 @@
+import logging
 import os
-import sys
-
 
 from django.core.management.base import BaseCommand
 from django.utils.text import slugify
-from django.conf import settings
 
 from observation.models import Observation
-from observation.models import Group
-from observation.models import Family
 from observation.models import Species
 
 from maps.plot import ContourPlotConfig
-from maps.plot import create_contour_plot
-from maps.data import observations_to_json
+from maps.plot import create_map
 
 from maps.settings import MAPS_DATA_DIR
 
+logger = logging.getLogger(__name__)
+
 
 class Command(BaseCommand):
-    RECREATE = True
 
     def add_arguments(self, parser):
         parser.add_argument('--species', type=str, help='', default="grutto")
@@ -35,24 +31,8 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_map_species(observations, config, species):
-        print('create species map - BEGIN')
+        logger.info('BEGIN: ' + species)
         observations_species = observations.filter(species=species)
         data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
-        Command.create_map(observations_species, config, data_dir, species.slug)
-        print('create species map - END')
-
-    @staticmethod
-    def create_map(observations, config, data_dir, name):
-        print('create map - BEGIN - ' + str(name))
-        if observations.count() < 1:
-            return
-        create_contour_plot(
-            observations=observations,
-            config=config,
-            data_dir=data_dir,
-            name=name,
-            do_recreate=Command.RECREATE
-        )
-        filepath = os.path.join(data_dir, name + '.json')
-        observations_to_json(observations, filepath)
-        print('create map - END - ' + str(name))
+        create_map(observations_species, config, data_dir, species.slug)
+        logger.info('END:' + species)
