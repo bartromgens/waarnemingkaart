@@ -22,7 +22,7 @@ class Command(BaseCommand):
     N_CONTOURS = 11
     N_NEAREST = 15
     STANDARD_DEVIATION = 5000
-    STEPSIZE_DEG = 0.01
+    STEPSIZE_DEG = 0.005
 
     def add_arguments(self, parser):
         parser.add_argument('--species', type=str, help='', default="grutto")

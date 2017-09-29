@@ -81,7 +81,7 @@ def create_contour_plot(observations, config, data_dir=None, name='all', do_recr
 
 class ContourPlotConfig(object):
 
-    def __init__(self, stepsize_deg=0.01, n_nearest=30):
+    def __init__(self, stepsize_deg=0.005, n_nearest=30):
         self.stepsize_deg = stepsize_deg
         self.n_nearest = n_nearest
         self.lon_start = 3.0
@@ -150,12 +150,8 @@ class Contour(object):
             observation_data.append({'number': observation.number}) #, 'lat': observation.coordinates.lat, 'lon': observation.coordinates.lon})
 
         self.Z = self.get_probability_field(
-            positions=positions,
-            gps=gps,
             lonrange=self.lonrange,
-            latrange=self.latrange,
-            altitude=altitude,
-            n_nearest=min([self.config.n_nearest, len(self.observations)])
+            latrange=self.latrange
         )
         self.save()
         print('create_contour_data - END')
@@ -163,34 +159,30 @@ class Contour(object):
     def calc_normal_pdf(self, x_minus_mean):
         return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
-    def get_probability_field(self, positions, gps, latrange, lonrange, altitude, n_nearest):
-        kdtree = KDTree(positions)
-        Z = numpy.zeros((int(latrange.shape[0]), int(lonrange.shape[0])))
+    def get_probability_field(self, latrange, lonrange):
         sigma = 2000  # [m] mobility of species
-
         earth_radius = 6360000  # [m], ignore ellipsoid shape
+
         lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
-
-        #self.lonrange = numpy.arange(self.config.lon_start, self.config.lon_end, self.config.stepsize_deg)
-        #self.latrange = numpy.arange(self.config.lat_start, self.config.lat_end, self.config.stepsize_deg)
-
         sigma_lat_deg = rad2deg(sigma / earth_radius)  # [deg]
         sigma_lon_deg = rad2deg(sigma / (earth_radius * cos(lat_avg)))
         # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
 
+        i_sig = sigma_lat_deg / self.config.stepsize_deg
+        j_sig = sigma_lon_deg / self.config.stepsize_deg
+        i_sig_3 = int(3*i_sig)
+        j_sig_3 = int(3*j_sig)
+        pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
+        pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
+        # print ("i_sig", i_sig, "j_sig", j_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
+
+        Z = numpy.zeros((int(latrange.shape[0]), int(lonrange.shape[0])))
         for obs in self.observations:
-
-            i = round((obs.coordinates.lat - self.config.lat_start) / self.config.stepsize_deg)
-            j = round((obs.coordinates.lon - self.config.lon_start) / self.config.stepsize_deg)
-            i_sig = round(sigma_lat_deg / self.config.stepsize_deg)
-            j_sig = round(sigma_lon_deg / self.config.stepsize_deg)
-            # print ("i_sig", i_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
-            for di in range(-3*i_sig, 3*i_sig):
-                for dj in range(-3*j_sig, 3*j_sig):
+            i = int((obs.coordinates.lat - self.config.lat_start) / self.config.stepsize_deg)
+            j = int((obs.coordinates.lon - self.config.lon_start) / self.config.stepsize_deg)
+            for di in range(-i_sig_3, i_sig_3):
+                for dj in range(-j_sig_3, j_sig_3):
                     # print(i, di, j, dj)
-                    pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
-                    pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
-
                     Z[i + di][j + dj] += pdf_factor_lat * math.exp(-(di * di) / (i_sig * i_sig)) *\
                                          pdf_factor_lon * math.exp(-(dj * dj) / (j_sig * j_sig))
                     # print(Z[i + di][j + dj])
