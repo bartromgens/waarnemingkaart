@@ -1,6 +1,9 @@
 var observationmap = require("./observationmap.js");
 
 var DATA_DIR = "/static/waarnemingkaart-data/";
+var OBSERVATIONS_LAYER_ZOOM = 11;
+
+var observationsLayer = null;
 
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
@@ -68,18 +71,6 @@ if (filepaths) {
 }
 
 
-
-var observationsLayer = null;
-
-$.getJSON(filepaths.observations, function(json) {
-    if (json.observations.length < 50000) {
-        observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
-    } else {
-        console.log('WARNING: too many observations to show');
-    }
-});
-
-
 // Save map as png
 document.getElementById('export-png').addEventListener('click', function() {
     var opacityBefore = contourmap.osmLayer.getOpacity();
@@ -138,13 +129,24 @@ function onPointerMapMove(evt) {
     };
 }
 
+function createObservationsLayer() {
+    $.getJSON(filepaths.observations, function(json) {
+        if (json.observations.length < 50000) {
+            observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
+        } else {
+            console.log('WARNING: too many observations to show');
+        }
+    });
+}
 
 contourmap.map.on('pointermove', onPointerMapMove);
 
 contourmap.map.on('moveend', function(event) {
-    if (contourmap.map.getView().getZoom() < 11) {
-        observationsLayer.setVisible(false);
-    } else {
-        observationsLayer.setVisible(true);
+    var isVisible = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM;
+    if (isVisible && !observationsLayer) {
+        createObservationsLayer();
+    }
+    if (observationsLayer) {
+        observationsLayer.setVisible(isVisible);
     }
 })
