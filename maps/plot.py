@@ -42,17 +42,17 @@ def create_or_load_contour_data(observations, config, data_dir, name, do_recreat
 
 def create_contour_levels_linear(Z, n_contours):
     z_max = Z.max()
-    z_min = Z.min()
-    z_mean = Z.mean()
+    z_min = 0.01*z_max
+    # z_mean = Z.mean()
     print('z min: ' + str(z_min))
-    print('z mean: ' + str(z_mean))
+    # print('z mean: ' + str(z_mean))
     print('z max: ' + str(z_max))
-    levels = numpy.linspace(
-        start=z_mean,
-        stop=numpy.percentile(Z, 99),
+    levels = numpy.logspace(
+        start=math.log10(z_min),
+        stop=math.log10(0.9*z_max),
         num=n_contours
     )
-    norm = None
+    norm = colors.LogNorm()
     return levels, norm
 
 
@@ -160,7 +160,7 @@ class Contour(object):
         return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
     def get_probability_field(self, latrange, lonrange):
-        sigma = 2000  # [m] mobility of species
+        sigma = 3000  # [m] mobility of species
         earth_radius = 6360000  # [m], ignore ellipsoid shape
 
         lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
