@@ -72,7 +72,7 @@ if (filepaths) {
 var observationsLayer = null;
 
 $.getJSON(filepaths.observations, function(json) {
-    if (json.observations.length < 20000) {
+    if (json.observations.length < 50000) {
         observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
     } else {
         console.log('WARNING: too many observations to show');
@@ -140,3 +140,11 @@ function onPointerMapMove(evt) {
 
 
 contourmap.map.on('pointermove', onPointerMapMove);
+
+contourmap.map.on('moveend', function(event) {
+    if (contourmap.map.getView().getZoom() < 11) {
+        observationsLayer.setVisible(false);
+    } else {
+        observationsLayer.setVisible(true);
+    }
+})
