@@ -4,6 +4,8 @@ var DATA_DIR = "/static/waarnemingkaart-data/";
 var OBSERVATIONS_LAYER_ZOOM = 11;
 
 var observationsLayer = null;
+var contourLayerHighDetail = null;
+var contourLayerLowDetail = null;
 
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
@@ -40,25 +42,32 @@ function getFileLocations() {
     console.log('species', species);
 
     var observationsFilepath = DATA_DIR;
-    var contoursFilepath = DATA_DIR;
-    
+    var contoursDir = DATA_DIR;
+    var name = null;
+
     if (group && family) {
         observationsFilepath += group + "/";
-        contoursFilepath += group + "/";
+        contoursDir += group + "/";
     } else {
         observationsFilepath += group + ".json";
-        contoursFilepath += "contours_" + group + ".geojson";
+        name = group;
     }
     if ((family && species) && (family !== "" && species !== "")) {
-        observationsFilepath += family + "/";
-        contoursFilepath += family + "/";
-        observationsFilepath += species + ".json";
-        contoursFilepath += "contours_" + species + ".geojson";
+        contoursDir += family + "/";
+        observationsFilepath += family + "/" + species + ".json";
+        name = species;
     } else if (family && family !== "") {
         observationsFilepath += family + ".json";
-        contoursFilepath += "contours_" + family + ".geojson";
+        name = family;
     }
-    return {observations: observationsFilepath, contours: contoursFilepath};
+
+    var contoursLowFilepath = contoursDir + "contours_" + name + "_1_.geojson";
+    var contoursHighFilepath = contoursDir + "contours_" + name + "_0_.geojson";
+    return {
+        observations: observationsFilepath,
+        contoursLow: contoursLowFilepath,
+        contoursHigh: contoursHighFilepath,
+    };
 }
 
 
@@ -67,7 +76,9 @@ var filepaths = getFileLocations();
 var contourmap = observationmap.createObservationMap();
 
 if (filepaths) {
-    contourmap.addContourTileLayer(filepaths.contours);
+    contourmap.addContourTileLayer(filepaths.contoursLow, function(contourLayer) {
+        contourLayerLowDetail = contourLayer;
+    });
 }
 
 
@@ -142,11 +153,26 @@ function createObservationsLayer() {
 contourmap.map.on('pointermove', onPointerMapMove);
 
 contourmap.map.on('moveend', function(event) {
-    var isVisible = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM;
-    if (isVisible && !observationsLayer) {
+    var observationsVisible = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM;
+    if (observationsVisible && !observationsLayer) {
         createObservationsLayer();
     }
     if (observationsLayer) {
-        observationsLayer.setVisible(isVisible);
+        observationsLayer.setVisible(observationsVisible);
+    }
+//    console.log('contourLayerLowDetail', contourLayerLowDetail);
+//    console.log('contourLayerHighDetail', contourLayerHighDetail);
+
+    var highDetailMode = contourmap.map.getView().getZoom() > 10
+    if (highDetailMode && !contourLayerHighDetail) {
+        contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
+            contourLayerHighDetail = contourLayer;
+        });
+    }
+    if (contourLayerHighDetail) {
+        contourLayerHighDetail.setVisible(highDetailMode);
+    }
+    if (contourLayerLowDetail) {
+        contourLayerLowDetail.setVisible(!highDetailMode);
     }
 })

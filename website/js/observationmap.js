@@ -17,7 +17,6 @@ var ObservationMap = {
     ObservationMap: function() {
         this.osmLayer = null;
         this.map = this.createOpenLayersMap();
-        this.map.contourLayers = [];
         return this;
     },
     createOpenLayersMap: function() {
@@ -79,7 +78,7 @@ var ObservationMap = {
         console.log('createObservationsFeatureLayer()', 'END');
         return layer;
     },
-    addContourTileLayer: function(geojsonUrl) {
+    addContourTileLayer: function(geojsonUrl, onFinish) {
         console.log('create contour layer for geojson_url', geojsonUrl);
         var replacer = function(key, value) {
             if (value.geometry) {
@@ -153,10 +152,6 @@ var ObservationMap = {
                 var lineWidth = strokeWidth/3.0;
                 var value = feature.get('level-value');
                 var levelNr = 1 + feature.get('level-index');
-                // var color = ol.color.asArray(feature.get('stroke'));
-                // color[3] = 0.8;
-    //            var scaleFactor = 0.5;
-//                var zoomFactor = 1.0;
                 var zoomFactor = Math.pow(zoom, 2.0)/400.0;
 
                 zoomFactor *= levelNr/2;
@@ -166,10 +161,6 @@ var ObservationMap = {
                 if (levelNr === 11) {
                     zoomFactor *= 1.5;
                 }
-    //            var zoomLevelShow10 = 9;
-    //            var zoomLevelShow5 = 10;
-
-    //            lineWidth *= (1.0 + (levelNr+1)/10);
 
                 var lineStyle = new ol.style.Style({
                     stroke: new ol.style.Stroke({
@@ -190,8 +181,9 @@ var ObservationMap = {
             });
 
             mapCache.addLayer(vectorLayer);
+            contourLayer = vectorLayer;
             vectorLayer.setVisible(true);
-            mapCache.contourLayers.push(vectorLayer);
+            onFinish(contourLayer);
         });
     },
 }
