@@ -4,6 +4,7 @@ import math
 import logging
 
 import numpy
+
 import scipy.stats
 from scipy.spatial import KDTree
 
@@ -15,6 +16,8 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import geojsoncontour
 
 from maps import utilgeo
+from maps.utilgeo import deg2rad, rad2deg
+from math import cos
 from maps.settings import MAPS_DATA_DIR
 
 # Make sure the MAPS_DATA_DIR is set in settings.py
@@ -27,7 +30,6 @@ STANDAARD_DEVIATION_M = 5000
 
 def create_or_load_contour_data(observations, config, data_dir, name, do_recreate, standard_deviation):
     contour = Contour(observations, config, data_dir=data_dir, standard_deviation=standard_deviation, name=name)
-
     if do_recreate or not contour.is_saved:
         contour.create_contour_data()
     else:
@@ -147,11 +149,8 @@ class Contour(object):
             positions.append([x, y, z])
             observation_data.append({'number': observation.number}) #, 'lat': observation.coordinates.lat, 'lon': observation.coordinates.lon})
 
-        tree = KDTree(positions)
-
         self.Z = self.get_probability_field(
-            kdtree=tree,
-            observations=observation_data,
+            positions=positions,
             gps=gps,
             lonrange=self.lonrange,
             latrange=self.latrange,
@@ -164,25 +163,37 @@ class Contour(object):
     def calc_normal_pdf(self, x_minus_mean):
         return self.pdf_factor * math.exp(-(x_minus_mean * x_minus_mean) / self.variance_x2)
 
-    def get_probability_field(self, kdtree, observations, gps, latrange, lonrange, altitude, n_nearest):
+    def get_probability_field(self, positions, gps, latrange, lonrange, altitude, n_nearest):
+        kdtree = KDTree(positions)
         Z = numpy.zeros((int(latrange.shape[0]), int(lonrange.shape[0])))
+        sigma = 2000  # [m] mobility of species
 
-        for i, lat in enumerate(latrange):
-            if i % round((len(latrange) / 20)) == 0:
-                print((str(int(i / len(latrange) * 100)) + '%'))
+        earth_radius = 6360000  # [m], ignore ellipsoid shape
+        lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
 
-            for j, lon in enumerate(lonrange):
-                x, y, z = gps.lla2ecef([lat, lon, altitude])
-                distances, indexes = kdtree.query([x, y, z], n_nearest)
-                if isinstance(distances, float):
-                    distances = [distances]
-                    indexes = [indexes]
-                local_probability = 0.0
-                weights_sum = 0
-                for distance, index in zip(distances, indexes):
-                    local_probability += self.calc_normal_pdf(distance) / distance  #* observations[index]['number']
-                    weights_sum += 1/distance
-                Z[i][j] = local_probability/weights_sum  # see https://en.wikipedia.org/wiki/Mixture_distribution
+        #self.lonrange = numpy.arange(self.config.lon_start, self.config.lon_end, self.config.stepsize_deg)
+        #self.latrange = numpy.arange(self.config.lat_start, self.config.lat_end, self.config.stepsize_deg)
+
+        sigma_lat_deg = rad2deg(sigma / earth_radius)  # [deg]
+        sigma_lon_deg = rad2deg(sigma / (earth_radius * cos(lat_avg)))
+        # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
+
+        for obs in self.observations:
+
+            i = round((obs.coordinates.lat - self.config.lat_start) / self.config.stepsize_deg)
+            j = round((obs.coordinates.lon - self.config.lon_start) / self.config.stepsize_deg)
+            i_sig = round(sigma_lat_deg / self.config.stepsize_deg)
+            j_sig = round(sigma_lon_deg / self.config.stepsize_deg)
+            # print ("i_sig", i_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
+            for di in range(-3*i_sig, 3*i_sig):
+                for dj in range(-3*j_sig, 3*j_sig):
+                    # print(i, di, j, dj)
+                    pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
+                    pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
+
+                    Z[i + di][j + dj] += pdf_factor_lat * math.exp(-(di * di) / (i_sig * i_sig)) *\
+                                         pdf_factor_lon * math.exp(-(dj * dj) / (j_sig * j_sig))
+                    # print(Z[i + di][j + dj])
         return Z
 
     def create_geojson(self, filepath, stroke_width=1, levels=(), norm=None):
