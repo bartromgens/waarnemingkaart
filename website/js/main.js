@@ -163,7 +163,7 @@ contourmap.map.on('moveend', function(event) {
 //    console.log('contourLayerLowDetail', contourLayerLowDetail);
 //    console.log('contourLayerHighDetail', contourLayerHighDetail);
 
-    var highDetailMode = contourmap.map.getView().getZoom() > 10
+    var highDetailMode = contourmap.map.getView().getZoom() > OBSERVATIONS_LAYER_ZOOM
     if (highDetailMode && !contourLayerHighDetail) {
         contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
             contourLayerHighDetail = contourLayer;
