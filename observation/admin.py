@@ -21,7 +21,8 @@ class ObservationAdmin(admin.ModelAdmin):
         'waarneming_url',
         'observer',
     )
-    list_filter = ('group', 'family')
+    list_filter = ('datetime', 'group', 'family',)
+    search_fields = ['group__name_nl', 'family__name_nl', 'species__name_nl', 'observer__name']
 
 
 class GroupAdmin(admin.ModelAdmin):
@@ -67,7 +68,7 @@ class ObserverAdmin(admin.ModelAdmin):
         'name',
         'waarneming_url'
     )
-
+    search_fields = ['name']
 
 class BioClassObservationStatsAdmin(admin.ModelAdmin):
     list_display = (
