@@ -8,108 +8,160 @@
 {% block sidebar %}
 <div class="sidebar-large">
 
-  <button class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-left"></span><span class="hidden-lg hidden-xl">TOON KAART</span></button>
+  <button class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-left"></span><span class="hidden-lg hidden-xl">&ensp;&ensp;TOON KAART</span></button>
 
-  <div>
-    <ol class="breadcrumb">
+  <div class="hidden-xs">
+    <ul class="breadcrumb bioclass-breadcrumb">
       {% if group %}
-      <li><a href="{{ group.map_url }}">{{ group }}</a></li>
+      <li><a href="{{ group.map_url }}"><strong>{{ group }}</strong></a></li>
       {% endif %}
       {% if family %}
-      <li><a href="{{ family.map_url }}">{{ family }}</a></li>
+      <li><a href="{{ family.map_url }}"><strong>{{ family }}</strong></a></li>
       {% endif %}
       {% if species %}
-      <li class="active">{{ species }}</li>
+      <li class="active"><strong>{{ species }}</strong></li>
       {% endif %}
-    </ol>
+    </ul>
   </div>
 
   <div class="container-fluid">
 
     <div class="row">
-      <form id="map-form" action="" method="get">
+      <form id="map-form" method="get">
 
-        <div class="col-sm-12">
+        <div class="col-sm-12 hidden">
           <h5 class="text-info">Groep</h5>
           {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
-          {{ filter.form.media }}
         </div>
 
         <div class="col-sm-12">
-          <h5 class="text-info">Familie</h5>
+          <h5 class="text-info">Familie (optioneel)</h5>
           {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
-          {{ filter.form.media }}
-        </div>
 
-        <div class="col-sm-12">
           <h5 class="text-info">Soort</h5>
           {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
-          {{ filter.form.media }}
         </div>
 
-        <!--<div class="col-sm-12">-->
-          <!--{% bootstrap_button content='Toon Kaart' button_type='submit' %}-->
-        <!--</div>-->
+        <div class="col-sm-12">
+          <div class="row">
+            <div class="col-xs-4">
+              <button class="btn btn-info btn-block reset-form-button" type="button">Reset</button>
+            </div>
+            <div class="col-xs-8">
+              <button class="btn btn-primary btn-block" type="submit">Update Kaart</button>
+            </div>
+          </div>
+        </div>
 
+        {{ filter.form.media }}
       </form>
 
+      <!--<script>-->
+      <!--$(".form-control").change(function() {-->
+          <!--$(this).closest('form').submit();-->
+      <!--});-->
+      <!--</script>-->
+
       <script>
-      $(".form-control").change(function() {
-          $(this).closest('form').submit();
+      $(document).ready(function() {
+        // Bind on continent field change
+        $(':input[name$=family]').on('change', function() {
+          // Get the field prefix, ie. if this comes from a formset form
+          var prefix = $(this).getFormPrefix();
+
+          // Clear the autocomplete with the same prefix
+          $(':input[name=' + prefix + 'species]').val(null).trigger('change');
+        });
+      });
+
+      // reset species select input
+      $(".form-control#id_family").change(function() {
+          console.log($(".form-control#id_species"));
+          $(".form-control#id_species").val(1).change();
+      });
+
+      // reset form
+      $(".reset-form-button").click(function() {
+          $(".form-control#id_family").val(null).trigger('change');
+          $(".form-control#id_species").val(null).trigger('change');
       });
       </script>
+
+    </div>
+
+    <hr class="hr-small hidden-xs"/>
+
+    <div class="row hidden-xs">
+      <div class="col-sm-12">
+
+        {% if group and not family %}
+        <div class="panel panel-default panel-sidebar">
+
+          <div class="panel-heading panel-heading-sidebar" align="center">
+            <h5>Families</h5>
+          </div>
+
+          <div class="panel-body panel-body-sidebar">
+            {% for family in families %}
+              <small>
+                <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
+              </small>
+            {% endfor %}
+          </div>
+
+        </div>
+        {% endif %}
+
+        {% if family %}
+        <div class="panel panel-default panel-sidebar">
+
+          <div class="panel-heading panel-heading-sidebar" align="center">
+            <h5>Soorten <a href="{{ family.map_url }}">{{ family }}</a></h5>
+          </div>
+
+          <div class="panel-body panel-body-sidebar">
+            {% for item in speciess %}
+              <small>
+                <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+              </small>
+            {% endfor %}
+          </div>
+
+        </div>
+        {% endif %}
+
+      </div>
     </div>
 
     <hr class="hr-small"/>
 
+    {% if species %}
     <div class="row">
       <div class="col-sm-12">
 
-        {% if groups and not family %}
-          <h4>Groepen</h4>
+        <div class="panel panel-default">
+          <div class="panel-heading panel-heading-sidebar" align="center">
+            <h4><a href="{{ species.map_url }}" class="text-info">{{ species.name_nl }}</a></h4>
+          </div>
+          <div class="panel-body panel-body-sidebar">
+            {% if species.wikimedia_image_url %}
+            <a href="{{ species.large_wikipedia_image_url }}" target="_blank">
+              <img class="img-responsive" src="{{ species.wikimedia_image_url }}" alt="Foto van een {{ species }}"/>
+            </a>
+            {% else %}
+            Een foto van een '{{ species }}' is helaas niet gevonden op Wikipedia.
+            {% endif %}
+          </div>
+          <div class="panel-footer">
+            {% if species.wikipedia_url_nl %}Bron: <a href="{{ species.wikipedia_url_nl }}" target="_blank">Wikipedia</a>{% endif %}
+          </div>
+        </div>
 
-          {% for group in groups %}
-            <h5><a href="{{ group.map_url }}">{{ group.name_nl }}</a></h5>
-          {% endfor %}
-        {% endif %}
-
-        {% if group and not family %}
-          <h4>Families</h4>
-
-          {% for family in families %}
-            <small>
-              <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
-            </small>
-          {% endfor %}
-        {% endif %}
-
-        {% if family %}
-          <h4><a href="{{ family.map_url }}">{{ family }}</a></h4>
-
-          {% for item in speciess %}
-            <small>
-              <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
-            </small>
-          {% endfor %}
-        {% endif %}
-
-      </div>
-    </div>
-
-    <hr/>
-
-    {% if species %}
-
-    <div class="row">
-      <div class="col-sm-12 well well-sm" align="center">
-        <h4><a href="{{ species.map_url }}">{{ species.name_nl }}</a></h4>
-        {% if species.wikimedia_image_url %}<img class="img-responsive" src="{{ species.wikimedia_image_url }}"/>{% endif %}
-        {% if species.wikipedia_url_nl %}<a href="{{ species.wikipedia_url_nl }}">Wikipedia</a>{% endif %}
       </div>
     </div>
     {% endif %}
 
-    <div class="row">
+    <div class="row hidden-xs">
       <div class="col-sm-12" align="center">
         <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
       </div>
@@ -122,6 +174,7 @@
 <div class="sidebar-small" style="display: none;">
   <a class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-right"></span></a>
 </div>
+
 {% endblock %}
 
 

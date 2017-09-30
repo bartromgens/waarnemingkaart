@@ -18,6 +18,12 @@ class BioClass(models.Model):
         self.slug = slugify(self.name_nl)
         super().save(*args, **kwargs)
 
+    @property
+    def large_wikipedia_image_url(self):
+        if not self.wikimedia_image_url:
+            return ''
+        return self.wikimedia_image_url.replace('400px', '1200px')
+
     class Meta:
         ordering = ['name_nl']
         abstract = True

@@ -2,11 +2,9 @@ html, body {
     height: 100%;
 }
 
-
 body {
     padding-top: 50px;
 }
-
 
 .vertical-spacer-20 {
     padding: 0;
@@ -37,7 +35,7 @@ body {
 
 
 hr.hr-small {
-  margin: 0.1em 0;
+  margin: 10px 0;
 }
 
 
