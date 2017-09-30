@@ -94,6 +94,14 @@ class Coordinates(models.Model):
         return str(self.lat) + ', ' + str(self.lon)
 
 
+class Observer(models.Model):
+    name = models.CharField(max_length=200, blank=True, default='')
+    waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+
+    def __str__(self):
+        return str(self.name)
+
+
 class Observation(models.Model):
     species = models.ForeignKey(Species, null=True, blank=True)
     family = models.ForeignKey(Family, null=True, blank=True)
@@ -102,6 +110,7 @@ class Observation(models.Model):
     datetime = models.DateTimeField(null=True, blank=True, db_index=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
     waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+    observer = models.ForeignKey(Observer, null=True, blank=True)
 
     class Meta:
         ordering = ['species']
