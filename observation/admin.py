@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from observation.models import Observation
+from observation.models import Observer
 from observation.models import Group
 from observation.models import Family
 from observation.models import Species
@@ -18,6 +19,7 @@ class ObservationAdmin(admin.ModelAdmin):
         'datetime',
         'coordinates',
         'waarneming_url',
+        'observer',
     )
     list_filter = ('group', 'family')
 
@@ -59,6 +61,14 @@ class SpeciesAdmin(admin.ModelAdmin):
     list_filter = ('family__group', 'family')
 
 
+class ObserverAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'waarneming_url'
+    )
+
+
 class BioClassObservationStatsAdmin(admin.ModelAdmin):
     list_display = (
         'id',
@@ -73,4 +83,5 @@ admin.site.register(Observation, ObservationAdmin)
 admin.site.register(Group, GroupAdmin)
 admin.site.register(Family, FamilyAdmin)
 admin.site.register(Species, SpeciesAdmin)
+admin.site.register(Observer, ObserverAdmin)
 admin.site.register(BioClassObservationStats, BioClassObservationStatsAdmin)
