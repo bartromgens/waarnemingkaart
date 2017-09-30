@@ -17,6 +17,8 @@ from maps.utilgeo import deg2rad, rad2deg
 from maps.settings import MAPS_DATA_DIR
 from maps.data import observations_to_json
 
+from maps.modules.density import calc_field
+
 logger = logging.getLogger(__name__)
 
 # Make sure the MAPS_DATA_DIR is set in settings.py
@@ -91,29 +93,22 @@ class Contour(object):
             # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
 
             i_sig = sigma_lat_deg / level.stepsize_deg
-            i_sig2 = i_sig * i_sig
             j_sig = sigma_lon_deg / level.stepsize_deg
-            j_sig2 = j_sig * j_sig
-            i_3sig = int(3*i_sig)
-            j_3sig = int(3*j_sig)
             pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
             pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
             # print ("i_sig", i_sig, "j_sig", j_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
 
+            grid_obs = []
+            for obs in self.observations:
+                obs_x = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
+                obs_y = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
+                grid_obs.append([obs_x, obs_y])
+
             latsize = int((self.config.lat_end - self.config.lat_start)/level.stepsize_deg)
             lonsize = int((self.config.lon_end - self.config.lon_start)/level.stepsize_deg)
-            z_level = numpy.zeros((latsize, lonsize))
-            for obs in self.observations:
-                i_obs = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
-                j_obs = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
-                for i in range(round(i_obs)-i_3sig, round(i_obs)+i_3sig):
-                    for j in range(round(j_obs)-j_3sig, round(j_obs)+j_3sig):
-                        try:
-                            di = i-i_obs
-                            dj = j-j_obs
-                            z_level[i][j] += math.exp(-(di*di) / i_sig2 - (dj*dj) / j_sig2)
-                        except IndexError:
-                            pass
+            densities = calc_field(grid_obs, latsize, lonsize, i_sig, j_sig)
+            z_level = numpy.array(densities)
+
             Z.append(z_level)
         # Z *= pdf_factor_lat*pdf_factor_lon
         end = time.time()
@@ -160,6 +155,9 @@ class Contour(object):
     @staticmethod
     def create_contour_levels(Z, n_contours):
         z_max = Z.max()
+        if z_max == 0:
+            z_max = 1
+
         z_min = 0.0005*z_max
         # logger.info('z min: ' + str(z_min))
         # logger.info('z max: ' + str(z_max))

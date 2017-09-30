@@ -28,6 +28,11 @@ Install dependencies,
 $ pip install -r requirements.txt
 ```
 
+Compile external (C++)-module
+```bash
+$ make -C maps/modules
+```
+
 #### Create local settings and database
 Create local user settings, you can optionally change settings here, default database is sqlite,
 ```bash
