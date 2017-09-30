@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView
 
-from website.views import ContactView
+from website.views import AboutView
 from website.views import UserProfileView
 from website.views import HomeView
 
@@ -19,9 +19,8 @@ import website.api
 urlpatterns = [
     url(r'^$', HomeView.as_view(), name='homepage'),
     url(r'^kaart/$', ObservationMapView.as_view(), name='observation-map'),
-    url(r'^over/$', TemplateView.as_view(template_name="website/about.html"), name='about'),
+    url(r'^info/$', AboutView.as_view(), name='about'),
     url(r'^api/$', TemplateView.as_view(template_name="website/api.html"), name='api-info'),
-    url(r'^contact/$', ContactView.as_view(), name='contact'),
 
     url(r'^userprofile/(?P<pk>[0-9]+)/$', login_required(UserProfileView.as_view()), name='userprofile'),
 

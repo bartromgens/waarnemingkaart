@@ -42,7 +42,7 @@ REGISTRATION_OPEN = True
 
 
 # Contact details
-CONTACT_EMAIL = 'info@example.com'
+CONTACT_EMAIL = 'info@waarnemingkaart.nl'
 
 
 # DBBACKUP
