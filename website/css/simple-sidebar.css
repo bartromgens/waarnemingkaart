@@ -21,6 +21,7 @@
     z-index: 1000;
     position: fixed;
     left: 350px;
+    padding-bottom: 50px;
     width: 50px;
     height: 100%;
     margin-left: -350px;
@@ -47,7 +48,34 @@
     margin-right: 0;
 }
 
+@media(max-width:400px) {
+    #wrapper.toggled {
+        width: 100%;
+        padding-left: 100%;
+    }
+
+    #wrapper.toggled #sidebar-wrapper {
+        width: 100%;
+    }
+}
+
 .sidebar-toggle {
     border-radius: 0px;
     width: 100%;
+}
+
+.panel-heading-sidebar {
+    padding: 1px 15px;
+}
+
+.panel-sidebar {
+    margin-bottom: 5px;
+}
+
+.panel-body-sidebar {
+    padding: 5px;
+}
+
+.bioclass-breadcrumb {
+    margin-bottom: 5px;
 }

@@ -6,6 +6,8 @@ var OBSERVATIONS_LAYER_ZOOM = 11;
 var observationsLayer = null;
 var contourLayerHighDetail = null;
 var contourLayerLowDetail = null;
+var filepaths = null;
+var contourmap = null;
 
 // http://stackoverflow.com/a/4234006
 $.ajaxSetup({
@@ -16,6 +18,19 @@ $.ajaxSetup({
         }
     }
 });
+
+
+$(window).ready(function() {
+    filepaths = getFileLocations();
+    contourmap = observationmap.createObservationMap();
+    if (filepaths) {
+        contourmap.addContourTileLayer(filepaths.contoursLow, function(contourLayer) {
+            contourLayerLowDetail = contourLayer;
+        });
+    }
+    setEventHandlers();
+})
+
 
 
 function getParameterByName(name, url) {
@@ -70,37 +85,6 @@ function getFileLocations() {
     };
 }
 
-
-var filepaths = getFileLocations();
-
-var contourmap = observationmap.createObservationMap();
-
-if (filepaths) {
-    contourmap.addContourTileLayer(filepaths.contoursLow, function(contourLayer) {
-        contourLayerLowDetail = contourLayer;
-    });
-}
-
-
-// Save map as png
-document.getElementById('export-png').addEventListener('click', function() {
-    var opacityBefore = contourmap.osmLayer.getOpacity();
-    contourmap.osmLayer.setOpacity(1.0);
-    contourmap.map.once('postcompose', function(event) {
-        var canvas = event.context.canvas;
-        if (navigator.msSaveBlob) {
-            navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
-        } else {
-            canvas.toBlob(function(blob) {
-                saveAs(blob, 'map.png');
-            });
-        }
-    });
-    contourmap.map.renderSync();
-    contourmap.osmLayer.setOpacity(opacityBefore);
-});
-
-
 // Tooltip
 $('#info').hide();
 
@@ -150,46 +134,67 @@ function createObservationsLayer() {
     });
 }
 
-contourmap.map.on('pointermove', onPointerMapMove);
+function setEventHandlers() {
+    contourmap.map.on('pointermove', onPointerMapMove);
 
-contourmap.map.on('moveend', function(event) {
-    var zoom = contourmap.map.getView().getZoom();
-    var observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
-    if (observationsVisible && !observationsLayer) {
-        createObservationsLayer();
-    }
-    if (observationsLayer) {
-        observationsLayer.setVisible(observationsVisible);
-    }
-//    console.log('contourLayerLowDetail', contourLayerLowDetail);
-//    console.log('contourLayerHighDetail', contourLayerHighDetail);
+    contourmap.map.on('moveend', function(event) {
+        var zoom = contourmap.map.getView().getZoom();
+        var observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
+        if (observationsVisible && !observationsLayer) {
+            createObservationsLayer();
+        }
+        if (observationsLayer) {
+            observationsLayer.setVisible(observationsVisible);
+        }
+    //    console.log('contourLayerLowDetail', contourLayerLowDetail);
+    //    console.log('contourLayerHighDetail', contourLayerHighDetail);
 
-    var startLoadHighDetail = zoom > (OBSERVATIONS_LAYER_ZOOM-1)
-    if (startLoadHighDetail && !contourLayerHighDetail) {
-        contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
-            contourLayer.setVisible(zoom > OBSERVATIONS_LAYER_ZOOM)
-            contourLayerHighDetail = contourLayer;
+        var startLoadHighDetail = zoom > (OBSERVATIONS_LAYER_ZOOM-1)
+        if (startLoadHighDetail && !contourLayerHighDetail) {
+            contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
+                contourLayer.setVisible(zoom > OBSERVATIONS_LAYER_ZOOM)
+                contourLayerHighDetail = contourLayer;
+            });
+        }
+        var highDetailMode = zoom > OBSERVATIONS_LAYER_ZOOM
+        if (contourLayerHighDetail) {
+            contourLayerHighDetail.setVisible(highDetailMode);
+        }
+        if (contourLayerLowDetail) {
+            contourLayerLowDetail.setVisible(!highDetailMode);
+        }
+    })
+
+    var select_interaction = new ol.interaction.Select();
+
+    select_interaction.getFeatures().on("add", function (e) {
+         var feature = e.element;
+         window.open(feature.get('waarneming_url'), '_blank');
+    });
+
+    contourmap.map.addInteraction(select_interaction);
+
+    $(".sidebar-toggle").bind("click", function(e) {
+        console.log('on sidebar show/hide');
+        setTimeout( function() { contourmap.map.updateSize();}, 600);
+    })
+
+    // Save map as png
+    document.getElementById('export-png').addEventListener('click', function() {
+        var opacityBefore = contourmap.osmLayer.getOpacity();
+        contourmap.osmLayer.setOpacity(1.0);
+        contourmap.map.once('postcompose', function(event) {
+            var canvas = event.context.canvas;
+            if (navigator.msSaveBlob) {
+                navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
+            } else {
+                canvas.toBlob(function(blob) {
+                    saveAs(blob, 'map.png');
+                });
+            }
         });
-    }
-    var highDetailMode = zoom > OBSERVATIONS_LAYER_ZOOM
-    if (contourLayerHighDetail) {
-        contourLayerHighDetail.setVisible(highDetailMode);
-    }
-    if (contourLayerLowDetail) {
-        contourLayerLowDetail.setVisible(!highDetailMode);
-    }
-})
+        contourmap.map.renderSync();
+        contourmap.osmLayer.setOpacity(opacityBefore);
+    });
+}
 
-var select_interaction = new ol.interaction.Select();
-
-select_interaction.getFeatures().on("add", function (e) {
-     var feature = e.element;
-     window.open(feature.get('waarneming_url'), '_blank');
-});
-
-contourmap.map.addInteraction(select_interaction);
-
-$(".sidebar-toggle").bind("click", function(e) {
-    console.log('on sidebar show/hide');
-    setTimeout( function() { contourmap.map.updateSize();}, 600);
-})
