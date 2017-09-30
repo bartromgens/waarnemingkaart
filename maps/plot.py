@@ -1,7 +1,8 @@
+from collections import namedtuple
 import logging
 import math
 import os
-from collections import namedtuple
+import time
 
 import numpy
 
@@ -50,8 +51,10 @@ class ContourPlotConfig(object):
         self.lat_end = 53.75
         self.min_angle_between_segments = 7
         Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
-        self.levels = [Level(stepsize_deg=0.002, sigma=500, n_contours=11),
-                       Level(stepsize_deg=0.005, sigma=1500, n_contours=9)]
+        self.levels = [
+            Level(stepsize_deg=0.002, sigma=500, n_contours=11),
+            Level(stepsize_deg=0.005, sigma=1500, n_contours=9),
+        ]
 
 
 class Contour(object):
@@ -76,6 +79,7 @@ class Contour(object):
 
     def get_probability_field(self):
         logger.info('BEGIN')
+        start = time.time()
 
         earth_radius = 6360000  # [m], ignore ellipsoid shape
 
@@ -87,7 +91,9 @@ class Contour(object):
             # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
 
             i_sig = sigma_lat_deg / level.stepsize_deg
+            i_sig2 = i_sig * i_sig
             j_sig = sigma_lon_deg / level.stepsize_deg
+            j_sig2 = j_sig * j_sig
             i_sig_3 = int(3*i_sig)
             j_sig_3 = int(3*j_sig)
             pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
@@ -105,13 +111,14 @@ class Contour(object):
                         try:
                             di = i-i_obs
                             dj = j-j_obs
-                            z_level[i][j] += math.exp(-(di*di) / (i_sig * i_sig)) *\
-                                             math.exp(-(dj*dj) / (j_sig * j_sig))
+                            z_level[i][j] += math.exp(-(di*di) / i_sig2) *\
+                                             math.exp(-(dj*dj) / j_sig2)
                         except IndexError:
                             pass
             Z.append(z_level)
         # Z *= pdf_factor_lat*pdf_factor_lon
-        logger.info('END')
+        end = time.time()
+        logger.info('END - time: ' + str(end - start))
         return Z
 
     def create_geojson(self, data_dir, name, stroke_width=1):
@@ -119,7 +126,7 @@ class Contour(object):
         for index, z_level in enumerate(self.Z):
             level = self.config.levels[index]
             levels, norm = self.create_contour_levels(z_level, level.n_contours)
-            logger.info('levels: ' + str(levels))
+            # logger.info('levels: ' + str(levels))
 
             filepath = os.path.join(data_dir, 'contours_' + name + '_' + str(index) + '_' + '.geojson')
             figure = Figure(frameon=False)
@@ -151,8 +158,8 @@ class Contour(object):
     def create_contour_levels(Z, n_contours):
         z_max = Z.max()
         z_min = 0.0005*z_max
-        logger.info('z min: ' + str(z_min))
-        logger.info('z max: ' + str(z_max))
+        # logger.info('z min: ' + str(z_min))
+        # logger.info('z max: ' + str(z_max))
         levels = numpy.logspace(
             start=math.log10(z_min),
             stop=math.log10(0.6*z_max),
