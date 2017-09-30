@@ -66,7 +66,8 @@ class ObserverAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'name',
-        'waarneming_url'
+        'waarneming_url',
+        'n_observations'
     )
     search_fields = ['name']
 

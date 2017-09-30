@@ -101,6 +101,10 @@ class Observer(models.Model):
     def __str__(self):
         return str(self.name)
 
+    @cached_property
+    def n_observations(self):
+        return Observation.objects.filter(observer=self, coordinates__isnull=False).count()
+
 
 class Observation(models.Model):
     species = models.ForeignKey(Species, null=True, blank=True)
