@@ -21,11 +21,11 @@ int add(int i, int j)
     \return density field
 */
 std::vector<std::vector<double>>
-calc_field(std::vector<std::array<double, 2>> observations,
-    int x_size,
-    int y_size,
-    double sigma_x,
-    double sigma_y)
+calc_field( std::vector<std::array<double, 2>> observations,
+            int x_size,
+            int y_size,
+            double sigma_x,
+            double sigma_y )
 {
   std::vector<std::vector<double>> result(x_size, std::vector<double>(y_size, 0));
   for ( auto&& obs : observations )
@@ -41,8 +41,8 @@ calc_field(std::vector<std::array<double, 2>> observations,
       for ( int y = ymin; y < ymax; ++y )
       {
          double dx = x - obs[0];
-	 double dy = y - obs[1];
-	 result[x][y] += exp( -(dx*dx)/sigma_x2 - (dy*dy)/sigma_y2);
+         double dy = y - obs[1];
+         result[x][y] += exp( -(dx*dx)/sigma_x2 - (dy*dy)/sigma_y2);
       }
     }
   }

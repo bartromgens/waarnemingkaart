@@ -28,7 +28,7 @@ Install dependencies,
 $ pip install -r requirements.txt
 ```
 
-Compile external (C++)-module
+Compile external (C++)-module,
 ```bash
 $ make -C maps/modules
 ```
