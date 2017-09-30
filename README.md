@@ -5,27 +5,38 @@ Requires Python 3.4+ and Django 1.11+
 
 ## Installation (Linux)
 
+
+#### Get the code and install dependencies
 Get the code and enter the project directory,
 ```
 $ git clone --recursive https://github.com/bartromgens/waarnemingkaart.git
 $ cd waarnemingkaart
 ```
-Install dependencies that you will need
-```
-$ apt-get install virtualenv
-```
-or
-```
-$ pip install virtualenv
-```
-Install via the install script (creates a Python 3 virtualenv with dependencies, a local_settings.py file, and a sqlite database),
-```
-$ ./install.sh
+
+Create a virtualenv,
+```bash
+$ virtualenv -p python3 env
 ```
 
 Activate the virtualenv (always do this before working on the project),
-```
+```bash
 $ source env/bin/activate
+```
+
+Install dependencies,
+```bash
+$ pip install -r requirements.txt
+```
+
+#### Create local settings and database
+Create local user settings, you can optionally change settings here, default database is sqlite,
+```bash
+$ python create_local_settings.py
+```
+
+Create the database and tables, 
+```bash
+$ python manage.py migrate
 ```
 
 #### Create a superuser (optional)
