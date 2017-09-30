@@ -6,112 +6,121 @@
 {% block title %}{{ page_title }} {{ block.super }}{% endblock %}
 
 {% block sidebar %}
+<div class="sidebar-large">
 
-<div>
-  <ol class="breadcrumb">
-    {% if group %}
-    <li><a href="{{ group.map_url }}">{{ group }}</a></li>
-    {% endif %}
-    {% if family %}
-    <li><a href="{{ family.map_url }}">{{ family }}</a></li>
-    {% endif %}
+  <button class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-left"></span><span class="hidden-lg hidden-xl">TOON KAART</span></button>
+
+  <div>
+    <ol class="breadcrumb">
+      {% if group %}
+      <li><a href="{{ group.map_url }}">{{ group }}</a></li>
+      {% endif %}
+      {% if family %}
+      <li><a href="{{ family.map_url }}">{{ family }}</a></li>
+      {% endif %}
+      {% if species %}
+      <li class="active">{{ species }}</li>
+      {% endif %}
+    </ol>
+  </div>
+
+  <div class="container-fluid">
+
+    <div class="row">
+      <form id="map-form" action="" method="get">
+
+        <div class="col-sm-12">
+          <h5 class="text-info">Groep</h5>
+          {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
+          {{ filter.form.media }}
+        </div>
+
+        <div class="col-sm-12">
+          <h5 class="text-info">Familie</h5>
+          {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
+          {{ filter.form.media }}
+        </div>
+
+        <div class="col-sm-12">
+          <h5 class="text-info">Soort</h5>
+          {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
+          {{ filter.form.media }}
+        </div>
+
+        <!--<div class="col-sm-12">-->
+          <!--{% bootstrap_button content='Toon Kaart' button_type='submit' %}-->
+        <!--</div>-->
+
+      </form>
+
+      <script>
+      $(".form-control").change(function() {
+          $(this).closest('form').submit();
+      });
+      </script>
+    </div>
+
+    <hr class="hr-small"/>
+
+    <div class="row">
+      <div class="col-sm-12">
+
+        {% if groups and not family %}
+          <h4>Groepen</h4>
+
+          {% for group in groups %}
+            <h5><a href="{{ group.map_url }}">{{ group.name_nl }}</a></h5>
+          {% endfor %}
+        {% endif %}
+
+        {% if group and not family %}
+          <h4>Families</h4>
+
+          {% for family in families %}
+            <small>
+              <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
+            </small>
+          {% endfor %}
+        {% endif %}
+
+        {% if family %}
+          <h4><a href="{{ family.map_url }}">{{ family }}</a></h4>
+
+          {% for item in speciess %}
+            <small>
+              <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
+            </small>
+          {% endfor %}
+        {% endif %}
+
+      </div>
+    </div>
+
+    <hr/>
+
     {% if species %}
-    <li class="active">{{ species }}</li>
+
+    <div class="row">
+      <div class="col-sm-12 well well-sm" align="center">
+        <h4><a href="{{ species.map_url }}">{{ species.name_nl }}</a></h4>
+        {% if species.wikimedia_image_url %}<img class="img-responsive" src="{{ species.wikimedia_image_url }}"/>{% endif %}
+        {% if species.wikipedia_url_nl %}<a href="{{ species.wikipedia_url_nl }}">Wikipedia</a>{% endif %}
+      </div>
+    </div>
     {% endif %}
-  </ol>
+
+    <div class="row">
+      <div class="col-sm-12" align="center">
+        <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
+      </div>
+    </div>
+
+  </div>
+
 </div>
 
-<div class="container-fluid">
-
-  <div class="row">
-    <form id="map-form" action="" method="get">
-
-      <div class="col-sm-12">
-        <h5 class="text-info">Groep</h5>
-        {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
-        {{ filter.form.media }}
-      </div>
-
-      <div class="col-sm-12">
-        <h5 class="text-info">Familie</h5>
-        {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
-        {{ filter.form.media }}
-      </div>
-
-      <div class="col-sm-12">
-        <h5 class="text-info">Soort</h5>
-        {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
-        {{ filter.form.media }}
-      </div>
-
-      <!--<div class="col-sm-12">-->
-        <!--{% bootstrap_button content='Toon Kaart' button_type='submit' %}-->
-      <!--</div>-->
-
-    </form>
-
-    <script>
-    $(".form-control").change(function() {
-        $(this).closest('form').submit();
-    });
-    </script>
-  </div>
-
-  <hr class="hr-small"/>
-
-  <div class="row">
-    <div class="col-sm-12">
-
-      {% if groups and not family %}
-        <h4>Groepen</h4>
-
-        {% for group in groups %}
-          <h5><a href="{{ group.map_url }}">{{ group.name_nl }}</a></h5>
-        {% endfor %}
-      {% endif %}
-
-      {% if group and not family %}
-        <h4>Families</h4>
-
-        {% for family in families %}
-          <small>
-            <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
-          </small>
-        {% endfor %}
-      {% endif %}
-
-      {% if family %}
-        <h4><a href="{{ family.map_url }}">{{ family }}</a></h4>
-
-        {% for item in speciess %}
-          <small>
-            <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }}){% if not forloop.last %},{% endif %}
-          </small>
-        {% endfor %}
-      {% endif %}
-
-    </div>
-  </div>
-
-  <hr/>
-
-  {% if species %}
-
-  <div class="row">
-    <div class="col-sm-12 well well-sm" align="center">
-      <h4><a href="{{ species.map_url }}">{{ species.name_nl }}</a></h4>
-      {% if species.wikimedia_image_url %}<img class="img-responsive" src="{{ species.wikimedia_image_url }}"/>{% endif %}
-      {% if species.wikipedia_url_nl %}<a href="{{ species.wikipedia_url_nl }}">Wikipedia</a>{% endif %}
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="row">
-    <div class="col-sm-12" align="center">
-      <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
-    </div>
-  </div>
-
+<div class="sidebar-small" style="display: none;">
+  <a class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-right"></span></a>
 </div>
 {% endblock %}
 

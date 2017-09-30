@@ -30,13 +30,9 @@ body {
     z-index: 1;
 }
 
-.ol-full-screen {
-    right: unset;
-    left: 0.5em;
-}
-
 .ol-zoom {
-    top: 3em;
+    top: unset;
+    bottom: 0.5em;
 }
 
 

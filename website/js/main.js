@@ -188,3 +188,8 @@ select_interaction.getFeatures().on("add", function (e) {
 });
 
 contourmap.map.addInteraction(select_interaction);
+
+$(".sidebar-toggle").bind("click", function(e) {
+    console.log('on sidebar show/hide');
+    setTimeout( function() { contourmap.map.updateSize();}, 600);
+})
