@@ -65,7 +65,7 @@ class Contour(object):
         self.observations = observations
         self.config = config
         self.data_dir = data_dir
-        self.Z = None
+        self.Z = []
 
     @property
     def contour_data_filepath(self):
@@ -94,8 +94,8 @@ class Contour(object):
             i_sig2 = i_sig * i_sig
             j_sig = sigma_lon_deg / level.stepsize_deg
             j_sig2 = j_sig * j_sig
-            i_sig_3 = int(3*i_sig)
-            j_sig_3 = int(3*j_sig)
+            i_3sig = int(3*i_sig)
+            j_3sig = int(3*j_sig)
             pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
             pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
             # print ("i_sig", i_sig, "j_sig", j_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
@@ -106,13 +106,12 @@ class Contour(object):
             for obs in self.observations:
                 i_obs = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
                 j_obs = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
-                for i in range(round(i_obs)-i_sig_3, round(i_obs)+i_sig_3):
-                    for j in range(round(j_obs)-j_sig_3, round(j_obs)+j_sig_3):
+                for i in range(round(i_obs)-i_3sig, round(i_obs)+i_3sig):
+                    for j in range(round(j_obs)-j_3sig, round(j_obs)+j_3sig):
                         try:
                             di = i-i_obs
                             dj = j-j_obs
-                            z_level[i][j] += math.exp(-(di*di) / i_sig2) *\
-                                             math.exp(-(dj*dj) / j_sig2)
+                            z_level[i][j] += math.exp(-(di*di) / i_sig2 - (dj*dj) / j_sig2)
                         except IndexError:
                             pass
             Z.append(z_level)
@@ -122,6 +121,8 @@ class Contour(object):
         return Z
 
     def create_geojson(self, data_dir, name, stroke_width=1):
+        logger.info('BEGIN')
+        start = time.time()
         assert(len(self.Z) == len(self.config.levels))
         for index, z_level in enumerate(self.Z):
             level = self.config.levels[index]
@@ -153,6 +154,8 @@ class Contour(object):
                 unit='[<unit here>]',
                 stroke_width=stroke_width
             )
+        end = time.time()
+        logger.info('END - time: ' + str(end - start))
 
     @staticmethod
     def create_contour_levels(Z, n_contours):
