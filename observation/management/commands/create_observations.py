@@ -6,6 +6,7 @@ from django.core.management.base import BaseCommand
 from scraper import scraper
 
 from observation.models import Observation
+from observation.models import Observer
 from observation.models import Coordinates
 from observation.models import Group
 from observation.models import Family
@@ -60,6 +61,8 @@ class Command(BaseCommand):
                     lon=data['coordinates']['lon'],
                 )
 
+            observer, created = Observer.objects.get_or_create(name=data['observer_name'], waarneming_url=data['observer_url'])
+
             Observation.objects.filter(waarneming_url=data['url']).delete()
             observation_new = Observation.objects.create(
                 species=species,
@@ -69,4 +72,5 @@ class Command(BaseCommand):
                 datetime=data['datetime'],
                 coordinates=coordinates,
                 waarneming_url=data['url'],
+                observer=observer
             )

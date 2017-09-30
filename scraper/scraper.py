@@ -95,6 +95,8 @@ class Observation(object):
         self.number = 0
         self.datetime = None
         self.coordinates = {}
+        self.observer_name = ''
+        self.observer_url = ''
 
     def __str__(self):
         return str(pp.pformat(self.data))
@@ -115,7 +117,7 @@ class Observation(object):
         self.name, self.name_latin = self.parse_name()
         self.family, self.family_latin = self.parse_family()
         self.group = self.parse_group()
-        self.datetime, self.number = self.parse_datetime_and_number()
+        self.datetime, self.number, self.observer_name, self.observer_url = self.parse_info_table()
         self.coordinates = self.parse_coordinates()
 
     def parse_coordinates(self):
@@ -164,10 +166,12 @@ class Observation(object):
                 return species
         return ''
 
-    def parse_datetime_and_number(self):
+    def parse_info_table(self):
         table_cells = self.html.xpath('//table[@class="form"]/tr/td')
         timezone_amsterdam = pytz.timezone('Europe/Amsterdam')
         datetime_observation = None
+        observer_name = ''
+        observer_url = ''
         number = 0
         for cell in table_cells:
             if not cell.text:
@@ -187,7 +191,10 @@ class Observation(object):
                 number_str = cell.getnext().text
                 match = re.search(r"(\d+)", number_str)
                 number = int(match.groups()[0].strip())
-        return datetime_observation, number
+            if 'Waarnemer' in cell.text:
+                observer_name = cell.getnext().xpath('a')[1].text
+                observer_url = 'https://waarneming.nl' + cell.getnext().xpath('a')[1].get('href')
+        return datetime_observation, number, observer_name, observer_url
 
     @property
     def data(self):
@@ -201,6 +208,8 @@ class Observation(object):
             'number': self.number,
             'datetime': self.datetime,
             'coordinates': self.coordinates,
+            'observer_name': self.observer_name,
+            'observer_url': self.observer_url,
         }
         return data
 
