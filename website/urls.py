@@ -11,6 +11,7 @@ from website.views import HomeView
 from observation.views import ObservationMapView
 
 import observation.urls
+import stats.urls
 
 import website.api
 
@@ -28,6 +29,7 @@ urlpatterns = [
     url(r'^accounts/', include('registration.backends.simple.urls')),  # the django-registration module
 
     url(r'', include(observation.urls.urlpatterns)),
+    url(r'', include(stats.urls.urlpatterns)),
 
     url(r'^admin/', admin.site.urls),
 

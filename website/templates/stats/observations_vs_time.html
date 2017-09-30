@@ -1,0 +1,29 @@
+
+{% extends "website/base.html" %}
+
+{% block title %}Waarnemingen vs Tijd - Statistieken {{ block.super }}{% endblock %}
+
+{% block content %}
+
+<script src="//cdn.plot.ly/plotly-latest.min.js" type="text/javascript"></script>
+
+<div class="vertical-spacer-20"></div>
+
+<div class="row" align="center">
+  <h3>Waarnemingen Statistieken</h3>
+</div>
+
+<div class="row">
+  <div class="col-lg-12" align="center">
+    <h4>{{ n_observations }} waarnemingen</h4>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-12" align="center">
+    <h4>Waarnemingen vs Tijd</h4>
+    {{ plot_html }}
+  </div>
+</div>
+
+{% endblock %}
