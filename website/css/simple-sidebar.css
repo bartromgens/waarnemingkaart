@@ -79,3 +79,8 @@
 .bioclass-breadcrumb {
     margin-bottom: 5px;
 }
+
+.container-fluid.container-sidebar {
+    padding-left: 10px;
+    padding-right: 10px;
+}
