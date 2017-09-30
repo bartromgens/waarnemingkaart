@@ -1,0 +1,23 @@
+<div class="row">
+  <div class="col-sm-12">
+
+    <div class="panel panel-default panel-sidebar">
+      <div class="panel-heading panel-heading-sidebar" align="center">
+        <h4><a href="{{ species.map_url }}" class="text-info">{{ species.name_nl }}</a></h4>
+      </div>
+      <div class="panel-body panel-body-sidebar">
+        {% if species.wikimedia_image_url %}
+        <a href="{{ species.large_wikipedia_image_url }}" target="_blank">
+          <img class="img-responsive" src="{{ species.wikimedia_image_url }}" alt="Foto van een {{ species }}"/>
+        </a>
+        {% else %}
+        Een foto van een '{{ species }}' is helaas niet gevonden op Wikipedia.
+        {% endif %}
+      </div>
+      <div class="panel-footer">
+        {% if species.wikipedia_url_nl %}Bron: <a href="{{ species.wikipedia_url_nl }}" target="_blank">Wikipedia</a>{% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
