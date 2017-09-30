@@ -23,17 +23,23 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--group', type=str, help='', default=None)
+        parser.add_argument('--skip-groups', action='store_true', help='Do not create maps for groups.')
+        parser.add_argument('--skip-families', action='store_true', help='Do not create maps for families.')
+        parser.add_argument('--skip-species', action='store_true', help='Do not create maps for species.')
 
     def handle(self, *args, **options):
         group = None
+        print(options)
         if options['group'] is not None:
             group = Group.objects.get(slug=slugify(options['group']))
-        config_groups = ContourPlotConfig()
-        observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
-        self.create_maps_groups(observations_all, config_groups, group)
         config = ContourPlotConfig()
-        self.create_maps_families(observations_all, config, group)
-        self.create_maps_species(observations_all, config, group)
+        observations_all = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
+        if not options['skip_groups']:
+            self.create_maps_groups(observations_all, config, group)
+        if not options['skip_families']:
+            self.create_maps_families(observations_all, config, group)
+        if not options['skip_species']:
+            self.create_maps_species(observations_all, config, group)
 
     @staticmethod
     def create_maps_groups(observations, config, group=None):
