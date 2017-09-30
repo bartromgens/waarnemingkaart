@@ -11,8 +11,8 @@ class BioClass(models.Model):
     name_latin = models.CharField(max_length=1000, blank=True, default='')
     slug = models.SlugField(max_length=1000, blank=True, default='')
     wikidata_id = models.CharField(max_length=100, blank=True, default='')
-    wikipedia_url_nl = models.URLField(blank=True, null=True)
-    wikimedia_image_url = models.URLField(blank=True, null=True)
+    wikipedia_url_nl = models.URLField(max_length=1000, blank=True, null=True)
+    wikimedia_image_url = models.URLField(max_length=1000, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name_nl)
@@ -95,8 +95,8 @@ class Coordinates(models.Model):
 
 
 class Observer(models.Model):
-    name = models.CharField(max_length=200, blank=True, default='')
-    waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+    name = models.CharField(max_length=2000, blank=True, default='')
+    waarneming_url = models.URLField(max_length=1000, null=True, blank=True, unique=True, db_index=True)
 
     def __str__(self):
         return str(self.name)
@@ -109,7 +109,7 @@ class Observation(models.Model):
     number = models.IntegerField(default=0)
     datetime = models.DateTimeField(null=True, blank=True, db_index=True)
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
-    waarneming_url = models.URLField(null=True, blank=True, unique=True, db_index=True)
+    waarneming_url = models.URLField(max_length=1000, null=True, blank=True, unique=True, db_index=True)
     observer = models.ForeignKey(Observer, null=True, blank=True)
 
     class Meta:
