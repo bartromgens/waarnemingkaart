@@ -1,6 +1,6 @@
 import logging
 import requests
-import datetime
+import time
 import re
 import pprint
 import json
@@ -106,7 +106,9 @@ def get_observation_list_urls(group_id, date):
 
 
 def get_observation_urls_from_list_page(url):
+    start = time.time()
     response = requests.get(url)
+    response_time = time.time() - start
     tree = lxml.html.fromstring(response.content)
     table_columns = tree.xpath('//table[@class="paginator list nolistify"]/tr/td/a')
     observation_urls = set()
@@ -115,7 +117,7 @@ def get_observation_urls_from_list_page(url):
         if '/waarneming/view/' in observation_url:
             # print(observation_url)
             observation_urls.add(observation_url)
-    print('\t' + str(len(observation_urls)) + ' observations found for url: ' + str(response.url))
+    logger.info('\t response time: ' + str(response_time) + ' - ' + str(len(observation_urls)) + ' observations found for url: ' + str(response.url))
     return list(observation_urls)
 
 
@@ -143,7 +145,9 @@ class Observation(object):
         self.parse()
 
     def get_html(self):
+        start = time.time()
         response = requests.get(self.url)
+        logger.info('response time: ' + str(time.time() - start))
         return lxml.html.fromstring(response.content)
 
     def parse(self):
