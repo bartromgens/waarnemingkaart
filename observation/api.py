@@ -1,4 +1,5 @@
 from observation.models import Observation
+from observation.models import Observer
 from observation.models import Coordinates
 from observation.models import Group
 from observation.models import Family
@@ -53,15 +54,42 @@ class CoordinatesViewSet(viewsets.ModelViewSet):
     serializer_class = CoordinatesSerializer
 
 
+class ObserverSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Observer
+        fields = ('name', 'waarneming_url')
+
+
+class ObserverViewSet(viewsets.ModelViewSet):
+    queryset = Observer.objects.all()
+    serializer_class = ObserverSerializer
+
+
 class ObservationSerializer(serializers.HyperlinkedModelSerializer):
-    species = SpeciesSerializer(read_only=True)
-    family = FamilySerializer(read_only=True)
-    group = GroupSerializer(read_only=True)
+    # species = SpeciesSerializer(read_only=True)
+    # family = FamilySerializer(read_only=True)
+    # group = GroupSerializer(read_only=True)
+    # observer = ObserverSerializer(read_only=True)
     coordinates = CoordinatesSerializer(read_only=True)
 
     class Meta:
         model = Observation
-        fields = ('id', 'url', 'species', 'family', 'group', 'datetime', 'number', 'coordinates', 'waarneming_url')
+        fields = (
+            'id',
+            'url',
+            'species_id',
+            'species',
+            'family_id',
+            'family',
+            'group_id',
+            'group',
+            'datetime',
+            'number',
+            'coordinates',
+            'waarneming_url',
+            'observer_id',
+            'observer'
+        )
 
 
 class ObservationViewSet(viewsets.ModelViewSet):
