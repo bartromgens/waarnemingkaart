@@ -29,7 +29,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         group = None
-        print(options)
         if options['group'] is not None:
             group = Group.objects.get(slug=slugify(options['group']))
         config = ContourPlotConfig()
