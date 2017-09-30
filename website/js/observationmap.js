@@ -39,9 +39,14 @@ var ObservationMap = {
         console.log('createObservationsFeatureLayer', 'BEGIN');
 
         function createObservationFeatures(observation, lonLat) {
+            var title = observation.title;
+            if (observation.name) {
+                title += ' door ' + observation.name;
+            }
             return new ol.Feature({
                 geometry: new ol.geom.Point( ol.proj.fromLonLat(lonLat) ),
-                title: observation.title,
+                title: title,
+                waarneming_url: observation.waarneming_url,
                 number: observation.number
             });
         }
@@ -152,10 +157,10 @@ var ObservationMap = {
                 var lineWidth = strokeWidth/3.0;
                 var value = feature.get('level-value');
                 var levelNr = 1 + feature.get('level-index');
-                var zoomFactor = Math.pow(zoom, 2.0)/400.0;
+                var zoomFactor = Math.pow(zoom, 1.0)/50.0;
 
-                zoomFactor *= levelNr/2;
-                if (levelNr % 3 === 1) {
+                zoomFactor *= Math.pow(levelNr, 0.75);
+                if (levelNr % 3 === 0) {
                     zoomFactor *= 3.0;
                 }
                 if (levelNr === 11) {

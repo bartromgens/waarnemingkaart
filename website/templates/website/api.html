@@ -1,0 +1,58 @@
+{% extends "website/base.html" %}
+
+{% block title %}API informatie {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="vertical-spacer-20"></div>
+
+    <div class="row" align="center">
+        <h3>Waarnemingen API</h3>
+    </div>
+
+    <div class="row">
+
+        <div class="col-sm-8 - col-sm-offset-2" align="left">
+            <h4>Waarnemingen data</h4>
+            <p>
+                waarnemingkaart.nl bevat een deel van de waarnemingen data van <a href="https://waarneming.nl">waarneming.nl</a>.
+            </p>
+            <p>
+                Deze data is beschikbaar via de <a href="/api/v1/">waarnemingkaart-api</a>.
+            </p>
+            <p>
+                De kaart data is nog niet beschikbaar via deze API. Neem contact met ons op als je daar naar zoekt.
+            </p>
+
+            <h4>Verkennen</h4>
+            <p>
+                De data in de API is in de browser te verkennen via <a href="/api/v1/">waarnemingkaart-api</a>.
+                Klik op de links om door de data te navigeren.
+            </p>
+
+            <h4>Voorbeeld</h4>
+            <p>
+                Een lijst van waarnemingen in json formaat is te vinden op <a href="/api/v1/observations/?format=json">/api/v1/observations/?format=json</a>.
+                Dit geeft de eerste 100 waarnemingen. De 'next' url is een link naar de volgende lijst (pagina) met 100 waarnemingen.
+            </p>
+
+            <h4>Voorwaarden</h4>
+            <p>
+                Deze data is beschikbaar onder de voorwaarden van waarneming.nl.
+                Deze voorwaarden zijn <a href="https://waarneming.nl/terms.php">hier</a> te lezen.
+                De data is volgens deze voorwaarden vrij voor <strong>niet-zakelijk</strong> gebruik door particulieren.
+            </p>
+
+            <h4>Waarschuwing</h4>
+            <p>
+                De API is in alpha staat en kan dus fouten bevatten en veranderen.
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -6,7 +6,7 @@
 
 #wrapper {
     height: 100%;
-    padding-left: 0;
+    padding-left: 0px;
     -webkit-transition: all 0.5s ease;
     -moz-transition: all 0.5s ease;
     -o-transition: all 0.5s ease;
@@ -21,7 +21,7 @@
     z-index: 1000;
     position: fixed;
     left: 350px;
-    width: 0;
+    width: 50px;
     height: 100%;
     margin-left: -350px;
     overflow-y: auto;
@@ -38,34 +38,16 @@
 #page-content-wrapper {
     height: 100%;
     width: 100%;
-    position: absolute;
     padding: 0;
+    position: relative;
 }
 
 #wrapper.toggled #page-content-wrapper {
-    position: absolute;
-    margin-right: -350px;
+    position: relative;
+    margin-right: 0;
 }
 
-@media(min-width:768px) {
-    #wrapper {
-        padding-left: 0;
-    }
-    #wrapper.toggled {
-        padding-left: 350px;
-    }
-    #sidebar-wrapper {
-        width: 0;
-    }
-    #wrapper.toggled #sidebar-wrapper {
-        width: 350px;
-    }
-    #page-content-wrapper {
-        padding: 0;
-        position: relative;
-    }
-    #wrapper.toggled #page-content-wrapper {
-        position: relative;
-        margin-right: 0;
-    }
+.sidebar-toggle {
+    border-radius: 0px;
+    width: 100%;
 }

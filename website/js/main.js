@@ -167,7 +167,7 @@ contourmap.map.on('moveend', function(event) {
     var startLoadHighDetail = zoom > (OBSERVATIONS_LAYER_ZOOM-1)
     if (startLoadHighDetail && !contourLayerHighDetail) {
         contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
-            contourLayer.setVisible(false)
+            contourLayer.setVisible(zoom > OBSERVATIONS_LAYER_ZOOM)
             contourLayerHighDetail = contourLayer;
         });
     }
@@ -178,4 +178,18 @@ contourmap.map.on('moveend', function(event) {
     if (contourLayerLowDetail) {
         contourLayerLowDetail.setVisible(!highDetailMode);
     }
+})
+
+var select_interaction = new ol.interaction.Select();
+
+select_interaction.getFeatures().on("add", function (e) {
+     var feature = e.element;
+     window.open(feature.get('waarneming_url'), '_blank');
+});
+
+contourmap.map.addInteraction(select_interaction);
+
+$(".sidebar-toggle").bind("click", function(e) {
+    console.log('on sidebar show/hide');
+    setTimeout( function() { contourmap.map.updateSize();}, 600);
 })

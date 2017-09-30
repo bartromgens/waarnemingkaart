@@ -10,8 +10,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 INSTALLED_APPS = [
     'website',
-    'maps',
     'observation',
+    'maps',
+    'stats',
     'scraper',
     'bootstrap3',
     'bootstrap_pagination',
@@ -184,6 +185,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'observation': {
+            'handlers': ['file_debug', 'file_error', 'console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'stats': {
             'handlers': ['file_debug', 'file_error', 'console'],
             'propagate': True,
             'level': 'DEBUG',
