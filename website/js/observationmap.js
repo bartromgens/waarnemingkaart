@@ -34,6 +34,7 @@ var ObservationMap = {
         map.addControl(new ol.control.FullScreen());
         var contourLayerButtons = new ol.control.Control({element: $(".btn-group-layers").get(0)});
         map.addControl(contourLayerButtons);
+        this.urlsLoaded = [];
         console.log('createOpenLayersMap', 'END');
         return map;
     },
@@ -86,6 +87,13 @@ var ObservationMap = {
         return layer;
     },
     addContourTileLayer: function(geojsonUrl, onFinish) {
+
+        if (this.urlsLoaded.indexOf(geojsonUrl) > -1) {
+            console.log('already loading');
+            return;
+        }
+
+        this.urlsLoaded.push(geojsonUrl);
         console.log('create contour layer for geojson_url', geojsonUrl);
         var replacer = function(key, value) {
             if (value.geometry) {
