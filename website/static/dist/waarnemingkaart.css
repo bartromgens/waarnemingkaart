@@ -1,4 +1,4 @@
-body,html{height:100%}body{padding-top:50px}.vertical-spacer-20{padding:0;margin:0;height:20px}#map{position:relative;padding:0;height:100%;width:100%}#info{position:absolute;border-radius:5px;background-color:#000;color:#fff;padding:7px;z-index:1}.ol-zoom{top:4em;z-index:100}.btn-group-layers{bottom:2.5em;left:1em;z-index:100}hr.hr-small{margin:10px 0}.navbar-brand,.navbar-nav>li>a{font-weight:500}h6.small{margin-top:5px;margin-bottom:5px}/*!
+body,html{height:100%}body{padding-top:50px}.vertical-spacer-20{padding:0;margin:0;height:20px}#map{position:relative;padding:0;height:100%;width:100%}#info{display:none;position:absolute;border-radius:5px;background-color:#000;color:#fff;padding:7px;z-index:1}.ol-zoom{top:4em;z-index:100}.btn-group-layers{display:none;bottom:2.5em;left:1em;z-index:100}hr.hr-small{margin:10px 0}.navbar-brand,.navbar-nav>li>a{font-weight:500}h6.small{margin-top:5px;margin-bottom:5px}/*!
  * Start Bootstrap - Simple Sidebar (http://startbootstrap.com/template-overviews/simple-sidebar)
  * Copyright 2013-2017 Start Bootstrap
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)

@@ -23,7 +23,7 @@ function initialize() {
         showContourLayer('low');
     }
     setEventHandlers();
-    $('#info').hide();
+    $(".btn-group-layers").show();
 }
 
 
