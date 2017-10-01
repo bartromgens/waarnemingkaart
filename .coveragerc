@@ -1,5 +1,5 @@
 [run]
-source = website, observation
+source = website, observation, maps, scraper, stats
 
 [report]
 omit =
