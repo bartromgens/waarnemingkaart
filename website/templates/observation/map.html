@@ -64,11 +64,11 @@
 
       </form>
 
-      <!--<script>-->
-      <!--$(".form-control").change(function() {-->
-          <!--$(this).closest('form').submit();-->
-      <!--});-->
-      <!--</script>-->
+      <script>
+      //$(".form-control").change(function() {
+      //    $(this).closest('form').submit();
+      //});
+      </script>
 
       <script>
       $(document).ready(function() {
@@ -84,23 +84,28 @@
 
       $("select[name$=family]").on('change', function() {
         var selectedFamilySlug = $(this).find(":selected").val();
+        $("#single-species-sidebar-panel").hide();
+        if (selectedFamilySlug === "") {
+          $("#family-sidebar-panel").show();
+          return;
+        }
         WaKa.updateFamilySpeciesPanel(selectedFamilySlug);
       });
 
       // reset form
-      $(".reset-form-button").click(function() {
-          $(".form-control#id_family").val(null).trigger('change');
-          $(".form-control#id_species").val(null).trigger('change');
-      });
+      //$(".reset-form-button").click(function() {
+      //    $(".form-control#id_family").val(null).trigger('change');
+      //    $(".form-control#id_species").val(null).trigger('change');
+      //});
       </script>
 
     </div>
 
-    {% if species %}
-    <hr class="hr-small visible-xs"/>
-    <hr class="hidden-xs"/>
-      {% include "observation/items/species_panel.html" %}
-    {% endif %}
+    <div id="single-species-sidebar-panel">
+      {% if species %}
+        {% include "observation/items/species_panel.html" %}
+      {% endif %}
+    </div>
 
     <hr class="hr-small"/>
 
@@ -108,7 +113,7 @@
       <div class="col-sm-12">
 
         {% if group and not family %}
-        <div class="panel panel-default panel-sidebar">
+        <div id="family-sidebar-panel" class="panel panel-default panel-sidebar">
 
           <div class="panel-heading panel-heading-sidebar" align="center">
             <h5>Families</h5>
@@ -129,11 +134,11 @@
         </div>
         {% endif %}
 
+        <div id="family-species-sidebar-panel">
         {% if family %}
-          <div id="family-species-sidebar-panel">
-            {% include "observation/items/family_species_panel.html" %}
-          </div>
+          {% include "observation/items/family_species_panel.html" %}
         {% endif %}
+        </div>
 
       </div>
     </div>
