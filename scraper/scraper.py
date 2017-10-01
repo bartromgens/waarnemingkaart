@@ -153,15 +153,17 @@ class ObservationScraper(object):
         self.coordinates = self.parse_coordinates()
 
     def parse_coordinates(self):
-        table_headers = self.html.xpath('//table[@class="form"]/tr/th')
-        for header in table_headers:
-            if 'GPS' in header.text:
-                gps_coordinates_str = header.getnext().text.split(',')
-                coordinates = {
-                    'lat': float(gps_coordinates_str[0]),
-                    'lon': float(gps_coordinates_str[1]),
-                }
-                return coordinates
+        refs = self.html.xpath('//@href')
+        for ref in refs:
+            if 'https://maps.google.com/maps' in ref:
+                match = re.search("[0-9\.]+,[0-9\.]+", ref)
+                if match:
+                    gps_coordinates_str = match.group().split(',')
+                    coordinates = {
+                        'lat': float(gps_coordinates_str[0]),
+                        'lon': float(gps_coordinates_str[1]),
+                    }
+                    return coordinates
         return {}
 
     def parse_name(self):
