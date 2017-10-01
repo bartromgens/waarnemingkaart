@@ -1,5 +1,5 @@
 # waarnemingkaart
-[![Build Status](https://travis-ci.org/bartromgens/waarnemingkaart.svg?branch=master)](https://travis-ci.org/bartromgens/waarnemingkaart) [![Coverage Status](https://coveralls.io/repos/github/bartromgens/waarnemingkaart/badge.svg?branch=master)](https://coveralls.io/github/bartromgens/waarnemingkaart?branch=master)
+[![Build Status](https://travis-ci.org/bartromgens/waarnemingkaart.svg?branch=master)](https://travis-ci.org/bartromgens/waarnemingkaart) [![Coverage Status](https://coveralls.io/repos/github/bartromgens/waarnemingkaart/badge.svg?branch=master)](https://coveralls.io/github/bartromgens/waarnemingkaart?branch=master) [![Dependency Status](https://gemnasium.com/badges/github.com/bartromgens/waarnemingkaart.svg)](https://gemnasium.com/github.com/bartromgens/waarnemingkaart)
 
 A visualization of animal and plant observations on an interactive map. 
 
