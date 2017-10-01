@@ -1,0 +1,13 @@
+  <div class="hidden-xs">
+    <ul class="breadcrumb bioclass-breadcrumb">
+      {% if group %}
+      <li><a href="{{ group.map_url }}">{{ group }}</a></li>
+      {% endif %}
+      {% if family %}
+      <li><a href="{{ family.map_url }}">{{ family }}</a></li>
+      {% endif %}
+      {% if species %}
+      <li class="active">{{ species }}</li>
+      {% endif %}
+    </ul>
+  </div>

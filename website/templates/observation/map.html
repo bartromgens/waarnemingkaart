@@ -7,17 +7,7 @@
 
 {% block sidebar %}
 
-<div class="btn-group btn-group-xs btn-group-layers" data-toggle="buttons">
-  <label class="btn btn-info">
-    <input name="layers" type="radio" value="high">High
-  </label>
-  <label class="btn btn-info">
-    <input name="layers" type="radio" value="low"> Low
-  </label>
-  <label class="btn btn-info active">
-    <input name="layers" type="radio" value="auto" checked> Auto
-  </label>
-</div>
+{% include "observation/items/layer_select_buttons.html" %}
 
 <div class="sidebar-large">
 
@@ -26,58 +16,19 @@
     <span class="hidden-lg hidden-xl">&ensp;&ensp;TOON KAART</span>
   </button>
 
-  <div class="hidden-xs">
-    <ul class="breadcrumb bioclass-breadcrumb">
-      {% if group %}
-      <li><a href="{{ group.map_url }}">{{ group }}</a></li>
-      {% endif %}
-      {% if family %}
-      <li><a href="{{ family.map_url }}">{{ family }}</a></li>
-      {% endif %}
-      {% if species %}
-      <li class="active">{{ species }}</li>
-      {% endif %}
-    </ul>
-  </div>
+  {% include "observation/items/bioclass_breadcrumbs.html" %}
 
   <div class="container-fluid">
 
     <div class="row">
-      <form id="map-form" method="get">
 
-        <div class="col-sm-12 hidden">
-          <h5 class="text-info">Groep</h5>
-          {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
-        </div>
-
-        <div class="col-sm-12">
-          <h5 class="text-info">Familie (optioneel)</h5>
-          {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
-
-          <h5 class="text-info">Soort</h5>
-          {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
-        </div>
-
-        <div class="col-sm-12">
-          <button class="btn btn-info btn-block" type="submit">Update</button>
-        </div>
-
-      </form>
-
-      <script>
-      //$(".form-control").change(function() {
-      //    $(this).closest('form').submit();
-      //});
-      </script>
+      {% include "observation/items/bioclass_form.html" %}
 
       <script>
       $(document).ready(function() {
-        // Bind on continent field change
+        // Bind on family field change
         $(':input[name$=family]').on('change', function() {
-          // Get the field prefix, ie. if this comes from a formset form
           var prefix = $(this).getFormPrefix();
-
-          // Clear the autocomplete with the same prefix
           $(':input[name=' + prefix + 'species]').val(null).trigger('change');
         });
       });
@@ -85,6 +36,7 @@
       $("select[name$=family]").on('change', function() {
         var selectedFamilySlug = $(this).find(":selected").val();
         $("#single-species-sidebar-panel").hide();
+        console.log(selectedFamilySlug);
         if (selectedFamilySlug === "") {
           $("#family-sidebar-panel").show();
           return;
@@ -92,68 +44,36 @@
         WaKa.updateFamilySpeciesPanel(selectedFamilySlug);
       });
 
-      // reset form
-      //$(".reset-form-button").click(function() {
-      //    $(".form-control#id_family").val(null).trigger('change');
-      //    $(".form-control#id_species").val(null).trigger('change');
-      //});
       </script>
 
     </div>
 
     <div id="single-species-sidebar-panel">
-      {% if species %}
-        {% include "observation/items/species_panel.html" %}
-      {% endif %}
+    {% if species %}
+      {% include "observation/items/species_panel.html" %}
+    {% endif %}
     </div>
 
     <hr class="hr-small"/>
 
-    <div class="row">
-      <div class="col-sm-12">
-
-        {% if group and not family %}
-        <div id="family-sidebar-panel" class="panel panel-default panel-sidebar">
-
-          <div class="panel-heading panel-heading-sidebar" align="center">
-            <h5>Families</h5>
-          </div>
-
-          <div class="panel-body panel-body-sidebar">
-            <div class="row">
-            {% for family in families %}
-              <div class="col-xs-6">
-                <small>
-                  <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }})
-                </small>
-              </div>
-            {% endfor %}
-            </div>
-          </div>
-
-        </div>
-        {% endif %}
-
-        <div id="family-species-sidebar-panel">
-        {% if family %}
-          {% include "observation/items/family_species_panel.html" %}
-        {% endif %}
-        </div>
-
-      </div>
+    <div id="family-sidebar-panel">
+    {% if group and not family %}
+      {% include "observation/items/families_panel.html" %}
+    {% endif %}
     </div>
 
-    <hr class="hidden"/>
-
-    <div class="row hidden">
-      <div class="col-sm-12" align="center">
-        <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
-      </div>
+    <div id="family-species-sidebar-panel">
+    {% if family %}
+      {% include "observation/items/family_species_panel.html" %}
+    {% endif %}
     </div>
+
+    {% include "observation/items/export_map_image.html" %}
 
   </div>
 
 </div>
+
 
 <div class="sidebar-small" style="display: none;">
   <a class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-right"></span></a>
@@ -167,7 +87,6 @@
 <div id="map" class="map">
   <div id="info"></div>
 </div>
-
 
 <script src="{% static 'dist/main.js' %}"></script>
 {{ filter.form.media }}

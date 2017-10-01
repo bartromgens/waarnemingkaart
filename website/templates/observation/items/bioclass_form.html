@@ -1,0 +1,22 @@
+{% load bootstrap3 %}
+
+  <form id="map-form" method="get">
+
+    <div class="col-sm-12 hidden">
+      <h5 class="text-info">Groep</h5>
+      {% bootstrap_field filter.form.group bound_css_class='' show_label=False show_help=False %}
+    </div>
+
+    <div class="col-sm-12">
+      <h5 class="text-info">Familie (optioneel)</h5>
+      {% bootstrap_field filter.form.family bound_css_class='' show_label=False show_help=False %}
+
+      <h5 class="text-info">Soort</h5>
+      {% bootstrap_field filter.form.species bound_css_class='' show_label=False show_help=False %}
+    </div>
+
+    <div class="col-sm-12">
+      <button class="btn btn-info btn-block" type="submit">Update</button>
+    </div>
+
+  </form>
