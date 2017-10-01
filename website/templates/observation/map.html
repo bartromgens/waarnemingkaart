@@ -97,9 +97,9 @@
       {% include "observation/items/species_panel.html" %}
     {% endif %}
 
-    <hr class="hr-small hidden-xs"/>
+    <hr class="hr-small"/>
 
-    <div class="row hidden-xs">
+    <div class="row">
       <div class="col-sm-12">
 
         {% if group and not family %}
@@ -114,7 +114,7 @@
             {% for family in families %}
               <div class="col-xs-6">
                 <small>
-                  <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }}){% if not forloop.last %},{% endif %}
+                  <a href="{{ family.map_url }}">{{ family.name_nl }}</a> ({{ family.n_observations }})
                 </small>
               </div>
             {% endfor %}
