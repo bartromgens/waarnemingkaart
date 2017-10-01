@@ -64,16 +64,6 @@ GROUP_IDS = [
 pp = pprint.PrettyPrinter(indent=4)
 
 
-def get_observations_for_date(group_id, date, max_n=None):
-    logger.info('BEGIN - ' + str(date))
-    observation_urls = get_observation_urls_for_date(group_id, date, max_n=max_n)
-    observations = []
-    for url in observation_urls:
-        observations.append(Observation(url))
-    logger.info('BEGIN - ' + str(date))
-    return observations
-
-
 def get_observation_urls_for_date(group_id, date, max_n=None):
     observation_list_urls = get_observation_list_urls(group_id, date)
     observation_urls = []
@@ -101,7 +91,7 @@ def get_observation_list_urls(group_id, date):
         if '/soort/view/' in observed_species_url:
             # print(observed_species_url)
             observation_list_urls.add(observed_species_url)
-    print(str(len(observation_list_urls)) + ' species found on ' + date.isoformat() + ' for url: ' + str(response.url))
+    logger.info(str(len(observation_list_urls)) + ' species found on ' + date.isoformat() + ' for url: ' + str(response.url))
     return list(observation_list_urls)
 
 
@@ -121,7 +111,7 @@ def get_observation_urls_from_list_page(url):
     return list(observation_urls)
 
 
-class Observation(object):
+class ObservationScraper(object):
 
     def __init__(self, url):
         self.url = url
@@ -143,6 +133,7 @@ class Observation(object):
     def create(self):
         self.html = self.get_html()
         self.parse()
+        return self.data
 
     def get_html(self):
         start = time.time()
@@ -152,9 +143,9 @@ class Observation(object):
 
     def parse(self):
         if self.html is None:
-            print('html is empty, please call get_html() first')
+            logger.error('html is empty, please call get_html() first')
             return
-        print('Observation::parse() - ' + self.url)
+        logger.info('BEGIN: ' + self.url)
         self.name, self.name_latin = self.parse_name()
         self.family, self.family_latin = self.parse_family()
         self.group = self.parse_group()
@@ -192,7 +183,7 @@ class Observation(object):
                 family_full = link.text.strip()
                 match = re.search(r"(.+)\s\((.+)\)", family_full)
                 if match is None:
-                    print('WARNING: latin name not found in: ' + family_full)
+                    logger.warning('WARNING: latin name not found in: ' + family_full)
                     return family_full, family_full
                 family = match.groups()[0]
                 family_latin = match.groups()[1]
@@ -224,7 +215,7 @@ class Observation(object):
                 # datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")  # 2017-09-01 09:15
                 datetime_obj = dateparser.parse(datetime_str)
                 if datetime_obj is None:
-                    print('WARNING: datetime not found')
+                    logger.warning('WARNING: datetime not found')
                 ams_dt = timezone_amsterdam.localize(datetime_obj)
                 datetime_utc_tzaware = ams_dt.astimezone(pytz.utc)
                 datetime_observation = datetime_utc_tzaware
@@ -233,8 +224,10 @@ class Observation(object):
                 match = re.search(r"(\d+)", number_str)
                 number = int(match.groups()[0].strip())
             if 'Waarnemer' in cell.text:
-                observer_name = cell.getnext().xpath('a')[1].text
-                observer_url = 'https://waarneming.nl' + cell.getnext().xpath('a')[1].get('href')
+                links = cell.getnext().xpath('a')
+                if len(links) > 1:
+                    observer_name = cell.getnext().xpath('a')[1].text
+                    observer_url = 'https://waarneming.nl' + cell.getnext().xpath('a')[1].get('href')
         return datetime_observation, number, observer_name, observer_url
 
     @property
