@@ -1,4 +1,6 @@
 var observationmap = require("./observationmap.js");
+var sidebar = require("./sidebar.js");
+
 
 var DATA_DIR = "/static/waarnemingkaart-data/";
 var OBSERVATIONS_LAYER_ZOOM = 11;
@@ -270,3 +272,8 @@ $.ajaxSetup({
         }
     }
 });
+
+
+module.exports = {
+    updateFamilySpeciesPanel: sidebar.updateFamilySpeciesPanel,
+};

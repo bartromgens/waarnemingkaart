@@ -82,6 +82,11 @@
         });
       });
 
+      $("select[name$=family]").on('change', function() {
+        var selectedFamilySlug = $(this).find(":selected").val();
+        WaKa.updateFamilySpeciesPanel(selectedFamilySlug);
+      });
+
       // reset form
       $(".reset-form-button").click(function() {
           $(".form-control#id_family").val(null).trigger('change');
@@ -125,25 +130,9 @@
         {% endif %}
 
         {% if family %}
-        <div class="panel panel-default panel-sidebar">
-
-          <div class="panel-heading panel-heading-sidebar" align="center">
-            <h5>Soorten <a href="{{ family.map_url }}">{{ family }}</a></h5>
+          <div id="family-species-sidebar-panel">
+            {% include "observation/items/family_species_panel.html" %}
           </div>
-
-          <div class="panel-body panel-body-sidebar">
-            <div class="row">
-            {% for item in speciess %}
-              <div class="col-xs-6">
-                <small>
-                  <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }})
-                </small>
-              </div>
-            {% endfor %}
-            </div>
-          </div>
-
-        </div>
         {% endif %}
 
       </div>

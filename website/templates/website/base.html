@@ -56,6 +56,12 @@
 
   {% block content %}{% endblock %}
 
+    <script type="text/javascript">
+    $.ajaxSetup({
+        data: {csrfmiddlewaretoken: '{{ csrf_token }}' },
+    });
+    </script>
+
 </body>
 
 </html>

@@ -1,8 +1,11 @@
 import urllib.parse
+import json
 
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import TemplateView
+from django.template.loader import render_to_string
+from django.http import HttpResponse
 
 from dal import autocomplete
 
@@ -98,6 +101,14 @@ class ObservationsView(TemplateView):
         context['filter'] = observation_filter
         context['n_results'] = observation_filter.qs.count()
         return context
+
+
+def get_family_species_panel_html(request):
+    family = Family.objects.get(slug=request.GET['family_slug'])
+    speciess = Species.objects.filter(family=family)
+    html = render_to_string('observation/items/family_species_panel.html', {'family': family, 'speciess': speciess })
+    response = json.dumps({'html': html})
+    return HttpResponse(response, content_type='application/json')
 
 
 class Select2QuerySetCustomView(autocomplete.Select2QuerySetView):

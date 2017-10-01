@@ -12,6 +12,8 @@ module.exports = {
         css: ["./website/css/custom.css", "./website/css/simple-sidebar.css"],
     },
     output: {
+        library: ["WaKa"],
+        libraryTarget: "var",
         path: path.join(__dirname, "website/static/dist/"),
         filename: "[name].js"
     },

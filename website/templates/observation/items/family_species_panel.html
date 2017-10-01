@@ -1,0 +1,19 @@
+<div class="panel panel-default panel-sidebar">
+
+  <div class="panel-heading panel-heading-sidebar" align="center">
+    <h5>Soorten <a href="{{ family.map_url }}">{{ family }}</a></h5>
+  </div>
+
+  <div class="panel-body panel-body-sidebar">
+    <div class="row">
+    {% for item in speciess %}
+      <div class="col-xs-6">
+        <small>
+          <a href="{{ item.map_url }}">{{ item.name_nl }}</a> ({{ item.n_observations }})
+        </small>
+      </div>
+    {% endfor %}
+    </div>
+  </div>
+
+</div>
