@@ -1,16 +1,17 @@
 sudo: false
 language: python
 python:
-  - '3.5'
+- '3.5'
 install:
-  - pip install -r requirements.txt
-  - pip install coveralls
-  - make -C maps/modules
+- pip install -r requirements.txt
+- pip install coveralls
+- make -C maps/modules
 script:
-  - python create_local_settings.py
-  - python manage.py migrate
-  - coverage run manage.py test
+- python create_local_settings.py
+- python manage.py migrate
+- coverage run manage.py test
 notifications:
   email: false
-after_success:
-  coveralls
+  slack:
+    secure: j5wjp4bi0FmNKQv8L5acafTTNZaoY/0LC0Vjvu4Z6vrIFKWQdTHAH/bTf0rwcXjV6UNixFnKjD+71GEuodz89wrykRFIIO2ZVCfJQArt5+LX2uxtcWuGGf0S7B5Owj+HNpf5JnpuEVVxrzJLKKQ6+5aQtnEg0FmA2E9qiSimFl1zD36w/4R1jmU8YAyuYSfiwyCi1B9Y81lYEaSVnHlTgtRD1FQRJ+zSenwf5dm3r+gyPE2HTv5+wqL/XkVOA8OrC718NdVuQWU0KdlgJ/RzVxGJbA0hZtmSiOe+xg9dY+p+XC54/LhiH//aSc3FLIb2ZczMV6Zeus83WKfCGBQm5TwEihZKQb236cOSg1WpSB4ZtXCnxWC/4baFNqyd6gDHJ1mEt39FarC9IBS1GEZr8q3IZ4XzAjWHZNoIGo/2TegJ2gzk6+NubeHTQST5Y0kwwg5QjOIS597nQkoLJBx7uWByzLnccZQ0ei7MBt9hSd/9Qu+ycG33lU1nzdb9ihiRbVNsorYir5eyj9L5PbCVRvmS4XiHlGE2DCYO2P9qlZMSKK1xhEsvZ7nvO054NrNVXG6XL/wi69nspJveS58rI2aFyJMuOIq1lkpWUrV5EGSrB3lKPP1Zu73hXsES34ntbjMOBGBG+qWm0flc/zTKF31Zu4QnuqHH09y/9MgBvpA=
+after_success: coveralls
