@@ -32,6 +32,8 @@ var ObservationMap = {
         this.osmLayer.setOpacity(0.7);
         map.addLayer(this.osmLayer);
         map.addControl(new ol.control.FullScreen());
+        var contourLayerButtons = new ol.control.Control({element: $(".btn-group-layers").get(0)});
+        map.addControl(contourLayerButtons);
         console.log('createOpenLayersMap', 'END');
         return map;
     },

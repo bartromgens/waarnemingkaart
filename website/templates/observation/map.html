@@ -6,25 +6,41 @@
 {% block title %}{{ page_title }} {{ block.super }}{% endblock %}
 
 {% block sidebar %}
+
+<div class="btn-group btn-group-xs btn-group-layers" data-toggle="buttons">
+  <label class="btn btn-info">
+    <input name="layers" type="radio" value="high">High
+  </label>
+  <label class="btn btn-info">
+    <input name="layers" type="radio" value="low"> Low
+  </label>
+  <label class="btn btn-info active">
+    <input name="layers" type="radio" value="auto" checked> Auto
+  </label>
+</div>
+
 <div class="sidebar-large">
 
-  <button class="sidebar-toggle btn btn-primary"><span class="fa fa-lg fa-chevron-left"></span><span class="hidden-lg hidden-xl">&ensp;&ensp;TOON KAART</span></button>
+  <button class="sidebar-toggle btn btn-primary">
+    <span class="fa fa-lg fa-chevron-left"></span>
+    <span class="hidden-lg hidden-xl">&ensp;&ensp;TOON KAART</span>
+  </button>
 
   <div class="hidden-xs">
     <ul class="breadcrumb bioclass-breadcrumb">
       {% if group %}
-      <li><a href="{{ group.map_url }}"><strong>{{ group }}</strong></a></li>
+      <li><a href="{{ group.map_url }}">{{ group }}</a></li>
       {% endif %}
       {% if family %}
-      <li><a href="{{ family.map_url }}"><strong>{{ family }}</strong></a></li>
+      <li><a href="{{ family.map_url }}">{{ family }}</a></li>
       {% endif %}
       {% if species %}
-      <li class="active"><strong>{{ species }}</strong></li>
+      <li class="active">{{ species }}</li>
       {% endif %}
     </ul>
   </div>
 
-  <div class="container-fluid container-sidebar">
+  <div class="container-fluid">
 
     <div class="row">
       <form id="map-form" method="get">
@@ -45,10 +61,10 @@
         <div class="col-sm-12">
           <div class="row">
             <div class="col-xs-4">
-              <button class="btn btn-info btn-block reset-form-button" type="button">Reset</button>
+              <button class="btn btn-primary btn-block reset-form-button" type="button">Reset</button>
             </div>
             <div class="col-xs-8">
-              <button class="btn btn-primary btn-block" type="submit">Update Kaart</button>
+              <button class="btn btn-info btn-block" type="submit">Update</button>
             </div>
           </div>
         </div>
@@ -89,9 +105,9 @@
 
     </div>
 
-    <hr class="hr-small"/>
-
     {% if species %}
+    <hr class="hr-small visible-xs"/>
+    <hr class="hidden-xs"/>
       {% include "observation/items/species_panel.html" %}
     {% endif %}
 
@@ -147,9 +163,9 @@
       </div>
     </div>
 
-    <hr class="hr-small"/>
+    <hr class="hidden"/>
 
-    <div class="row hidden-xs">
+    <div class="row hidden">
       <div class="col-sm-12" align="center">
         <a id="export-png" class="btn btn-primary btn-sm">Download Map</a>
       </div>
@@ -169,8 +185,9 @@
 {% block main-content %}
 
 <div id="map" class="map">
-    <div id="info"></div>
+  <div id="info"></div>
 </div>
+
 
 <script src="{% static 'dist/main.js' %}"></script>
 

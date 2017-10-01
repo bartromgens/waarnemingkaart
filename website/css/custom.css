@@ -29,8 +29,14 @@ body {
 }
 
 .ol-zoom {
-    top: unset;
-    bottom: 0.5em;
+    top: 4em;
+    z-index: 100;
+}
+
+.btn-group-layers {
+    bottom: 2.5em;
+    left: 1.0em;
+    z-index: 100;
 }
 
 
@@ -47,3 +53,9 @@ hr.hr-small {
 .navbar-brand {
     font-weight: 500;
 }
+
+h6.small {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+

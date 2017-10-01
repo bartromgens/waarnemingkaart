@@ -4,33 +4,27 @@ var DATA_DIR = "/static/waarnemingkaart-data/";
 var OBSERVATIONS_LAYER_ZOOM = 11;
 
 var observationsLayer = null;
-var contourLayerHighDetail = null;
-var contourLayerLowDetail = null;
+var contourLayers = {
+    high: null,
+    low: null
+};
+
 var filepaths = null;
 var contourmap = null;
+var changeLayersOnZoom = true;
 
-// http://stackoverflow.com/a/4234006
-$.ajaxSetup({
-    beforeSend: function(xhr){
-        if (xhr.overrideMimeType)
-        {
-            xhr.overrideMimeType("application/json");
-        }
-    }
-});
+$(window).ready(initialize);
 
 
-$(window).ready(function() {
+function initialize() {
     filepaths = getFileLocations();
     contourmap = observationmap.createObservationMap();
     if (filepaths) {
-        contourmap.addContourTileLayer(filepaths.contoursLow, function(contourLayer) {
-            contourLayerLowDetail = contourLayer;
-        });
+        showContourLayer('low');
     }
     setEventHandlers();
-})
-
+    $('#info').hide();
+}
 
 
 function getParameterByName(name, url) {
@@ -80,13 +74,13 @@ function getFileLocations() {
     var contoursHighFilepath = contoursDir + "contours_" + name + "_0_.geojson";
     return {
         observations: observationsFilepath,
-        contoursLow: contoursLowFilepath,
-        contoursHigh: contoursHighFilepath,
+        contours: {
+            low: contoursLowFilepath,
+            high: contoursHighFilepath
+        }
     };
 }
 
-// Tooltip
-$('#info').hide();
 
 function onPointerMapMove(evt) {
     if (evt.dragging) {
@@ -124,21 +118,69 @@ function onPointerMapMove(evt) {
     };
 }
 
-function createObservationsLayer() {
-    $.getJSON(filepaths.observations, function(json) {
-        if (json.observations.length < 50000) {
-            observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
-        } else {
-            console.log('WARNING: too many observations to show');
-        }
-    });
+
+function preloadContourLayer(type) {
+    if (!contourLayers[type]) {
+        contourmap.addContourTileLayer(filepaths.contours[type], function(contourLayer) {
+            contourLayers[type] = contourLayer;
+            contourLayer.setVisible(false);
+        });
+    }
 }
 
-function setEventHandlers() {
-    contourmap.map.on('pointermove', onPointerMapMove);
 
-    contourmap.map.on('moveend', function(event) {
-        var zoom = contourmap.map.getView().getZoom();
+function showContourLayer(type) {
+    if (!contourLayers[type]) {
+        createContourLayerType(type);
+    } else {
+        hideAllContourLayersExcept(type);
+    }
+
+    function createContourLayerType(type) {
+        if (!contourLayers[type]) {
+            contourmap.addContourTileLayer(filepaths.contours[type], function(contourLayer) {
+                contourLayers[type] = contourLayer;
+                hideAllContourLayersExcept(type);
+            });
+        }
+    }
+
+    function hideAllContourLayersExcept(type) {
+        if (contourLayers[type]) {
+            contourLayers[type].setVisible(true);
+        }
+        for (var key in contourLayers) {
+            if (key != type && contourLayers[key]) {
+                contourLayers[key].setVisible(false);
+            }
+        }
+    }
+}
+
+
+function updateOnZoom(event) {
+    var zoom = contourmap.map.getView().getZoom();
+
+    showObservationsLayerForZoom();
+    showLayerForZoom();
+
+    function showLayerForZoom() {
+        if (!changeLayersOnZoom) {
+            return;
+        }
+
+        if (zoom > (OBSERVATIONS_LAYER_ZOOM-1)) {
+            preloadContourLayer("high");
+        }
+
+        if (zoom > OBSERVATIONS_LAYER_ZOOM) {
+            showContourLayer("high");
+        } else {
+            showContourLayer("low");
+        }
+    }
+
+    function showObservationsLayerForZoom() {
         var observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
         if (observationsVisible && !observationsLayer) {
             createObservationsLayer();
@@ -146,55 +188,85 @@ function setEventHandlers() {
         if (observationsLayer) {
             observationsLayer.setVisible(observationsVisible);
         }
-    //    console.log('contourLayerLowDetail', contourLayerLowDetail);
-    //    console.log('contourLayerHighDetail', contourLayerHighDetail);
 
-        var startLoadHighDetail = zoom > (OBSERVATIONS_LAYER_ZOOM-1)
-        if (startLoadHighDetail && !contourLayerHighDetail) {
-            contourmap.addContourTileLayer(filepaths.contoursHigh, function(contourLayer) {
-                contourLayer.setVisible(zoom > OBSERVATIONS_LAYER_ZOOM)
-                contourLayerHighDetail = contourLayer;
+        function createObservationsLayer() {
+            $.getJSON(filepaths.observations, function(json) {
+                if (json.observations.length < 50000) {
+                    observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
+                } else {
+                    console.log('WARNING: too many observations to show');
+                }
             });
         }
-        var highDetailMode = zoom > OBSERVATIONS_LAYER_ZOOM
-        if (contourLayerHighDetail) {
-            contourLayerHighDetail.setVisible(highDetailMode);
-        }
-        if (contourLayerLowDetail) {
-            contourLayerLowDetail.setVisible(!highDetailMode);
-        }
-    })
-
-    var select_interaction = new ol.interaction.Select();
-
-    select_interaction.getFeatures().on("add", function (e) {
-         var feature = e.element;
-         window.open(feature.get('waarneming_url'), '_blank');
-    });
-
-    contourmap.map.addInteraction(select_interaction);
-
-    $(".sidebar-toggle").bind("click", function(e) {
-        console.log('on sidebar show/hide');
-        setTimeout( function() { contourmap.map.updateSize();}, 600);
-    })
-
-    // Save map as png
-    document.getElementById('export-png').addEventListener('click', function() {
-        var opacityBefore = contourmap.osmLayer.getOpacity();
-        contourmap.osmLayer.setOpacity(1.0);
-        contourmap.map.once('postcompose', function(event) {
-            var canvas = event.context.canvas;
-            if (navigator.msSaveBlob) {
-                navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
-            } else {
-                canvas.toBlob(function(blob) {
-                    saveAs(blob, 'map.png');
-                });
-            }
-        });
-        contourmap.map.renderSync();
-        contourmap.osmLayer.setOpacity(opacityBefore);
-    });
+    }
 }
 
+
+function updateLayersOnButtonClick(event) {
+    var layerSelected = $('input[name=layers]:checked').val();
+    $('input[name=layers]').parent().removeClass('active');
+    $('input[name=layers]:checked').parent().addClass('active');
+    if (layerSelected === "high") {
+        showContourLayer("high");
+    }
+    if (layerSelected === "low") {
+        showContourLayer("low");
+    }
+    changeLayersOnZoom = layerSelected === "auto";
+}
+
+
+function setEventHandlers() {
+    contourmap.map.on('pointermove', onPointerMapMove);
+    contourmap.map.on('moveend', updateOnZoom);
+    createFeatureClickInteraction();
+
+    $(".sidebar-toggle").bind("click", function(e) {
+        setTimeout(function() { contourmap.map.updateSize();}, 600);
+    })
+
+    $(".btn-group-layers").bind("change", updateLayersOnButtonClick);
+
+    document.getElementById('export-png').addEventListener('click', exportMapToImage);
+}
+
+
+function exportMapToImage(event) {
+    var opacityBefore = contourmap.osmLayer.getOpacity();
+    contourmap.osmLayer.setOpacity(1.0);
+    contourmap.map.once('postcompose', function(event) {
+        var canvas = event.context.canvas;
+        if (navigator.msSaveBlob) {
+            navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
+        } else {
+            canvas.toBlob(function(blob) {
+                saveAs(blob, 'map.png');
+            });
+        }
+    });
+    contourmap.map.renderSync();
+    contourmap.osmLayer.setOpacity(opacityBefore);
+}
+
+
+function createFeatureClickInteraction() {
+    var select_interaction = new ol.interaction.Select();
+    select_interaction.getFeatures().on("add", function (e) {
+         var feature = e.element;
+         var url = feature.get('waarneming_url');
+         if (url) {
+            window.open(feature.get('waarneming_url'), '_blank');
+         }
+    });
+    contourmap.map.addInteraction(select_interaction);
+}
+
+// http://stackoverflow.com/a/4234006
+$.ajaxSetup({
+    beforeSend: function(xhr){
+        if (xhr.overrideMimeType)
+        {
+            xhr.overrideMimeType("application/json");
+        }
+    }
+});
