@@ -1,10 +1,18 @@
 # waarnemingkaart
 
+A visualization of animal and plant observations on an interactive map. 
+
+Observation data is created by users of http://waarneming.nl.
+
+waarnemingkaart is a web-application based on Django, Bootstrap and OpenLayers. 
+
 Requires Python 3.4+ and Django 1.11+
 
+## Demo
+
+http://waarnemingkaart.nl
 
 ## Installation (Linux)
-
 
 #### Get the code and install dependencies
 Get the code and enter the project directory,
