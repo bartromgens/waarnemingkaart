@@ -22,6 +22,7 @@ class ObservationMapView(TemplateView):
         family_slug = request.GET.get('family')
         species_slug = request.GET.get('species')
         needs_redirect = False
+        # TODO: this is really really ugly; remove it!
         if family_slug and not species_slug:
             family = Family.objects.get(slug=family_slug)
             species = Species.objects.filter(family=family)
