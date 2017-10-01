@@ -1,4 +1,5 @@
 # waarnemingkaart
+[![Build Status](https://travis-ci.org/bartromgens/waarnemingkaart.svg?branch=master)](https://travis-ci.org/bartromgens/waarnemingkaart)
 
 A visualization of animal and plant observations on an interactive map. 
 
