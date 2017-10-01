@@ -1,8 +1,12 @@
+import logging
+
 from django.db import models
 from django.utils.text import slugify
 from django.utils.functional import cached_property
 
 from wikidata import wikidata
+
+logger = logging.getLogger(__name__)
 
 
 class BioClass(models.Model):
@@ -25,7 +29,6 @@ class BioClass(models.Model):
         return self.wikimedia_image_url.replace('400px', '1200px')
 
     class Meta:
-        ordering = ['name_nl']
         abstract = True
 
 
@@ -44,6 +47,9 @@ class Group(BioClass):
 
 class Family(BioClass):
     group = models.ForeignKey(Group, null=True, blank=True)
+
+    class Meta(BioClass.Meta):
+        ordering = ['group__slug', 'name_nl']
 
     def __str__(self):
         return self.name_nl
@@ -64,6 +70,9 @@ class Family(BioClass):
 class Species(BioClass):
     family = models.ForeignKey(Family, null=True, blank=True)
 
+    class Meta(BioClass.Meta):
+        ordering = ['family__slug', 'name_nl']
+
     def __str__(self):
         return self.name_nl
 
@@ -79,7 +88,7 @@ class Species(BioClass):
         search_str = self.name_nl.lower()
         wikidata_id = wikidata.search_wikidata_id(search_str, language='nl')
         if not wikidata_id:
-            print('no wikidata entry found')
+            logger.info('no wikidata entry found')
             return
         item = wikidata.WikidataItem(wikidata_id)
         self.wikidata_id = wikidata_id
@@ -102,10 +111,25 @@ class Coordinates(models.Model):
 
 class Observer(models.Model):
     name = models.CharField(max_length=2000, blank=True, default='')
-    waarneming_url = models.URLField(max_length=1000, null=True, blank=True, unique=True, db_index=True)
+    waarneming_user_url = models.URLField(max_length=1000, null=False, blank=True, default='', db_index=True)
+
+    class Meta:
+        ordering = ['name']
 
     def __str__(self):
         return str(self.name)
+
+    def save(self, *args, **kwargs):
+        self.id = self.id_from_waarneming_user_url
+        super().save(*args, **kwargs)
+
+    @property
+    def id_from_waarneming_user_url(self):
+        if self.waarneming_user_url:
+            new_id = self.waarneming_user_url.split('/')[-1]
+            return int(new_id)
+        else:
+            return self.id
 
     @cached_property
     def n_observations(self):
@@ -121,9 +145,10 @@ class Observation(models.Model):
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
     waarneming_url = models.URLField(max_length=1000, null=True, blank=True, unique=True, db_index=True)
     observer = models.ForeignKey(Observer, null=True, blank=True)
+    datetime_updated = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['species']
+        ordering = ['-datetime', 'group__slug']
 
     def save(self, *args, **kwargs):
         self.id = self.id_from_waarneming_url
@@ -136,6 +161,14 @@ class Observation(models.Model):
             return int(new_id)
         else:
             return self.id
+
+    @staticmethod
+    def all_complete():
+        return Observation.objects.filter(datetime__isnull=False, coordinates__isnull=False)
+
+    @staticmethod
+    def all_need_update():
+        return Observation.objects.all().exclude(datetime__isnull=False, coordinates__isnull=False, observer__isnull=False)
 
 
 class BioClassObservationStats(models.Model):
