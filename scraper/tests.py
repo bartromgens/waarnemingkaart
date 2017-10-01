@@ -32,6 +32,6 @@ class TestObservationScraper(TestCase):
             'https://waarneming.nl/waarneming/view/143878912',
         ]
         for url in urls:
-            observation = scraper.Observation(url)
+            observation = scraper.ObservationScraper(url)
             observation.create()
             print(observation)

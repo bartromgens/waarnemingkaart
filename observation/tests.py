@@ -1,11 +1,17 @@
 from django.test import TestCase
 
+from observation.create import ObservationFactory
 
-class TestTest(TestCase):
-    """ Example test case. """
 
-    def test_asserts(self):
-        """ Example unit test. Tests unittest asserts. """
-        self.assertTrue(True)
-        self.assertEqual(True, True)
-        self.assertNotEqual(True, False)
+class TestCreateObservations(TestCase):
+
+    def test_create_observations(self):
+        urls = [
+            'https://waarneming.nl/waarneming/view/143525935',
+            'https://waarneming.nl/waarneming/view/143525930',
+            'https://waarneming.nl/waarneming/view/143528701',
+            'https://waarneming.nl/waarneming/view/143878912',
+        ]
+        for url in urls:
+            observation = ObservationFactory(url).create()
+            print(observation)
