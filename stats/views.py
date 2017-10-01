@@ -12,7 +12,7 @@ class ObservationsVsTimeView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        observation_datetimes = list(Observation.objects.filter(datetime__isnull=False).values_list('datetime', flat=True))
+        observation_datetimes = list(Observation.all_complete().values_list('datetime', flat=True))
         context['plot_html'] = mark_safe(PlotObservationsVsTime(observation_datetimes).create_plot())
         context['n_observations'] = len(observation_datetimes)
         return context
