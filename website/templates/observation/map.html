@@ -59,14 +59,7 @@
         </div>
 
         <div class="col-sm-12">
-          <div class="row">
-            <div class="col-xs-4">
-              <button class="btn btn-primary btn-block reset-form-button" type="button">Reset</button>
-            </div>
-            <div class="col-xs-8">
-              <button class="btn btn-info btn-block" type="submit">Update</button>
-            </div>
-          </div>
+          <button class="btn btn-info btn-block" type="submit">Update</button>
         </div>
 
       </form>
@@ -87,12 +80,6 @@
           // Clear the autocomplete with the same prefix
           $(':input[name=' + prefix + 'species]').val(null).trigger('change');
         });
-      });
-
-      // reset species select input
-      $(".form-control#id_family").change(function() {
-          console.log($(".form-control#id_species"));
-          $(".form-control#id_species").val(1).change();
       });
 
       // reset form
