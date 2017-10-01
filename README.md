@@ -1,5 +1,5 @@
 # waarnemingkaart
-[![Build Status](https://travis-ci.org/bartromgens/waarnemingkaart.svg?branch=master)](https://travis-ci.org/bartromgens/waarnemingkaart)
+[![Build Status](https://travis-ci.org/bartromgens/waarnemingkaart.svg?branch=master)](https://travis-ci.org/bartromgens/waarnemingkaart) [![Coverage Status](https://coveralls.io/repos/github/bartromgens/waarnemingkaart/badge.svg?branch=master)](https://coveralls.io/github/bartromgens/waarnemingkaart?branch=master)
 
 A visualization of animal and plant observations on an interactive map. 
 
