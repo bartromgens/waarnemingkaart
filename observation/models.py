@@ -3,6 +3,7 @@ import logging
 from django.db import models
 from django.utils.text import slugify
 from django.utils.functional import cached_property
+from django.db import transaction
 
 from wikidata import wikidata
 
@@ -11,12 +12,13 @@ logger = logging.getLogger(__name__)
 
 class BioClass(models.Model):
     name = models.CharField(max_length=1000, blank=True, default='')
-    name_nl = models.CharField(max_length=1000, blank=True, default='')
+    name_nl = models.CharField(db_index=True, max_length=1000, blank=True, default='')
     name_latin = models.CharField(max_length=1000, blank=True, default='')
     slug = models.SlugField(max_length=1000, blank=True, default='')
     wikidata_id = models.CharField(max_length=100, blank=True, default='')
     wikipedia_url_nl = models.URLField(max_length=1000, blank=True, null=True)
     wikimedia_image_url = models.URLField(max_length=1000, blank=True, null=True)
+    n_observations = models.IntegerField(default=0, null=False, blank=False, db_index=True)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.name_nl)
@@ -37,10 +39,6 @@ class Group(BioClass):
         return self.name_nl
 
     @cached_property
-    def n_observations(self):
-        return Observation.objects.filter(group=self, coordinates__isnull=False).count()
-
-    @cached_property
     def map_url(self):
         return "/kaart/?group={}".format(self.slug)
 
@@ -55,10 +53,6 @@ class Family(BioClass):
         return self.name_nl
 
     @cached_property
-    def n_observations(self):
-        return Observation.objects.filter(family=self, coordinates__isnull=False).count()
-
-    @cached_property
     def n_species(self):
         return Species.objects.filter(family=self).count()
 
@@ -71,14 +65,10 @@ class Species(BioClass):
     family = models.ForeignKey(Family, null=True, blank=True)
 
     class Meta(BioClass.Meta):
-        ordering = ['family__slug', 'name_nl']
+        ordering = ['family__slug']
 
     def __str__(self):
         return self.name_nl
-
-    @cached_property
-    def n_observations(self):
-        return Observation.objects.filter(species=self, coordinates__isnull=False).count()
 
     @cached_property
     def map_url(self):
@@ -145,10 +135,10 @@ class Observation(models.Model):
     coordinates = models.ForeignKey(Coordinates, null=True, blank=True)
     waarneming_url = models.URLField(max_length=1000, null=True, blank=True, unique=True, db_index=True)
     observer = models.ForeignKey(Observer, null=True, blank=True)
-    datetime_updated = models.DateTimeField(auto_now=True)
+    datetime_updated = models.DateTimeField(auto_now=True, db_index=True)
 
     class Meta:
-        ordering = ['-datetime', 'group__slug']
+        ordering = ['-datetime']
 
     def save(self, *args, **kwargs):
         self.id = self.id_from_waarneming_url
@@ -188,3 +178,19 @@ class BioClassObservationStats(models.Model):
     @staticmethod
     def observation_count_species(species):
         return BioClassObservationStats.objects.get(species=species).n_observations
+
+
+@transaction.atomic
+def update_observation_counts():
+    groups = Group.objects.all()
+    for obj in groups:
+        obj.n_observations = Observation.objects.filter(group=obj, coordinates__isnull=False).count()
+        obj.save()
+    families = Family.objects.all()
+    for obj in families:
+        obj.n_observations = Observation.objects.filter(family=obj, coordinates__isnull=False).count()
+        obj.save()
+    species = Species.objects.all()
+    for obj in species:
+        obj.n_observations = Observation.objects.filter(species=obj, coordinates__isnull=False).count()
+        obj.save()
