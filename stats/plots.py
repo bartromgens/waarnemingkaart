@@ -1,11 +1,8 @@
 import logging
 import datetime
 
-import numpy as np
-
 from django.utils import timezone
 from plotly.offline import plot
-from plotly import tools
 from plotly.graph_objs import Layout, Bar, Histogram, Histogram2d, Scatter, XAxis, Margin
 
 logger = logging.getLogger(__name__)
@@ -67,9 +64,9 @@ class PlotObservationsVsTime(Plot):
             x=self.observation_dates,
             autobinx=False,
             xbins=dict(
-                start=(timezone.now() - datetime.timedelta(days=7 * 365)).timestamp() * 1000,
-                end=timezone.now().timestamp() * 1000,
-                size=60 * 60 * 24 * 7 * 1000
+                # start=(timezone.now() - datetime.timedelta(days=7 * 365)).timestamp() * 1000,
+                # end=timezone.now().timestamp() * 1000,
+                size=60 * 60 * 24 * 1 * 1000
             ),
             marker=dict(
                 color=COLOR_PRIMARY,
@@ -78,15 +75,14 @@ class PlotObservationsVsTime(Plot):
                     width=1,
                 )
             ),
-            name='waarnemingen per week',
+            name='waarnemingen per dag',
         )
-
         return [hist_data]
 
     def create_layout(self):
         return Layout(
             title=self.plot_title,
             xaxis=dict(title='Tijd'),
-            yaxis=dict(title='Waarnemingen [per week]'),
+            yaxis=dict(title='Waarnemingen [per dag]'),
             margin=Margin(t=20),
         )
