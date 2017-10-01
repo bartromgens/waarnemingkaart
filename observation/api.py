@@ -57,7 +57,7 @@ class CoordinatesViewSet(viewsets.ModelViewSet):
 class ObserverSerializer(serializers.ModelSerializer):
     class Meta:
         model = Observer
-        fields = ('name', 'waarneming_url')
+        fields = ('name', 'waarneming_user_url')
 
 
 class ObserverViewSet(viewsets.ModelViewSet):
