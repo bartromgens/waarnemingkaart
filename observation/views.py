@@ -6,6 +6,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic import TemplateView
 from django.template.loader import render_to_string
 from django.http import HttpResponse
+from django.db.models import Count
 
 from dal import autocomplete
 
@@ -33,7 +34,7 @@ class ObservationMapView(TemplateView):
                 needs_redirect = True
                 species_slug = species[0].slug
         if family_slug and species_slug:
-            species = Species.objects.get(slug=species_slug)
+            species = Species.objects.filter(slug=species_slug)[0]  # TODO: should only return one, but some duplicates currently exist
             family = Family.objects.get(slug=family_slug)
             if species.family.id is not family.id:
                 needs_redirect = True
@@ -100,6 +101,20 @@ class ObservationsView(TemplateView):
         context['observations'] = observations
         context['filter'] = observation_filter
         context['n_results'] = observation_filter.qs.count()
+        return context
+
+
+class BioClassCheckView(TemplateView):
+    template_name = 'observation/checks/bioclass_checks.html'
+
+    @staticmethod
+    def find_duplicate_slugs(model):
+        duplicates = model.objects.values('slug').annotate(Count('slug')).order_by().filter(slug__count__gt=1)
+        return model.objects.filter(slug__in=[item['slug'] for item in duplicates]).order_by('slug')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['species_same_slug'] = BioClassCheckView.find_duplicate_slugs(Species)
         return context
 
 

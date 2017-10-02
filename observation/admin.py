@@ -61,6 +61,7 @@ class SpeciesAdmin(admin.ModelAdmin):
         'n_observations',
     )
     list_filter = ('family__group', 'family')
+    search_fields = ['slug', 'name_nl']
 
 
 class ObserverAdmin(admin.ModelAdmin):

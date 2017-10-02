@@ -1,0 +1,61 @@
+{% extends "website/base.html" %}
+
+{% block title %}Over deze site {{ block.super }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="vertical-spacer-20"></div>
+
+    <div class="row" align="center">
+        <h3>Checks voor classificaties</h3>
+    </div>
+
+    <div class="row" align="center">
+        <h4>Soorten met dezelfde slug</h4>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>slug</th>
+                        <th>familie</th>
+                        <th>naam (Latin)</th>
+                        <th>naam (NL)</th>
+                        <th>waarnemingen</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for species in species_same_slug %}
+                    <tr>
+                        <td>
+                            {{ species.slug }}
+                        </td>
+                        <td>
+                            {{ species.family }}
+                        </td>
+                        <td>
+                            {{ species.name_latin }}
+                        </td>
+                        <td>
+                            {{ species.name_nl }}
+                        </td>
+                        <td>
+                            {{ species.n_observations }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+
+</div>
+
+{% endblock %}
