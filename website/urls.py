@@ -30,9 +30,6 @@ urlpatterns = [
     url(r'', include(stats.urls.urlpatterns)),
 
     url(r'^admin/', admin.site.urls),
-
-    url(r'^api/v1/', include(website.api)),
-
 ]
 
 
