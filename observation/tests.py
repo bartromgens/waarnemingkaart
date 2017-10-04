@@ -12,6 +12,6 @@ class TestCreateObservations(TestCase):
             'https://waarneming.nl/waarneming/view/143528701',
             'https://waarneming.nl/waarneming/view/143878912',
         ]
-        for url in urls:
-            observation = ObservationFactory(url).create()
-            print(observation)
+        # for url in urls:
+        #     observation = ObservationFactory(url).create()
+        #     print(observation)
