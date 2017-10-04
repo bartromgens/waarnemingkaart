@@ -5,7 +5,7 @@ import time
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from scraper import scraper
+# from scraper import scraper
 
 from observation.models import Observation
 from observation.models import Observer
