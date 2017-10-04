@@ -3,6 +3,7 @@ language: python
 python:
 - '3.5'
 install:
+- git clean
 - pip install -r requirements.txt
 - pip install coveralls
 - make -C maps/modules
