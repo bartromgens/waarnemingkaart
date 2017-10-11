@@ -77,11 +77,6 @@ class Command(BaseCommand):
         sys.setrecursionlimit(recursionlimit_default)
 
     @staticmethod
-    def create_map_group(observations, config, group):
-        observations_group = observations.filter(group=group)
-        create_map(observations_group, config, MAPS_DATA_DIR, group.slug)
-
-    @staticmethod
     def create_maps_families(observations, families, config):
         for family in families:
             observations_fam = observations.filter(family=family)
@@ -89,20 +84,8 @@ class Command(BaseCommand):
             create_map(observations_fam, config, data_dir, family.slug)
 
     @staticmethod
-    def create_map_family(observations, config, family):
-        observations_fam = observations.filter(family=family)
-        data_dir = os.path.join(MAPS_DATA_DIR, family.group.slug)
-        create_map(observations_fam, config, data_dir, family.slug)
-
-    @staticmethod
     def create_maps_speciess(observations, speciess, config):
         for species in speciess:
             observations_species = observations.filter(species=species)
             data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
             create_map(observations_species, config, data_dir, species.slug)
-
-    @staticmethod
-    def create_map_species(observations, config, species):
-        observations_species = observations.filter(species=species)
-        data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
-        create_map(observations_species, config, data_dir, species.slug)
