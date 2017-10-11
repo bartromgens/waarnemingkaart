@@ -35,6 +35,7 @@ def highlights_to_json(highlights, filepath):
     for highlight in highlights:
         data['highlights'].append({
             'species': highlight.species.name_nl,
+            'wikimedia_image_url': highlight.species.wikimedia_image_url,
             'lon': highlight.coordinates.lon,
             'lat': highlight.coordinates.lat,
         })
