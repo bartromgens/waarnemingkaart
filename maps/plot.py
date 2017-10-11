@@ -99,33 +99,25 @@ class Contour(object):
     def get_probability_field(self):
         logger.info('BEGIN')
         start = time.time()
-
         earth_radius = 6360000  # [m], ignore ellipsoid shape
-
         Z = []
         for level in self.config.levels:
             lat_avg = deg2rad((self.config.lat_start + self.config.lat_end) / 2)  # [rad]
             sigma_lat_deg = rad2deg(level.sigma / earth_radius)  # [deg]
             sigma_lon_deg = rad2deg(level.sigma / (earth_radius * math.cos(lat_avg)))
-            # print ("sigma_lat", sigma_lat_deg, "sigma_lon", sigma_lon_deg)
-
             i_sig = sigma_lat_deg / level.stepsize_deg
             j_sig = sigma_lon_deg / level.stepsize_deg
-            pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
-            pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
-            # print ("i_sig", i_sig, "j_sig", j_sig, "sigma_lat", sigma_lat_deg, "self.config.stepsize_deg", self.config.stepsize_deg)
-
+            # pdf_factor_lat = 1.0/(math.sqrt(math.pi*(i_sig*i_sig)))
+            # pdf_factor_lon = 1.0/(math.sqrt(math.pi*(j_sig*j_sig)))
             grid_obs = []
             for obs in self.observations:
                 obs_x = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
                 obs_y = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
                 grid_obs.append([obs_x, obs_y])
-
             latsize = int((self.config.lat_end - self.config.lat_start)/level.stepsize_deg)
             lonsize = int((self.config.lon_end - self.config.lon_start)/level.stepsize_deg)
             densities = calc_field(grid_obs, latsize, lonsize, i_sig, j_sig)
             z_level = numpy.array(densities)
-
             Z.append(z_level)
         # Z *= pdf_factor_lat*pdf_factor_lon
         end = time.time()
