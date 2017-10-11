@@ -30,15 +30,17 @@ def observations_to_json(observations, filepath):
     end = time.time()
     logger.info('END - time: ' + str(end - start))
 
-def highlights_to_json(highlights, filepath):
+def highlights_to_json(highlight_map, filepath):
     data = {'highlights': []}
-    for highlight in highlights:
-        data['highlights'].append({
-            'species': highlight.species.name_nl,
-            'wikimedia_image_url': highlight.species.wikimedia_image_url,
-            'lon': highlight.coordinates.lon,
-            'lat': highlight.coordinates.lat,
-        })
+    for row in highlight_map.map:
+        for highlight in row:
+            if highlight.species:
+                data['highlights'].append({
+                    'species': highlight.species.name_nl,
+                    'wikimedia_image_url': highlight.species.wikimedia_image_url,
+                    'lon': highlight.lon,
+                    'lat': highlight.lat,
+                })
 
     json_data = json.dumps(data, indent=4, sort_keys=True, ensure_ascii=False)
     with open(filepath, 'w') as fileout:

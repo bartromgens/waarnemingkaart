@@ -12,7 +12,7 @@ from observation.models import Family
 from observation.models import Species
 
 from maps.plot import ContourPlotConfig
-from maps.plot import create_map, create_highlights
+from maps.plot import create_map, create_map_for_species, create_highlights, HighlightMap
 
 from maps.settings import MAPS_DATA_DIR
 
@@ -59,13 +59,14 @@ class Command(BaseCommand):
             families = families.filter(group=group)
             speciess = speciess.filter(group=group)
         observations = Observation.objects.filter(coordinates__isnull=False).select_related('coordinates')
+        highlight_map = HighlightMap(config)
         if not options['skip_groups']:
             self.create_maps_groups(observations, groups, config)
         if not options['skip_families']:
             self.create_maps_families(observations, families, config)
         if not options['skip_species']:
-            self.create_maps_speciess(observations, speciess, config)
-        create_highlights(observations, MAPS_DATA_DIR)
+            self.create_maps_speciess(observations, speciess, config, highlight_map)
+        create_highlights(highlight_map, MAPS_DATA_DIR)
 
     @staticmethod
     def create_maps_groups(observations, groups, config):
@@ -84,8 +85,8 @@ class Command(BaseCommand):
             create_map(observations_fam, config, data_dir, family.slug)
 
     @staticmethod
-    def create_maps_speciess(observations, speciess, config):
+    def create_maps_speciess(observations, speciess, config, highlight_map):
         for species in speciess:
             observations_species = observations.filter(species=species)
             data_dir = os.path.join(MAPS_DATA_DIR, species.family.group.slug, species.family.slug)
-            create_map(observations_species, config, data_dir, species.slug)
+            create_map_for_species(observations_species, config, data_dir, species, highlight_map)

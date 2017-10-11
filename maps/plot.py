@@ -26,9 +26,19 @@ assert MAPS_DATA_DIR != ''
 
 class Highlight(object):
 
-    def __init__(self, species, coordinates):
+    def __init__(self, dens_frac=0, species=None, lat=0.0, lon=0.0):
+        self.dens_frac = dens_frac
         self.species = species
-        self.coordinates = coordinates
+        self.lat = lat
+        self.lon = lon
+
+
+class HighlightMap(object):
+
+    def __init__(self, config):
+        x_range = range(config.latsize(config.levels[0]))
+        y_range = range(config.lonsize(config.levels[0]))
+        self.map = [[Highlight() for y in y_range] for x in x_range]
 
 
 def create_map(observations, config, data_dir, name):
@@ -49,15 +59,25 @@ def create_map(observations, config, data_dir, name):
     observations_to_json(observations, observations_filepath)
 
     logger.info('END - ' + str(name))
+    return contour.Z
 
-def create_highlights(observations, data_dir):
-    # make some test highlights
-    highlights = []
-    for observation in observations[:30]:
-        highlights.append(Highlight(observation.species, observation.coordinates))
 
+def create_map_for_species(observations, config, data_dir, species, highlight_map):
+    Z = create_map(observations, config, data_dir, species.slug)
+    z_level = Z[0]
+    dens_avg = z_level.mean()
+    for x in range(0, z_level.shape[0]):
+        for y in range(0, z_level.shape[1]):
+            dens_frac = z_level[x][y] / dens_avg
+            if highlight_map.map[x][y].dens_frac < dens_frac:
+                lat = config.lat_start + x * config.levels[0].stepsize_deg
+                lon = config.lon_start + y * config.levels[0].stepsize_deg
+                highlight_map.map[x][y] = Highlight(dens_frac, species, lat, lon)
+
+
+def create_highlights(highlight_map, data_dir):
     highlights_filepath = os.path.join(data_dir, 'highlights.json')
-    highlights_to_json(highlights, highlights_filepath)
+    highlights_to_json(highlight_map, highlights_filepath)
 
 
 class Level(object):
