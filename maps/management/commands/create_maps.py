@@ -41,7 +41,7 @@ class Command(BaseCommand):
                     try:
                         species = Species.objects.get(slug=slugify(options['select']))
                     except Species.DoesNotExist:
-                        pass
+                        raise Exception('Selection \"' + slugify(options['select']) + '\" not found')
         config = ContourPlotConfig()
         groups = Group.objects.all()
         families = Family.objects.all()
