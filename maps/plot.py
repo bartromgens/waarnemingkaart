@@ -1,4 +1,3 @@
-from collections import namedtuple
 import logging
 import math
 import os
@@ -61,6 +60,14 @@ def create_highlights(observations, data_dir):
     highlights_to_json(highlights, highlights_filepath)
 
 
+class Level(object):
+
+    def __init__(self, stepsize_deg, sigma, n_contours):
+        self.stepsize_deg = stepsize_deg
+        self.sigma = sigma  # sigma is in [m]
+        self.n_contours = n_contours
+
+
 class ContourPlotConfig(object):
 
     def __init__(self):
@@ -69,11 +76,16 @@ class ContourPlotConfig(object):
         self.lon_end = 9.5
         self.lat_end = 53.75
         self.min_angle_between_segments = 7
-        Level = namedtuple('Level', 'stepsize_deg sigma n_contours')  # sigma is in [m]
         self.levels = [
             Level(stepsize_deg=0.002, sigma=500, n_contours=11),
             Level(stepsize_deg=0.005, sigma=1500, n_contours=9),
         ]
+
+    def latsize(self, level):
+        return int((self.lat_end - self.lat_start)/level.stepsize_deg)
+
+    def lonsize(self, level):
+        return int((self.lon_end - self.lon_start)/level.stepsize_deg)
 
 
 class Contour(object):
@@ -114,8 +126,8 @@ class Contour(object):
                 obs_x = (obs.coordinates.lat - self.config.lat_start)/level.stepsize_deg
                 obs_y = (obs.coordinates.lon - self.config.lon_start)/level.stepsize_deg
                 grid_obs.append([obs_x, obs_y])
-            latsize = int((self.config.lat_end - self.config.lat_start)/level.stepsize_deg)
-            lonsize = int((self.config.lon_end - self.config.lon_start)/level.stepsize_deg)
+            latsize = self.config.latsize(level)
+            lonsize = self.config.lonsize(level)
             densities = calc_field(grid_obs, latsize, lonsize, i_sig, j_sig)
             z_level = numpy.array(densities)
             Z.append(z_level)
