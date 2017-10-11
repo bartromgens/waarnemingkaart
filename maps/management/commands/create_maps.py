@@ -51,8 +51,8 @@ class Command(BaseCommand):
             families = [species.family]
             speciess = [species]
         elif family:
-            groups = [species.family.group]
-            families = [species.family]
+            groups = [family.group]
+            families = [family]
             speciess = speciess.filter(family=family)
         elif group:
             groups = [group]
