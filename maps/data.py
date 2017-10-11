@@ -3,6 +3,7 @@ import logging, time
 
 logger = logging.getLogger(__name__)
 
+
 def observations_to_json(observations, filepath):
 
     logger.info('BEGIN')
@@ -28,3 +29,16 @@ def observations_to_json(observations, filepath):
 
     end = time.time()
     logger.info('END - time: ' + str(end - start))
+
+def highlights_to_json(highlights, filepath):
+    data = {'highlights': []}
+    for highlight in highlights:
+        data['highlights'].append({
+            'species': highlight.species.name_nl,
+            'lon': highlight.coordinates.lon,
+            'lat': highlight.coordinates.lat,
+        })
+
+    json_data = json.dumps(data, indent=4, sort_keys=True, ensure_ascii=False)
+    with open(filepath, 'w') as fileout:
+        fileout.write(json_data)

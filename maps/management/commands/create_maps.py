@@ -12,7 +12,7 @@ from observation.models import Family
 from observation.models import Species
 
 from maps.plot import ContourPlotConfig
-from maps.plot import create_map
+from maps.plot import create_map, create_highlights
 
 from maps.settings import MAPS_DATA_DIR
 
@@ -65,6 +65,7 @@ class Command(BaseCommand):
             self.create_maps_families(observations, families, config)
         if not options['skip_species']:
             self.create_maps_speciess(observations, speciess, config)
+        create_highlights(observations, MAPS_DATA_DIR)
 
     @staticmethod
     def create_maps_groups(observations, groups, config):

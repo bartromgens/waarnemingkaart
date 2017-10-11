@@ -15,7 +15,7 @@ import geojsoncontour
 
 from maps.utilgeo import deg2rad, rad2deg
 from maps.settings import MAPS_DATA_DIR
-from maps.data import observations_to_json
+from maps.data import observations_to_json, highlights_to_json
 
 from maps.modules.density import calc_field
 
@@ -23,6 +23,13 @@ logger = logging.getLogger(__name__)
 
 # Make sure the MAPS_DATA_DIR is set in settings.py
 assert MAPS_DATA_DIR != ''
+
+
+class Highlight(object):
+
+    def __init__(self, species, coordinates):
+        self.species = species
+        self.coordinates = coordinates
 
 
 def create_map(observations, config, data_dir, name):
@@ -41,7 +48,17 @@ def create_map(observations, config, data_dir, name):
 
     observations_filepath = os.path.join(data_dir, name + '.json')
     observations_to_json(observations, observations_filepath)
+
     logger.info('END - ' + str(name))
+
+def create_highlights(observations, data_dir):
+    # make some test highlights
+    highlights = []
+    for observation in observations[:30]:
+        highlights.append(Highlight(observation.species, observation.coordinates))
+
+    highlights_filepath = os.path.join(data_dir, 'highlights.json')
+    highlights_to_json(highlights, highlights_filepath)
 
 
 class ContourPlotConfig(object):
