@@ -44,7 +44,7 @@ function getFileLocations() {
     var group = getParameterByName('group');
     var family = getParameterByName('family');
     var species = getParameterByName('species');
-    if (group == '' && family == '' && species == '') {
+    if (group === '' && family === '' && species === '') {
         return null;
     }
 
@@ -152,7 +152,7 @@ function showContourLayer(type) {
             contourLayers[type].setVisible(true);
         }
         for (var key in contourLayers) {
-            if (key != type && contourLayers[key]) {
+            if (key !== type && contourLayers[key]) {
                 contourLayers[key].setVisible(false);
             }
         }
@@ -205,9 +205,10 @@ function updateOnZoom(event) {
 
 
 function updateLayersOnButtonClick(event) {
-    var layerSelected = $('input[name=layers]:checked').val();
+    var layerInputElement = $('input[name=layers]:checked');
+    var layerSelected = layerInputElement.val();
     $('input[name=layers]').parent().removeClass('active');
-    $('input[name=layers]:checked').parent().addClass('active');
+    layerInputElement.parent().addClass('active');
     if (layerSelected === "high") {
         showContourLayer("high");
     }
