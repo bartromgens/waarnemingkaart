@@ -146,6 +146,9 @@ class ObservationFactory(object):
 
     @staticmethod
     def get_or_create_observer(data):
+        observers = Observer.objects.filter(id=Observer.create_id_from_url(data['observer_url']))
+        if observers:
+            return observers[0]
         observer, created = Observer.objects.get_or_create(
             name=data['observer_name'],
             waarneming_user_url=data['observer_url']
