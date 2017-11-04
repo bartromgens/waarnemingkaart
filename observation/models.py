@@ -101,7 +101,7 @@ class Coordinates(models.Model):
 
 class Observer(models.Model):
     name = models.CharField(max_length=2000, blank=True, default='')
-    waarneming_user_url = models.URLField(max_length=1000, null=False, blank=True, default='', db_index=True)
+    waarneming_user_url = models.URLField(unique=True, max_length=1000, null=False, blank=True, default='', db_index=True)
 
     class Meta:
         ordering = ['name']
