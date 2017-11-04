@@ -23,7 +23,7 @@ class ObservationAdmin(admin.ModelAdmin):
         'datetime_updated',
     )
     list_filter = ('datetime', 'group', 'family',)
-    search_fields = ['group__name_nl', 'family__name_nl', 'species__name_nl', 'observer__name']
+    search_fields = ['group__name_nl', 'family__name_nl', 'species__name_nl', 'species__name_latin', 'observer__name']
 
 
 class GroupAdmin(admin.ModelAdmin):
