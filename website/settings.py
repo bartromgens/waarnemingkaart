@@ -13,6 +13,7 @@ INSTALLED_APPS = [
     'observation',
     'maps',
     'stats',
+    'scraper',
     'bootstrap3',
     'bootstrap_pagination',
     'registration',
@@ -189,6 +190,11 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'stats': {
+            'handlers': ['file_debug', 'file_error', 'console'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'scraper': {
             'handlers': ['file_debug', 'file_error', 'console'],
             'propagate': True,
             'level': 'DEBUG',

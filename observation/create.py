@@ -10,8 +10,8 @@ from observation.models import Group
 from observation.models import Family
 from observation.models import Species
 
-# from scraper.scraper import ObservationScraper
-# from scraper.scraper import get_observation_urls_for_date
+from scraper.scraper import ObservationScraper
+from scraper.scraper import get_observation_urls_for_date
 
 logger = logging.getLogger(__name__)
 
