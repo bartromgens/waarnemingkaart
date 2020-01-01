@@ -2,22 +2,25 @@ var mapstyles = require("./mapstyles.js");
 
 import OLMap from "ol/map";
 import OLView from "ol/view";
-import OLSourceOSM from "ol/source/osm";
-import OLTile from "ol/layer/tile";
-import OLControlFullScreen from "ol/control/fullscreen";
-import OLControl from "ol/control/control";
-import OLSourceVector from "ol/source/vector";
-import OLSourceVectorTile from "ol/source/vectortile";
 import OLFeature from "ol/feature";
-import OLPoint from "ol/geom/point";
-import olproj from "ol/proj";
-import oltilegrid from "ol/tilegrid";
-import OLProjection from "ol/proj/projection";
-import OLGeoJSON from "ol/format/geojson";
-import OLLayerVector from "ol/layer/vector";
-import OLLayerVectorTile from "ol/layer/vectortile";
 import OLStyle from "ol/style/style";
 import OLStroke from "ol/style/stroke";
+import OLPoint from "ol/geom/point";
+import olproj from "ol/proj";
+import OLProjection from "ol/proj/projection";
+import oltilegrid from "ol/tilegrid";
+import OLGeoJSON from "ol/format/geojson";
+
+import OLControl from "ol/control/control";
+import OLControlFullScreen from "ol/control/fullscreen";
+
+import OLSourceOSM from "ol/source/osm";
+import OLSourceVector from "ol/source/vector";
+import OLSourceVectorTile from "ol/source/vectortile";
+
+import OLTile from "ol/layer/tile";
+import OLLayerVector from "ol/layer/vector";
+import OLLayerVectorTile from "ol/layer/vectortile";
 
 
 // TILE SOURCES
