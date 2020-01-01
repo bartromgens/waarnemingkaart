@@ -1,5 +1,5 @@
 
-function updateFamilySpeciesPanel(family_slug) {
+export function updateFamilySpeciesPanel(family_slug) {
     $.get(
         "/bioclass/family/species/",
         {
@@ -12,8 +12,3 @@ function updateFamilySpeciesPanel(family_slug) {
         "json"
     );
 }
-
-
-module.exports = {
-    updateFamilySpeciesPanel: updateFamilySpeciesPanel,
-};

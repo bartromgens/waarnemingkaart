@@ -1,5 +1,25 @@
 var mapstyles = require("./mapstyles.js");
 
+import OLMap from "ol/map";
+import OLView from "ol/view";
+import OLSourceOSM from "ol/source/osm";
+import OLTile from "ol/layer/tile";
+import OLControlFullScreen from "ol/control/fullscreen";
+import OLControl from "ol/control/control";
+import OLSourceVector from "ol/source/vector";
+import OLSourceVectorTile from "ol/source/vectortile";
+import OLFeature from "ol/feature";
+import OLPoint from "ol/geom/point";
+import olproj from "ol/proj";
+import oltilegrid from "ol/tilegrid";
+import OLProjection from "ol/proj/projection";
+import OLGeoJSON from "ol/format/geojson";
+import OLLayerVector from "ol/layer/vector";
+import OLLayerVectorTile from "ol/layer/vectortile";
+import OLStyle from "ol/style/style";
+import OLStroke from "ol/style/stroke";
+
+
 // TILE SOURCES
 //    osmSource.setUrl("http://a.tile.opencyclemap.org/transport/{z}/{x}/{y}.png");  // needs an API key
 //    osmSource.setUrl("https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=52962bab91de4e789491bc1f5ed4956e");
@@ -9,73 +29,70 @@ var mapstyles = require("./mapstyles.js");
 //    osmSource.setUrl("https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png");
 
 
-var TILE_URL = "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png";
-var ZOOM_INITIAL = 8;
+const TILE_URL = "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png";
+const ZOOM_INITIAL = 8;
 
 
-var ObservationMap = {
+const ObservationMap = {
     ObservationMap: function() {
         this.osmLayer = null;
         this.map = this.createOpenLayersMap();
         return this;
     },
+
     createOpenLayersMap: function() {
         console.log('createOpenLayersMap', 'BEGIN');
-        var map = new ol.Map({target: 'map',});
-        var lon = '5.5';
-        var lat = '142.0';
-        var view = new ol.View({center: ol.proj.fromLonLat([lon, lat]), zoom: ZOOM_INITIAL, projection: 'EPSG:3857'});
+        const map = new OLMap({target: 'map',});
+        const lon = '5.5';
+        const lat = '142.0';
+        const view = new OLView({center: olproj.fromLonLat([lon, lat]), zoom: ZOOM_INITIAL, projection: 'EPSG:3857'});
         map.setView(view);
-        var osmSource = new ol.source.OSM("OpenStreetMap");
+        const osmSource = new OLSourceOSM("OpenStreetMap");
         osmSource.setUrl(TILE_URL);
-        this.osmLayer = new ol.layer.Tile({source: osmSource});
+        this.osmLayer = new OLTile({source: osmSource});
         this.osmLayer.setOpacity(0.7);
         map.addLayer(this.osmLayer);
-        map.addControl(new ol.control.FullScreen());
-        var contourLayerButtons = new ol.control.Control({element: $(".btn-group-layers").get(0)});
+        map.addControl(new OLControlFullScreen());
+        const contourLayerButtons = new OLControl({element: $(".btn-group-layers").get(0)});
         map.addControl(contourLayerButtons);
         this.urlsLoaded = [];
         console.log('createOpenLayersMap', 'END');
         return map;
     },
+
     createObservationsFeatureLayer: function(observations) {
         console.log('createObservationsFeatureLayer', 'BEGIN');
 
         function createObservationFeatures(observation, lonLat) {
-            var title = observation.title;
+            let title = observation.title;
             if (observation.name) {
                 title += ' door ' + observation.name;
             }
-            return new ol.Feature({
-                geometry: new ol.geom.Point( ol.proj.fromLonLat(lonLat) ),
+            return new OLFeature({
+                geometry: new OLPoint(olproj.fromLonLat(lonLat)),
                 title: title,
                 waarneming_url: observation.waarneming_url,
                 number: observation.number
             });
         }
 
-        var features = [];
-        for (var i in observations)
-        {
-            var observation = observations[i];
-            var lat = parseFloat(observation.lat);
-            lat = lat + 90.0;
-            var epsilon = 0.001;
-            var lonLat = [observation.lon.toFixed(5), lat.toFixed(5)];
-            var observationFeature = createObservationFeatures(observation, lonLat);
+        const features = [];
+        for (const observation of observations) {
+            const lat = parseFloat(observation.lat) + 90.0;
+            const lonLat = [observation.lon.toFixed(5), lat.toFixed(5)];
+            const observationFeature = createObservationFeatures(observation, lonLat);
             features.push(observationFeature);
         }
 
-        for (var j in features)
-        {
-            features[j].setStyle(mapstyles.observationFeatureStyle);
+        for (const feature of features) {
+            feature.setStyle(mapstyles.observationFeatureStyle);
         }
 
-        var source = new ol.source.Vector({
+        const source = new OLSourceVector({
             features: features
         });
 
-        var layer = new ol.layer.Vector({
+        const layer = new OLLayerVector({
             source: source
         });
 
@@ -86,6 +103,7 @@ var ObservationMap = {
         console.log('createObservationsFeatureLayer()', 'END');
         return layer;
     },
+
     addContourTileLayer: function(geojsonUrl, onFinish) {
 
         if (this.urlsLoaded.indexOf(geojsonUrl) > -1) {
@@ -95,60 +113,59 @@ var ObservationMap = {
 
         this.urlsLoaded.push(geojsonUrl);
         console.log('create contour layer for geojson_url', geojsonUrl);
-        var replacer = function(key, value) {
-            if (value.geometry) {
-                var type;
-                var rawType = value.type;
-                var geometry = value.geometry;
-
-                if (rawType === 1) {
-                    type = geometry.length === 1 ? 'Point' : 'MultiPoint';
-                } else if (rawType === 2) {
-                    type = geometry.length === 1 ? 'LineString' : 'MultiLineString';
-                } else if (rawType === 3) {
-                    type = geometry.length === 1 ? 'Polygon' : 'MultiPolygon';
-                }
-
-                return {
-                    'type': 'Feature',
-                    'geometry': {
-                        'type': 'MultiLineString',
-                        'coordinates': geometry,
-                    },
-                    'properties': value.tags
-                };
-            } else {
+        let replacer = function(key, value) {
+            if (!value.geometry) {
                 return value;
             }
+            let type;
+            const rawType = value.type;
+            const geometry = value.geometry;
+
+            if (rawType === 1) {
+                type = geometry.length === 1 ? 'Point' : 'MultiPoint';
+            } else if (rawType === 2) {
+                type = geometry.length === 1 ? 'LineString' : 'MultiLineString';
+            } else if (rawType === 3) {
+                type = geometry.length === 1 ? 'Polygon' : 'MultiPolygon';
+            }
+
+            return {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'MultiLineString',
+                    'coordinates': geometry,
+                },
+                'properties': value.tags
+            };
         };
 
-        var tilePixels = new ol.proj.Projection({
+        let tilePixels = new OLProjection({
             code: 'TILE_PIXELS',
             units: 'tile-pixels'
         });
 
-        var mapCache = this.map;  // TODO: remove this and fix in a nice way
+        const mapCache = this.map;  // TODO: remove this and fix in a nice way
 
         return fetch(geojsonUrl).then(function(response) {
             return response.json();
         }).then(function(json) {
 
-            var tileIndex = geojsonvt(json, {
+            const tileIndex = geojsonvt(json, {
                 extent: 4096,
                 debug: 1,
                 indexMaxPoints: 500000
             });
 
-            var vectorSource = new ol.source.VectorTile({
-                format: new ol.format.GeoJSON(),
-                tileGrid: ol.tilegrid.createXYZ(),
+            let vectorSource = new OLSourceVectorTile({
+                format: new OLGeoJSON(),
+                tileGrid: oltilegrid.createXYZ(),
                 tilePixelRatio: 16,
                 tileLoadFunction: function(tile) {
-                    var format = tile.getFormat();
-                    var tileCoord = tile.getTileCoord();
-                    var data = tileIndex.getTile(tileCoord[0], tileCoord[1], -tileCoord[2] - 1);
+                    const format = tile.getFormat();
+                    const tileCoord = tile.getTileCoord();
+                    const data = tileIndex.getTile(tileCoord[0], tileCoord[1], -tileCoord[2] - 1);
 
-                    var features = format.readFeatures(
+                    const features = format.readFeatures(
                         JSON.stringify({
                             type: 'FeatureCollection',
                             features: data ? data.features : []
@@ -162,12 +179,12 @@ var ObservationMap = {
             });
 
             function lineStyleFunction(feature, resolution) {
-                var strokeWidth = feature.get('stroke-width');
-                var zoom = mapCache.getView().getZoom();
-                var lineWidth = strokeWidth/3.0;
-                var value = feature.get('level-value');
-                var levelNr = 1 + feature.get('level-index');
-                var zoomFactor = Math.pow(zoom, 1.0)/50.0;
+                const strokeWidth = feature.get('stroke-width');
+                const zoom = mapCache.getView().getZoom();
+                const lineWidth = strokeWidth/3.0;
+                const value = feature.get('level-value');
+                const levelNr = 1 + feature.get('level-index');
+                let zoomFactor = Math.pow(zoom, 1.0)/50.0;
 
                 zoomFactor *= Math.pow(levelNr, 0.75);
                 if (levelNr % 3 === 0) {
@@ -177,16 +194,15 @@ var ObservationMap = {
                     zoomFactor *= 1.5;
                 }
 
-                var lineStyle = new ol.style.Style({
-                    stroke: new ol.style.Stroke({
+                return new OLStyle({
+                    stroke: new OLStroke({
                         color: feature.get('stroke'),
                         width: lineWidth * zoomFactor,
                     })
                 });
-                return lineStyle;
             }
 
-            var vectorLayer = new ol.layer.VectorTile({
+            const vectorLayer = new OLLayerVectorTile({
                 source: vectorSource,
                 style: lineStyleFunction,
                 updateWhileInteracting: false,
@@ -196,20 +212,13 @@ var ObservationMap = {
             });
 
             mapCache.addLayer(vectorLayer);
-            contourLayer = vectorLayer;
             vectorLayer.setVisible(true);
-            onFinish(contourLayer);
+            onFinish(vectorLayer);
         });
     },
-}
-
-
-function createObservationMap() {
-    var observationMap = Object.create(ObservationMap).ObservationMap();
-    return observationMap
-}
-
-
-module.exports = {
-    createObservationMap: createObservationMap,
 };
+
+
+export function createObservationMap() {
+    return Object.create(ObservationMap).ObservationMap();
+}

@@ -1,19 +1,20 @@
-var observationmap = require("./observationmap.js");
 var sidebar = require("./sidebar.js");
+var observationmap = require("./observationmap");
+import OLSelect from "ol/interaction/select";
 
 
-var DATA_DIR = "/static/waarnemingkaart-data/";
-var OBSERVATIONS_LAYER_ZOOM = 11;
+const DATA_DIR = "/static/waarnemingkaart-data/";
+const OBSERVATIONS_LAYER_ZOOM = 11;
 
-var observationsLayer = null;
-var contourLayers = {
+let observationsLayer = null;
+const contourLayers = {
     high: null,
     low: null
 };
 
-var filepaths = null;
-var contourmap = null;
-var changeLayersOnZoom = true;
+let filepaths = null;
+let contourmap = null;
+let changeLayersOnZoom = true;
 
 $(window).ready(initialize);
 
@@ -93,13 +94,13 @@ function onPointerMapMove(evt) {
     displayFeatureInfo(contourmap.map.getEventPixel(evt.originalEvent));
 
     function displayFeatureInfo(pixel) {
-        var info = $('#info');
+        let info = $('#info');
         info.css({
             left: (pixel[0] + 10) + 'px',
             top: (pixel[1] - 50) + 'px'
         });
 
-        var feature = contourmap.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
+        let feature = contourmap.map.forEachFeatureAtPixel(pixel, function(feature, layer) {
             if (layer === observationsLayer) {
                 return feature;
             }
@@ -107,7 +108,7 @@ function onPointerMapMove(evt) {
         });
 
         if (feature) {
-            var tooltipText = feature.get('title');
+            let tooltipText = feature.get('title');
             if (tooltipText !== '') {
                 info.text(tooltipText);
                 info.show();
@@ -117,7 +118,7 @@ function onPointerMapMove(evt) {
         } else {
             info.hide();
         }
-    };
+    }
 }
 
 
@@ -151,7 +152,7 @@ function showContourLayer(type) {
         if (contourLayers[type]) {
             contourLayers[type].setVisible(true);
         }
-        for (var key in contourLayers) {
+        for (let key in contourLayers) {
             if (key !== type && contourLayers[key]) {
                 contourLayers[key].setVisible(false);
             }
@@ -161,7 +162,7 @@ function showContourLayer(type) {
 
 
 function updateOnZoom(event) {
-    var zoom = contourmap.map.getView().getZoom();
+    const zoom = contourmap.map.getView().getZoom();
 
     showObservationsLayerForZoom();
     showLayerForZoom();
@@ -183,7 +184,7 @@ function updateOnZoom(event) {
     }
 
     function showObservationsLayerForZoom() {
-        var observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
+        const observationsVisible = zoom > OBSERVATIONS_LAYER_ZOOM;
         if (observationsVisible && !observationsLayer) {
             createObservationsLayer();
         }
@@ -194,6 +195,7 @@ function updateOnZoom(event) {
         function createObservationsLayer() {
             $.getJSON(filepaths.observations, function(json) {
                 if (json.observations.length < 50000) {
+                    console.log('observations', json);
                     observationsLayer = contourmap.createObservationsFeatureLayer(json.observations);
                 } else {
                     console.log('WARNING: too many observations to show');
@@ -205,8 +207,8 @@ function updateOnZoom(event) {
 
 
 function updateLayersOnButtonClick(event) {
-    var layerInputElement = $('input[name=layers]:checked');
-    var layerSelected = layerInputElement.val();
+    const layerInputElement = $('input[name=layers]:checked');
+    const layerSelected = layerInputElement.val();
     $('input[name=layers]').parent().removeClass('active');
     layerInputElement.parent().addClass('active');
     if (layerSelected === "high") {
@@ -226,7 +228,7 @@ function setEventHandlers() {
 
     $(".sidebar-toggle").bind("click", function(e) {
         setTimeout(function() { contourmap.map.updateSize();}, 600);
-    })
+    });
 
     $(".btn-group-layers").bind("change", updateLayersOnButtonClick);
 
@@ -235,10 +237,10 @@ function setEventHandlers() {
 
 
 function exportMapToImage(event) {
-    var opacityBefore = contourmap.osmLayer.getOpacity();
+    const opacityBefore = contourmap.osmLayer.getOpacity();
     contourmap.osmLayer.setOpacity(1.0);
     contourmap.map.once('postcompose', function(event) {
-        var canvas = event.context.canvas;
+        const canvas = event.context.canvas;
         if (navigator.msSaveBlob) {
             navigator.msSaveBlob(canvas.msToBlob(), 'map.png');
         } else {
@@ -253,10 +255,10 @@ function exportMapToImage(event) {
 
 
 function createFeatureClickInteraction() {
-    var select_interaction = new ol.interaction.Select();
+    const select_interaction = new OLSelect();
     select_interaction.getFeatures().on("add", function (e) {
-         var feature = e.element;
-         var url = feature.get('waarneming_url');
+         const feature = e.element;
+         const url = feature.get('waarneming_url');
          if (url) {
             window.open(feature.get('waarneming_url'), '_blank');
          }
@@ -274,7 +276,3 @@ $.ajaxSetup({
     }
 });
 
-
-module.exports = {
-    updateFamilySpeciesPanel: sidebar.updateFamilySpeciesPanel,
-};

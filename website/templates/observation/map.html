@@ -28,13 +28,13 @@
       $(document).ready(function() {
         // Bind on family field change
         $(':input[name$=family]').on('change', function() {
-          var prefix = $(this).getFormPrefix();
+          const prefix = $(this).getFormPrefix();
           $(':input[name=' + prefix + 'species]').val(null).trigger('change');
         });
       });
 
       $("select[name$=family]").on('change', function() {
-        var selectedFamilySlug = $(this).find(":selected").val();
+        const selectedFamilySlug = $(this).find(":selected").val();
         $("#single-species-sidebar-panel").hide();
         console.log(selectedFamilySlug);
         if (selectedFamilySlug === "") {
@@ -88,7 +88,7 @@
   <div id="info"></div>
 </div>
 
-<script src="{% static 'dist/main.js' %}"></script>
+<script src="{% static 'dist/main.js' %}?v2"></script>
 {{ filter.form.media }}
 
 {% endblock %}

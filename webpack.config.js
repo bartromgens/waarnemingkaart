@@ -9,7 +9,7 @@ module.exports = {
     context: __dirname,
     entry: {
         main: ["./website/js/main.js"],
-        css: ["./website/css/custom.css", "./website/css/simple-sidebar.css"],
+        css: ["./website/css/custom.css", "./website/css/simple-sidebar.css", "./node_modules/ol/ol.css"],
     },
     output: {
         library: ["WaKa"],
@@ -18,17 +18,6 @@ module.exports = {
         filename: "[name].js"
     },
     module: {
-        loaders: [
-            {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: "babel-loader",
-                query: {
-                    presets: ['es2015'],
-                    compact: false // because I want readable output
-                }
-            }
-        ],
         rules: [
             {
                 test: /\.css$/,
