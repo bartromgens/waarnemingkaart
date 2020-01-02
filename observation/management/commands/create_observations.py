@@ -22,8 +22,6 @@ class Command(BaseCommand):
         date_start = dateparser.parse(date_start_str).date()
         date_end = dateparser.parse(date_end_str).date()
         date = date_start
-        print(date_start)
-        print(date_end)
         while date <= date_end:
             for group_id in scraper.GROUP_IDS:
                 observations = create_observations_for_date(group_id=group_id, date=date, max_n=max_n)

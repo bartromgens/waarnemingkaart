@@ -65,49 +65,39 @@ pp = pprint.PrettyPrinter(indent=4)
 
 
 def get_observation_urls_for_date(group_id, date, max_n=None):
-    observation_list_urls = get_observation_list_urls(group_id, date)
-    observation_urls = []
-    for list_url in observation_list_urls:
-        observation_urls += get_observation_urls_from_list_page(list_url)
-        if max_n and len(observation_urls) >= max_n:
-            break
+    observation_urls = get_observation_urls(group_id, date, max_n)
     if max_n:
         return observation_urls[:max_n]
     return observation_urls
 
 
-def get_observation_list_urls(group_id, date):
-    page_url = WAARNEMINGEN_URL + '/waarnemingen_v7.php'
-    args = {
-        'groep': str(group_id),
-        'datum': date.isoformat()
-    }
-    response = requests.get(page_url, args)
-    tree = lxml.html.fromstring(response.content)
-    table_columns = tree.xpath('//table[@class="paginator list nolistify"]/tr/td/a')
-    observation_list_urls = set()
-    for row in table_columns:
-        observed_species_url = WAARNEMINGEN_URL + row.get('href')
-        if '/soort/view/' in observed_species_url:
-            # print(observed_species_url)
-            observation_list_urls.add(observed_species_url)
-    logger.info(str(len(observation_list_urls)) + ' species found on ' + date.isoformat() + ' for url: ' + str(response.url))
-    return list(observation_list_urls)
-
-
-def get_observation_urls_from_list_page(url):
-    start = time.time()
-    response = requests.get(url)
-    response_time = time.time() - start
-    tree = lxml.html.fromstring(response.content)
-    table_columns = tree.xpath('//table[@class="paginator list nolistify"]/tr/td/a')
+def get_observation_urls(group_id, date, max_n=None):
+    page_url = WAARNEMINGEN_URL + '/fieldwork/observations'
     observation_urls = set()
-    for row in table_columns:
-        observation_url = WAARNEMINGEN_URL + row.get('href')
-        if '/waarneming/view/' in observation_url:
-            # print(observation_url)
-            observation_urls.add(observation_url)
-    logger.info('\t response time: ' + str(response_time) + ' - ' + str(len(observation_urls)) + ' observations found for url: ' + str(response.url))
+    success = True
+    page = 1
+    while success:
+        logger.info('get page: {}'.format(page))
+        args = {
+            'species_group': str(group_id),
+            'after_date': date.isoformat(),
+            'before_date': date.isoformat(),
+            'page': str(page),
+        }
+        response = requests.get(page_url, args)
+        success = response.status_code == 200
+        if not success:
+            break
+        page += 1
+        tree = lxml.html.fromstring(response.content)
+        table_columns = tree.xpath('//table[@class="table table-bordered table-striped"]/tbody/tr/td/a')
+        for row in table_columns:
+            observation_url = WAARNEMINGEN_URL + row.get('href')
+            if '/observation/' in observation_url:
+                observation_urls.add(observation_url)
+        if max_n and len(observation_urls) >= max_n:
+            break
+    logger.info(str(len(observation_urls)) + ' species found on ' + date.isoformat() + ' for url: ' + str(response.url))
     return list(observation_urls)
 
 
@@ -132,7 +122,9 @@ class ObservationScraper(object):
 
     def create(self):
         self.html = self.get_html()
+        logger.info('html: {}'.format(self.html))
         self.parse()
+        logger.info('data: {}'.format(self.data))
         return self.data
 
     def get_html(self):
@@ -153,39 +145,38 @@ class ObservationScraper(object):
         self.coordinates = self.parse_coordinates()
 
     def parse_coordinates(self):
-        refs = self.html.xpath('//@href')
+        refs = self.html.xpath('//span [@class="teramap-coordinates-coords"]')
         for ref in refs:
-            if 'https://maps.google.com/maps' in ref:
-                match = re.search("[0-9\.]+,[0-9\.]+", ref)
-                if match:
-                    gps_coordinates_str = match.group().split(',')
-                    coordinates = {
-                        'lat': float(gps_coordinates_str[0]),
-                        'lon': float(gps_coordinates_str[1]),
-                    }
-                    return coordinates
+            match = re.search("[0-9.]+, [0-9.]+", ref.text.strip())
+            if match:
+                gps_coordinates_str = match.group().split(',')
+                coordinates = {
+                    'lat': float(gps_coordinates_str[0]),
+                    'lon': float(gps_coordinates_str[1]),
+                }
+                return coordinates
         return {}
 
     def parse_name(self):
-        header_links = self.html.xpath('//h1/a')
-        for link in header_links:
-            if 'soort/view/' in link.get('href'):
-                name_latin = link.getchildren()[0].text.strip()
-                if link.text:
-                    name = link.text.replace('-', '').strip()
-                else:
-                    name = name_latin
-                return name, name_latin
-        return '', ''
+        common_names = self.html.xpath('//h1/a/span[@class="species-common-name"]')
+        name = ''
+        if common_names:
+            name = common_names[0].text.strip()
+            name = name.replace('-', '').strip()
+        latin_names = self.html.xpath('//h1/small/i[@class="species-scientific-name"]')
+        name_latin = ''
+        if latin_names:
+            name_latin = latin_names[0].text.strip()
+        return name, name_latin
 
     def parse_family(self):
-        main_info_links = self.html.xpath('//div[@class="content"]/p/a')
+        main_info_links = self.html.xpath('//div[@class="app-content-subtitle"]/div/a')
         for link in main_info_links:
-            if 'familie/view/' in link.get('href'):
+            if 'taxa' in link.get('href'):
                 family_full = link.text.strip()
                 match = re.search(r"(.+)\s\((.+)\)", family_full)
                 if match is None:
-                    logger.warning('WARNING: latin name not found in: ' + family_full)
+                    logger.warning('latin name not found in: ' + family_full)
                     return family_full, family_full
                 family = match.groups()[0]
                 family_latin = match.groups()[1]
@@ -193,48 +184,50 @@ class ObservationScraper(object):
         return '', ''
 
     def parse_group(self):
-        main_info_spans = self.html.xpath('//div[@class="content"]/p/span')
+        main_info_spans = self.html.xpath('//div[@class="app-content-subtitle"]/div/span[@class="label label-success"]')
         for span in main_info_spans:
-            if 'Soortgroep:' in span.text:
-                species = span.tail.strip()
-                return species
+            return span.text.strip()
         return ''
 
     def parse_info_table(self):
-        table_cells = self.html.xpath('//table[@class="form"]/tr/td')
+        table_rows = self.html.xpath('//table[@class="table table-condensed"]/tr')
         timezone_amsterdam = pytz.timezone('Europe/Amsterdam')
         datetime_observation = None
         observer_name = ''
         observer_url = ''
         number = 0
-        for cell in table_cells:
-            if not cell.text:
+        for row in table_rows:
+            ths = row.xpath('th')
+            tds = row.xpath('td')
+            if not ths or not tds:
+                logger.warning('could not find info table on page: {}'.format(self.url))
                 continue
-            if 'Datum' in cell.text:
-                datetime_str = cell.getnext().text
-                if 'Vervaagd' in datetime_str:
-                    continue
-                # datetime_obj = datetime.datetime.strptime(datetime_str, "%Y-%m-%d %H:%M")  # 2017-09-01 09:15
+            th = ths[0]
+            td = tds[0]
+            th_text = th.text.strip() if th.text else ''
+            td_text = td.text.strip() if td.text else ''
+            if 'datum' in th_text:
+                datetime_str = td_text
                 datetime_obj = dateparser.parse(datetime_str)
                 if datetime_obj is None:
-                    logger.warning('WARNING: datetime not found')
+                    logger.warning('datetime not found')
                 ams_dt = timezone_amsterdam.localize(datetime_obj)
                 datetime_utc_tzaware = ams_dt.astimezone(pytz.utc)
                 datetime_observation = datetime_utc_tzaware
-            if 'Aantal' in cell.text:
-                number_str = cell.getnext().text
+            if 'aantal' in th_text:
+                number_str = td_text
                 match = re.search(r"(\d+)", number_str)
                 number = int(match.groups()[0].strip())
-            if 'Waarnemer' in cell.text:
-                links = cell.getnext().xpath('a')
-                if len(links) > 1:
-                    observer_name = cell.getnext().xpath('a')[1].text
-                    observer_url = 'https://waarneming.nl' + cell.getnext().xpath('a')[1].get('href')
+            if 'waarnemer' in th_text:
+                links = td.xpath('a')
+                if links:
+                    observer_name = td.xpath('a')[0].text.strip()
+                    observer_url = 'https://waarneming.nl' + td.xpath('a')[0].get('href')
         return datetime_observation, number, observer_name, observer_url
 
     @property
     def data(self):
-        data = {
+        return {
             'url': self.url,
             'name': self.name,
             'name_latin': self.name_latin,
@@ -247,7 +240,3 @@ class ObservationScraper(object):
             'observer_name': self.observer_name,
             'observer_url': self.observer_url,
         }
-        return data
-
-    def to_json(self):
-        return json.dump(self.data)

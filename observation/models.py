@@ -122,7 +122,7 @@ class Observer(models.Model):
 
     @staticmethod
     def create_id_from_url(url):
-        return int(url.split('/')[-1])
+        return int(url.split('/')[-2])
 
     @cached_property
     def n_observations(self):
@@ -150,7 +150,7 @@ class Observation(models.Model):
     @property
     def id_from_waarneming_url(self):
         if self.waarneming_url:
-            new_id = self.waarneming_url.split('/')[-1]
+            new_id = self.waarneming_url.split('/')[-2]
             return int(new_id)
         else:
             return self.id
