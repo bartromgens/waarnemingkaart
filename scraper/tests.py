@@ -13,13 +13,9 @@ class TestObservationListScraper(TestCase):
 
     def test_scrape_observations(self):
         date = datetime.date(year=2017, month=9, day=1)
-        observation_list_urls = scraper.get_observation_list_urls(scraper.VOGELS_ID, date, max_n=2)
-        observation_urls_species = scraper.get_observation_urls_from_list_page(observation_list_urls[0])
-        print(observation_urls_species)
-        observation_urls_species = scraper.get_observation_urls_from_list_page(observation_list_urls[20])
-        print(observation_urls_species)
-        observation_urls_species = scraper.get_observation_urls_from_list_page(observation_list_urls[40])
-        print(observation_urls_species)
+        max_n = 2
+        observation_urls = scraper.get_observation_urls(scraper.VOGELS_ID, date, max_n=max_n)
+        print(observation_urls)
 
 
 class TestObservationScraper(TestCase):
