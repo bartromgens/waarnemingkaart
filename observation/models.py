@@ -101,7 +101,7 @@ class Coordinates(models.Model):
 
 class Observer(models.Model):
     name = models.CharField(max_length=2000, blank=True, default='')
-    waarneming_user_url = models.URLField(max_length=1000, null=False, blank=True, default='', db_index=True)
+    waarneming_user_url = models.URLField(unique=True, max_length=1000, null=False, blank=True, default='', db_index=True)
 
     class Meta:
         ordering = ['name']
@@ -116,10 +116,13 @@ class Observer(models.Model):
     @property
     def id_from_waarneming_user_url(self):
         if self.waarneming_user_url:
-            new_id = self.waarneming_user_url.split('/')[-1]
-            return int(new_id)
+            return Observer.create_id_from_url(self.waarneming_user_url)
         else:
             return self.id
+
+    @staticmethod
+    def create_id_from_url(url):
+        return int(url.split('/')[-2])
 
     @cached_property
     def n_observations(self):
@@ -147,7 +150,7 @@ class Observation(models.Model):
     @property
     def id_from_waarneming_url(self):
         if self.waarneming_url:
-            new_id = self.waarneming_url.split('/')[-1]
+            new_id = self.waarneming_url.split('/')[-2]
             return int(new_id)
         else:
             return self.id

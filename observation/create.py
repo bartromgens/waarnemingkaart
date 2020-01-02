@@ -10,20 +10,21 @@ from observation.models import Group
 from observation.models import Family
 from observation.models import Species
 
-# from scraper.scraper import ObservationScraper
-# from scraper.scraper import get_observation_urls_for_date
+from scraper.scraper import ObservationScraper
+from scraper.scraper import get_observation_urls_for_date
 
 logger = logging.getLogger(__name__)
 
 
 def create_observations_for_date(group_id, date, max_n=None):
-    logger.info('BEGIN: ' + str(date))
+    logger.info('BEGIN: {}'.format(date))
     observations = []
     observation_urls = get_observation_urls_for_date(group_id=group_id, date=date, max_n=max_n)
+    logger.info('observations found: {}'.format(len(observation_urls)))
     for url in observation_urls:
         existing_observations = Observation.objects.filter(waarneming_url=url)
         if existing_observations.exists():
-            logger.warning('WARNING: observation already exists, skipping!')
+            logger.warning('observation already exists, skipping!')
             continue
         observation = ObservationFactory(url).create()
         observations.append(observation)
@@ -68,7 +69,7 @@ class ObservationFactory(object):
             waarneming_url=self.url,
             observer=observer
         )
-        logger.info('END - time: ' + str(time.time() - start))
+        logger.info('END - time: {} ms'.format(int((time.time() - start) * 1000)))
         return observation_new
 
     @staticmethod
@@ -146,6 +147,9 @@ class ObservationFactory(object):
 
     @staticmethod
     def get_or_create_observer(data):
+        observers = Observer.objects.filter(id=Observer.create_id_from_url(data['observer_url']))
+        if observers:
+            return observers[0]
         observer, created = Observer.objects.get_or_create(
             name=data['observer_name'],
             waarneming_user_url=data['observer_url']
