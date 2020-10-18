@@ -25,14 +25,14 @@ import OLLayerVectorTile from "ol/layer/vectortile";
 
 // TILE SOURCES
 //    osmSource.setUrl("http://a.tile.opencyclemap.org/transport/{z}/{x}/{y}.png");  // needs an API key
-//    osmSource.setUrl("https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png?apikey=52962bab91de4e789491bc1f5ed4956e");
+//    osmSource.setUrl("https://a.tile.thunderforest.com/landscape/{z}/{x}/{y}.png");
 //    osmSource.setUrl("https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png");
 //    osmSource.setUrl("http://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png");
 //    osmSource.setUrl("https://a.tile.openstreetmap.org/{z}/{x}/{y}.png");
 //    osmSource.setUrl("https://tiles.wmflabs.org/bw-mapnik/{z}/{x}/{y}.png");
 
 
-const TILE_URL = "https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png";
+const TILE_URL = "https://a.tile.openstreetmap.org/{z}/{x}/{y}.png";
 const ZOOM_INITIAL = 8;
 
 
