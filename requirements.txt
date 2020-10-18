@@ -19,5 +19,5 @@ dateparser==0.7.2
 djangorestframework==3.9.1
 plotly==2.0.14
 psycopg2-binary==2.8.4
-django-debug-toolbar
+django-debug-toolbar==1.11
 pybind11
