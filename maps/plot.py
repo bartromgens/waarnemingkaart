@@ -63,6 +63,9 @@ def create_map(observations, config, data_dir, name):
 
 
 def create_map_for_species(observations, config, data_dir, species, highlight_map):
+    if not observations:
+        logger.warning('no observations for {}'.format(species.slug))
+        return
     Z = create_map(observations, config, data_dir, species.slug)
     z_level = Z[0]
     dens_avg = z_level.mean()
